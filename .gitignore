@@ -3,14 +3,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# JetBrains
-.idea/
-
 # Venv
 venv/
 
-# macos
-.DS_Store
+# SQLite
+flask_boilerplate_*.db
 
 # Testing
 .pytest_cache/
+
+# JetBrains
+.idea/
+
+# macos
+.DS_Store

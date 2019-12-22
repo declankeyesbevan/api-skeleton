@@ -23,11 +23,11 @@ before_script:
   - python -m venv venv
   - source venv/bin/activate
   - pip install --upgrade pip
-  - pip install pytest
+  - pip install -r requirements.txt
 
 test:
   script:
-    - python -m pytest
+    - python manage.py test
 
 # run:
 #   script:
