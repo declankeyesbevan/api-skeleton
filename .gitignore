@@ -7,7 +7,7 @@ __pycache__/
 .idea/
 
 # Venv
-env/
+venv/
 
 # macos
 .DS_Store
