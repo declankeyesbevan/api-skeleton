@@ -19,6 +19,7 @@ migrate = Migrate(app, db)
 
 manager.add_command('db', MigrateCommand)
 
+# FIXME: this is a crap solution
 # To allow migration to find models these are imported but not called. Print them so they aren't
 # unused imports which get auto-removed.
 print(blacklist)
