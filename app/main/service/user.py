@@ -32,15 +32,15 @@ def get_a_user(public_id):
 
 def generate_token(user):
     try:
-        # generate the auth token
         auth_token = user.encode_auth_token(user.id)
         response_object = dict(
             status='success',
             message='Successfully registered.',
+            public_id=user.public_id,
             Authorization=auth_token.decode(),
         )
     except Exception:
-        response_object = dict(status='fail', message='Some error occurred. Please try again.')
+        response_object = dict(status='fail', message='An error occurred. Please try again.')
         return response_object, 401
     else:
         return response_object, 201

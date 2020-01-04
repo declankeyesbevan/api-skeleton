@@ -8,7 +8,7 @@ from app.main.model.blacklist import BlacklistToken
 
 
 class User(db.Model):
-    """User Model for storing user related details"""
+    """User Model for storing user related details."""
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -30,26 +30,15 @@ class User(db.Model):
     def check_password(self, password):
         return flask_bcrypt.check_password_hash(self.password_hash, password)
 
-    def __repr__(self):
-        return f"<User '{self.username}'>"
-
     @classmethod
     def encode_auth_token(cls, user_id):
-        """
-        Generates the Auth Token
-        :return: string
-        """
+        """Generates an Auth Token."""
+        time_now = datetime.datetime.utcnow()
         payload = dict(
-            exp=datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=5),
-            iat=datetime.datetime.utcnow(),
-            sub=user_id
+            exp=time_now + datetime.timedelta(days=1, seconds=5), iat=time_now, sub=user_id
         )
         try:
-            enc = jwt.encode(
-                payload,
-                key,
-                algorithm='HS256'
-            )
+            enc = jwt.encode(payload, key, algorithm='HS256')
         except Exception as exc:
             return exc
         else:
@@ -57,11 +46,7 @@ class User(db.Model):
 
     @classmethod
     def decode_auth_token(cls, auth_token):
-        """
-        Decodes the auth token
-        :param auth_token:
-        :return: integer|string
-        """
+        """Decodes an auth token."""
         try:
             payload = jwt.decode(auth_token, key)
         except jwt.ExpiredSignatureError:

@@ -7,22 +7,22 @@ common = dict(
 
 
 class UserDto:
-    api = Namespace('user', description='user related operations')
+    api = Namespace('user', description='User related operations')
     user = api.model(
         'user',
         dict(
             email=common.get('email'),
-            username=fields.String(required=True, description='User username'),
             password=common.get('password'),
+            username=fields.String(required=True, description='User username'),
             public_id=fields.String(description='User identifier'),
         )
     )
 
 
 class AuthDto:
-    api = Namespace('auth', description='authentication related operations')
-    user_auth = api.model(
-        'auth_details',
+    api = Namespace('auth', description='Authentication related operations')
+    auth = api.model(
+        'auth',
         dict(
             email=common.get('email'),
             password=common.get('password'),

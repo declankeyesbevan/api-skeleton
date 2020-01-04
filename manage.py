@@ -1,15 +1,14 @@
 import os
+import subprocess
 
-import pytest
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-from pytest import ExitCode
 
 from app import blueprint
 from app.main import create_app, db
 from app.main.model import blacklist, user
 
-app = create_app(os.getenv('BOILERPLATE_ENV') or 'dev')
+app = create_app(os.getenv('APP_ENV') or 'dev')
 app.register_blueprint(blueprint)
 
 app.app_context().push()
@@ -33,9 +32,11 @@ def run():
 
 @manager.command
 def test():
-    """Runs the unit tests."""
-    result = pytest.main(['tests', '--cov-report', 'term-missing', '--cov=app'])
-    return 0 if result == ExitCode.OK else 1
+    """Runs the automated tests."""
+    # FIXME: would prefer to use pytest.main(['tests']) but there is a known bug in pytest
+    # https://github.com/pytest-dev/pytest/issues/1357
+    result = subprocess.run(['pytest', 'tests'])
+    return result.returncode
 
 
 if __name__ == '__main__':

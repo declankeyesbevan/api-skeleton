@@ -7,7 +7,7 @@ __pycache__/
 venv/
 
 # SQLite
-flask_boilerplate_*.db
+*.db
 
 # Testing
 .pytest_cache/
