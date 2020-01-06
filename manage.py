@@ -38,7 +38,7 @@ def test():
     # https://github.com/pytest-dev/pytest/issues/1357
     # TODO: change to CLI argument instead once Flask Script replaced with Click
     if os.environ.get('INTEGRATION'):
-        result = subprocess.run(['pytest', 'tests/integration'])
+        result = subprocess.run(['pytest', 'tests/integration', '--no-cov'])
     else:
         result = subprocess.run(['pytest', 'tests/unit', 'tests/component'])
     return result.returncode

@@ -19,19 +19,11 @@ image: python:latest
 #     - venv/
 
 before_script:
-  - python -V  # Print out python version for debugging
-  - python -m venv venv
-  - source venv/bin/activate
-  - pip install --upgrade pip
-  - pip install -r requirements.txt
-  - pip install -r tests/test-requirements.txt
-  - set -a
-  - . tests/test.conf
-  - set +a
+  - chmod a+x run.bash
 
 test:
   script:
-    - python manage.py test
+    - ./run.bash test
 
 # run:
 #   script:
