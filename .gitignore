@@ -9,9 +9,6 @@ venv/
 # SQLite
 *.db
 
-# Postgres
-database.conf
-
 # Testing
 .pytest_cache/
 .coverage

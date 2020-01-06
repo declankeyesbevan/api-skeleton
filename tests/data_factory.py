@@ -1,6 +1,7 @@
 import datetime
 import random
 
+from app.main.model.blacklist import BlacklistToken
 from app.main.model.user import User
 
 
@@ -17,6 +18,12 @@ def user_model(user_data):
         email=user_data.get('email'),
         password=user_data.get('password'),
         registered_on=datetime.datetime.utcnow()
+    )
+
+
+def blacklist_token_model(user_obj):
+    return BlacklistToken(
+        token=user_obj.encode_auth_token(user_obj.id)
     )
 
 

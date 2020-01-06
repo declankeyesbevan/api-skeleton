@@ -3,7 +3,7 @@ import pytest
 from app.main import db
 from manage import app
 from tests.data_factory import user_attributes, user_model
-from tests.helpers import register_user
+from tests.helpers import register_user, set_up_database, tear_down_database, add_to_database
 
 NUM_USERS = 3
 
@@ -11,17 +11,15 @@ NUM_USERS = 3
 @pytest.fixture(scope='function')
 def client():
     """Stub Flask client for component testing."""
-    app.config.from_object('app.main.config.TestingConfig')
+    app.config.from_object('app.config.TestingConfig')
     return app.test_client()
 
 
 @pytest.fixture(scope='function')
 def database():
-    db.create_all()
-    db.session.commit()
+    set_up_database(db)
     yield
-    db.session.remove()
-    db.drop_all()
+    tear_down_database(db)
 
 
 @pytest.fixture(scope='function')
@@ -56,8 +54,8 @@ def registered_users(client, user_data, number_of_users):
 
 @pytest.fixture(scope='function')
 def database_user(user_obj):
-    db.session.add(user_obj)
-    db.session.commit()
+    add_to_database(db, user_obj)
+    return user_obj
 
 
 @pytest.fixture(scope='function')

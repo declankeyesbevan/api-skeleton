@@ -3,7 +3,7 @@ import datetime
 import jwt
 
 from app.main import db, flask_bcrypt
-from app.main.config import key
+from app.config import key
 from app.main.model.blacklist import BlacklistToken
 
 

@@ -1,6 +1,21 @@
 import json
 
 
+def set_up_database(db):
+    db.create_all()
+    db.session.commit()
+
+
+def add_to_database(db, db_object):
+    db.session.add(db_object)
+    db.session.commit()
+
+
+def tear_down_database(db):
+    db.session.remove()
+    db.drop_all()
+
+
 def client_get(client, url, headers=None):
     return client.get(
         url,

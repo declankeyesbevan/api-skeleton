@@ -27,6 +27,7 @@ def test_user_logout(client, user_data):
         log_out_user(client, headers)
 
         headers['Authorization'] = f"Bearer {random_text()}"
-        log_out_user(client, headers, expected=401)
-
-        log_out_user(client, None, expected=403)
+        test_headers = [headers, None]
+        expected = [401, 403]
+        for idx, header in enumerate(test_headers):
+            log_out_user(client, header, expected=expected[idx])
