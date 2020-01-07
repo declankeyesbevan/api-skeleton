@@ -1,40 +1,17 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-
-class Database:
-    connection_string = None
-
-
-class SQLite(Database):
-    connection_string = 'sqlite:///{}'
-
-
-class SQLiteFile(SQLite):
-    connection_string = SQLite.connection_string.format(
-        os.path.join(basedir, 'api-skeleton-dev.db')
-    )
-
-
-class SQLiteMemory(SQLite):
-    connection_string = SQLite.connection_string.format(':memory:')
-
-
-class Postgres(Database):
-    user = os.environ.get('POSTGRES_USER')
-    password = os.environ.get('POSTGRES_PASSWORD')
-    host = os.environ.get('POSTGRES_HOST')
-    port = os.environ.get('POSTGRES_PORT')
-    database = os.environ.get('POSTGRES_DB')
-
-    connection_string = f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
+from app.database import SQLiteFile, SQLiteMemory, Postgres
 
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    # It's yuck setting the SQLALCHEMY_DATABASE_URI in each sub-class but "some of those cannot be
+    # modified after the engine was created so make sure to configure as early as possible and to
+    # not modify them at runtime"
+    # Ref: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
+
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     if SECRET_KEY is None:
-        raise ValueError
+        raise ValueError('Secret key has not been set')
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -42,19 +19,20 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = SQLiteFile.connection_string
+    DEFAULT = SQLiteFile().connection_string
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = (
-        Postgres.connection_string if os.environ.get('INTEGRATION') else
-        SQLiteMemory.connection_string
-    )
+    INTEGRATED = os.environ.get('INTEGRATION')
+    DEFAULT = Postgres().connection_string if INTEGRATED else SQLiteMemory().connection_string
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = Postgres.connection_string
+    DEFAULT = Postgres().connection_string
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
 
 
 config_by_name = dict(

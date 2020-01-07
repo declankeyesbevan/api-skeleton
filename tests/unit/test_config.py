@@ -2,7 +2,9 @@ import os
 
 import pytest
 
-from app.config import DevelopmentConfig, ProductionConfig, TestingConfig, basedir
+from app.config import DevelopmentConfig, ProductionConfig, TestingConfig
+from app.database import basedir
+
 
 sqlite_file_uri = f'sqlite:///{os.path.join(basedir, "api-skeleton-dev.db")}'
 sqlite_memory_uri = 'sqlite:///:memory:'
