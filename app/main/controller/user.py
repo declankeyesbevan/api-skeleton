@@ -13,7 +13,7 @@ class UserList(Resource):
     """User List Resource."""
     @api.response(200, 'Users successfully listed.')
     @api.doc('list_of_users')
-    @api.marshal_list_with(user, envelope='data')
+    @api.marshal_list_with(user)
     def get(self):
         """List all users."""
         return get_all_users()

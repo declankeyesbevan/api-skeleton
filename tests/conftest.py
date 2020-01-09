@@ -3,7 +3,7 @@ import pytest
 from app.main import db
 from manage import app
 from tests.data_factory import user_attributes, user_model
-from tests.helpers import register_user, set_up_database, tear_down_database, add_to_database
+from tests.helpers import register_client_user, set_up_database, tear_down_database, add_to_database
 
 NUM_USERS = 3
 
@@ -36,7 +36,7 @@ def user_obj(user_data):
 
 @pytest.fixture(scope='function')
 def registered_user(client, user_data):
-    return register_user(client, user_data)
+    return register_client_user(client, user_data)
 
 
 @pytest.fixture(scope='function')
@@ -48,7 +48,7 @@ def number_of_users():
 def registered_users(client, user_data, number_of_users):
     users = [user_attributes() for _ in range(number_of_users)]
     for user in users:
-        register_user(client, user)
+        register_client_user(client, user)
     return users
 
 

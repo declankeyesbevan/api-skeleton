@@ -6,7 +6,7 @@ from freezegun import freeze_time
 
 from app.main.model.user import User
 from tests.data_factory import random_text, user_attributes
-from tests.helpers import log_in_user, log_out_user, register_user
+from tests.helpers import log_in_user, log_out_user, register_client_user
 
 
 @pytest.mark.usefixtures('database')
@@ -24,7 +24,7 @@ def test_decode_auth_token(client, auth_token):
     assert User.decode_auth_token(random_text()) == 'Invalid token. Please log in again.'
 
     user = user_attributes()
-    register_user(client, user)
+    register_client_user(client, user)
     login_response = log_in_user(client, user)
     token = json.loads(login_response.data.decode())['Authorization']
     headers = dict(

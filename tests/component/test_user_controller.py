@@ -3,16 +3,15 @@ import json
 import pytest
 
 from tests.data_factory import random_text, user_attributes
-from tests.helpers import client_get, register_user
+from tests.helpers import client_get, register_client_user
 
 
 @pytest.mark.usefixtures('database')
-def test_all_users(client, registered_users, number_of_users):
+def test_user_list_get(client, registered_users, number_of_users):
     """Test for list of all registered users."""
     with client:
         response = client_get(client, '/users/')
-        body = json.loads(response.data.decode())
-        data = body.get('data')
+        data = json.loads(response.data.decode())
         assert response.status_code == 200
         assert len(data) == number_of_users
         for idx, item in enumerate(data):
@@ -20,16 +19,21 @@ def test_all_users(client, registered_users, number_of_users):
                 assert registered_users[idx].get(attribute) == item.get(attribute)
                 assert item.get('password') is None
 
+
+@pytest.mark.usefixtures('database')
+def test_user_list_post(client):
+    with client:
         users = [user_attributes() for _ in range(2)]
-        register_user(client, users[1])
+        register_client_user(client, users[1])
+
         users[0]['password'] = None
         expected = 400, 409
         for idx, user in enumerate(users):
-            register_user(client, user, expected=expected[idx])
+            register_client_user(client, user, expected=expected[idx])
 
 
 @pytest.mark.usefixtures('database')
-def test_one_user(client, registered_user):
+def test_user_get(client, registered_user):
     """Test for specific registered user."""
     with client:
         body = json.loads(registered_user.data.decode())
