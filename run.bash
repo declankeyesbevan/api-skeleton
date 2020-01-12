@@ -2,9 +2,11 @@
 
 # Argument check
 environment=$1
+env_file=$1
+
 if [[ "${environment}" == "" ]]
 then
-  echo "No environment passed: use 'dev', 'test' or 'prod'"
+  echo "No environment passed: use 'dev' or 'test'"
   exit 42
 fi
 
@@ -19,32 +21,33 @@ python -V
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Load environment vars
-echo "Loading environment vars"
-set -a
-. "configuration/${environment}.conf"
-set +a
-
 # Environment specific
-command="run"
 if [[ "${environment}" == "test" ]]
 then
   pip install -r tests/test-requirements.txt
-  command="test"
   echo "Testing"
 fi
 
-# Damn the torpedoes!
-echo "Go time!"
-python manage.py ${command}
-
-# TODO: change to CLI argument instead once Flask Script replaced with Click
-# Run integration tests
+# Load environment var
+echo "Loading environment vars"
 if [[ "${environment}" == "test" ]]
 then
-  export INTEGRATION=true
-  python manage.py test
-  exit 0
+  env_file="test-internal"
+fi
+set -a
+. "configuration/${env_file}.conf"
+set +a
+
+# Damn the torpedoes!
+echo "Go time!"
+command="run"
+
+if [[ "${environment}" == "dev" ]]
+then
+  python api_skeleton.py "${command}"
+elif [[ "${environment}" == "test" ]]
+then
+  python api_skeleton.py test --integrated false
 fi
 
 exit 0

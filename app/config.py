@@ -1,6 +1,6 @@
 import os
 
-from app.database import SQLiteFile, SQLiteMemory, Postgres
+from app.database import Postgres, SQLiteFile, SQLiteMemory
 
 
 class Config:
@@ -19,26 +19,30 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    DEFAULT = SQLiteFile().connection_string
-    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', SQLiteFile().connection_string)
 
 
 class TestingConfig(Config):
     TESTING = True
-    INTEGRATED = os.environ.get('INTEGRATION')
-    DEFAULT = Postgres().connection_string if INTEGRATED else SQLiteMemory().connection_string
-    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
+
+
+class NonIntegratedTestingConfig(TestingConfig):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', SQLiteMemory().connection_string)
+
+
+class IntegratedTestingConfig(TestingConfig):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
 class ProductionConfig(Config):
-    DEFAULT = Postgres().connection_string
-    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', DEFAULT)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
-config_by_name = dict(
-    dev=DevelopmentConfig,
-    test=TestingConfig,
-    prod=ProductionConfig,
-)
+config_by_name = {
+    'dev': DevelopmentConfig,
+    'test-internal': NonIntegratedTestingConfig,
+    'test-external': IntegratedTestingConfig,
+    'prod': ProductionConfig,
+}
 
 key = Config.SECRET_KEY

@@ -1,9 +1,10 @@
+click
 flask
 flask-bcrypt
 Flask-Migrate
 flask-restplus
-Flask-Script
 flask-sqlalchemy
 flask_testing
 psycopg2-binary
 pyjwt
+requests

@@ -3,7 +3,7 @@ services:
   database:
     container_name: postgres
     image: postgres:latest
-    env_file: ../configuration/test.conf
+    env_file: ../configuration/test-external.conf
     ports:
       - 5432:5432
     volumes:

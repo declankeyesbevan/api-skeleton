@@ -1,9 +1,9 @@
 import pytest
 
+from api_skeleton import app
 from app.main import db
-from manage import app
 from tests.data_factory import user_attributes, user_model
-from tests.helpers import register_client_user, set_up_database, tear_down_database, add_to_database
+from tests.helpers import add_to_database, register_client_user, set_up_database, tear_down_database
 
 NUM_USERS = 3
 
@@ -11,7 +11,6 @@ NUM_USERS = 3
 @pytest.fixture(scope='function')
 def client():
     """Stub Flask client for component testing."""
-    app.config.from_object('app.config.TestingConfig')
     return app.test_client()
 
 
