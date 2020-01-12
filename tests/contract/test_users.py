@@ -8,7 +8,7 @@ from tests.helpers import api_get, register_api_user
 api_base_url = os.environ.get('API_BASE_URL')
 
 
-@pytest.mark.skip('Requires a real database connection - Docker in CI doesn\'t cut it')
+@pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_list_get_and_post():
     """Test for list of all registered users."""
@@ -25,7 +25,7 @@ def test_user_list_get_and_post():
         assert not any(item.get('password') == user_data.get('password') for item in body)
 
 
-@pytest.mark.skip('Requires a real database connection - Docker in CI doesn\'t cut it')
+@pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_get_by_id():
     """Test for specific registered user."""

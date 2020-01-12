@@ -23,6 +23,10 @@ docker_compose = ['docker-compose', '-f', 'tests/docker-compose.yml']
 integration_tests = ['pytest', 'tests/integration', 'tests/contract', '--no-cov']
 non_integration_tests = ['pytest', 'tests/unit', 'tests/component']
 
+# Run the integration tests locally by replacing a remote database with a local Postgres Docker.
+if os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL'))):
+    integration_tests.append('--runlocal')
+
 
 @click.group()
 def cli():

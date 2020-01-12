@@ -5,7 +5,7 @@ from tests.data_factory import blacklist_token_model, user_attributes, user_mode
 from tests.helpers import add_to_database, set_up_database, tear_down_database
 
 
-@pytest.mark.skip('Requires a real database connection - Docker in CI doesn\'t cut it')
+@pytest.mark.local
 def test_blacklist_to_db():
     """
     This does the same thing as these database fixtures but directly to be more explicit:

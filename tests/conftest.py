@@ -8,6 +8,25 @@ from tests.helpers import add_to_database, register_client_user, set_up_database
 NUM_USERS = 3
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        '--runlocal', action='store_true', default=False, help='run integration tests locally'
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line('markers', 'local: mark integration test as local to run')
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption('--runlocal'):  # --runlocal given in cli: do not skip local tests
+        return
+    skip_local = pytest.mark.skip(reason='need --runlocal option to run')
+    for item in items:
+        if 'local' in item.keywords:
+            item.add_marker(skip_local)
+
+
 @pytest.fixture(scope='function')
 def client():
     """Stub Flask client for component testing."""
