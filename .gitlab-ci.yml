@@ -19,11 +19,11 @@ image: python:latest
 #     - venv/
 
 before_script:
-  - chmod a+x run.bash
+  - pip install -r dev/dev-requirements.txt
 
 test:
   script:
-    - ./run.bash test
+    - ./runner.py --env test
 
 # run:
 #   script:

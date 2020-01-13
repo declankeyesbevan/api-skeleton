@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+Requires:
+ - Python 3.6+
+
+Pre-requisites:
+ - pip install -r dev/dev-requirements.txt
+"""
+
 import os
 import subprocess
 from distutils import util
