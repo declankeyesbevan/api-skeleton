@@ -3,6 +3,7 @@ import uuid
 
 from app.main import db
 from app.main.model.user import User
+from http_codes import CONFLICT, CREATED, UNAUTHORIZED
 
 
 def save_new_user(data):
@@ -19,7 +20,7 @@ def save_new_user(data):
         return generate_token(new_user)
 
     response_object = dict(status='fail', message='User already exists. Please Log in.')
-    return response_object, 409
+    return response_object, CONFLICT
 
 
 def get_all_users():
@@ -41,9 +42,9 @@ def generate_token(user):
         )
     except Exception:
         response_object = dict(status='fail', message='An error occurred. Please try again.')
-        return response_object, 401
+        return response_object, UNAUTHORIZED
     else:
-        return response_object, 201
+        return response_object, CREATED
 
 
 def save_changes(data):

@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from http_codes import OK, NOT_FOUND
 from tests.data_factory import random_text, user_attributes
 from tests.helpers import api_get, register_api_user
 
@@ -17,7 +18,7 @@ def test_user_list_get_and_post():
     register_api_user(user_data)
 
     response = api_get(f'{api_base_url}/users/')
-    assert response.status_code == 200
+    assert response.status_code == OK
     body = response.json()
     assert len(body) > 0
     for key in ['email', 'username']:
@@ -34,11 +35,11 @@ def test_user_get_by_id():
     body = response.json()
 
     response = api_get(f'{api_base_url}/users/{body.get("public_id")}')
-    assert response.status_code == 200
+    assert response.status_code == OK
     body = response.json()
     assert 'email' and 'username' and 'public_id' in body
     assert body.get('password') is None
 
     fake_id = random_text()
     response = api_get(f'{api_base_url}/users/{fake_id}')
-    assert response.status_code == 404
+    assert response.status_code == NOT_FOUND

@@ -3,6 +3,8 @@ import os
 
 import requests
 
+from http_codes import CREATED, OK
+
 api_base_url = os.environ.get('API_BASE_URL')
 
 
@@ -37,31 +39,31 @@ def api_post(url, headers=None, data=None):
     return requests.post(url, json=data, headers=headers)
 
 
-def register_client_user(client, user_data, expected=201):
+def register_client_user(client, user_data, expected=CREATED):
     response = client_post(client, '/users/', data=json.dumps(user_data))
     data = json.loads(response.data.decode())
-    if expected == 201:
+    if expected == CREATED:
         assert data['Authorization']
     assert response.status_code == expected
     return response
 
 
-def register_api_user(user_data, expected=201):
+def register_api_user(user_data, expected=CREATED):
     response = api_post(f'{api_base_url}/users/', data=user_data)
     assert response.status_code == expected
     return response
 
 
-def log_in_user(client, user_data, expected=200):
+def log_in_user(client, user_data, expected=OK):
     response = client_post(client, '/auth/login', data=json.dumps(user_data))
     data = json.loads(response.data.decode())
-    if expected == 200:
+    if expected == OK:
         assert data['Authorization']
     assert response.status_code == expected
     return response
 
 
-def log_out_user(client, headers, expected=200):
+def log_out_user(client, headers, expected=OK):
     response = client_post(client, '/auth/logout', headers=headers)
     assert response.status_code == expected
     return response

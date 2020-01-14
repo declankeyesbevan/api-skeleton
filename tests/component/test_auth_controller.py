@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from http_codes import FORBIDDEN, UNAUTHORIZED
 from tests.data_factory import random_text
 from tests.helpers import log_in_user, log_out_user
 
@@ -13,7 +14,7 @@ def test_user_login(client, user_data):
         log_in_user(client, user_data)
 
         user_data['password'] = random_text()
-        log_in_user(client, user_data, 401)
+        log_in_user(client, user_data, UNAUTHORIZED)
 
 
 @pytest.mark.usefixtures('database', 'registered_user')
@@ -28,6 +29,6 @@ def test_user_logout(client, user_data):
 
         headers['Authorization'] = f"Bearer {random_text()}"
         test_headers = [headers, None]
-        expected = [401, 403]
+        expected = [UNAUTHORIZED, FORBIDDEN]
         for idx, header in enumerate(test_headers):
             log_out_user(client, header, expected=expected[idx])

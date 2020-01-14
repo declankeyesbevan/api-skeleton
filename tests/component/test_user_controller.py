@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from http_codes import BAD_REQUEST, CONFLICT, NOT_FOUND, OK
 from tests.data_factory import random_text, user_attributes
 from tests.helpers import client_get, register_client_user
 
@@ -12,7 +13,7 @@ def test_user_list_get(client, registered_users, number_of_users):
     with client:
         response = client_get(client, '/users/')
         data = json.loads(response.data.decode())
-        assert response.status_code == 200
+        assert response.status_code == OK
         assert len(data) == number_of_users
         for idx, item in enumerate(data):
             for attribute in ['email', 'username']:
@@ -27,7 +28,7 @@ def test_user_list_post(client):
         register_client_user(client, users[1])
 
         users[0]['password'] = None
-        expected = 400, 409
+        expected = [BAD_REQUEST, CONFLICT]
         for idx, user in enumerate(users):
             register_client_user(client, user, expected=expected[idx])
 
@@ -41,10 +42,10 @@ def test_user_get(client, registered_user):
 
         response = client_get(client, f'/users/{public_id}')
         body = json.loads(response.data.decode())
-        assert response.status_code == 200
+        assert response.status_code == OK
         assert 'email' and 'username' and 'public_id' in body
         assert body.get('password') is None
 
         fake_id = random_text()
         response = client_get(client, f'/users/{fake_id}')
-        assert response.status_code == 404
+        assert response.status_code == NOT_FOUND

@@ -3,6 +3,7 @@ from flask_restplus import Resource
 
 from app.main.service.user import get_a_user, get_all_users, save_new_user
 from app.main.util.dto import UserDto
+from http_codes import BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, OK
 
 api = UserDto.api
 user = UserDto.user
@@ -11,16 +12,17 @@ user = UserDto.user
 @api.route('/')
 class UserList(Resource):
     """User List Resource."""
-    @api.response(200, 'Users successfully listed.')
+
+    @api.response(OK, 'Users successfully listed.')
     @api.doc('list_of_users')
     @api.marshal_list_with(user)
     def get(self):
         """List all users."""
         return get_all_users()
 
-    @api.response(409, 'User already exists.')
-    @api.response(400, 'Malformed user data passed.')
-    @api.response(201, 'User successfully created.')
+    @api.response(CONFLICT, 'User already exists.')
+    @api.response(BAD_REQUEST, 'Malformed user data passed.')
+    @api.response(CREATED, 'User successfully created.')
     @api.doc('create_a_new_user')
     @api.expect(user, validate=True)
     def post(self):
@@ -32,13 +34,14 @@ class UserList(Resource):
 @api.param('public_id', 'The User identifier')
 class User(Resource):
     """User Resource."""
-    @api.response(404, 'User not found.')
-    @api.response(200, 'User successfully listed.')
+
+    @api.response(NOT_FOUND, 'User not found.')
+    @api.response(OK, 'User successfully listed.')
     @api.doc('get_a_user')
     @api.marshal_with(user)
     def get(self, public_id):
         """Get a user given their identifier."""
         user_to_get = get_a_user(public_id)
         if not user_to_get:
-            api.abort(404)
+            api.abort(NOT_FOUND)
         return user_to_get
