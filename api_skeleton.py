@@ -5,15 +5,18 @@ Requires:
  - Python 3.6+
 
 Pre-requisites:
- - pip install -r dev/dev-requirements.txt
+ - pip install -r tests/test-requirements.txt
 """
 
+import contextlib
 import os
 import subprocess
 from distutils import util
 
+import anybadge
 import click
 from flask_migrate import Migrate, init, upgrade
+from pylint.lint import Run
 
 from app import blueprint
 from app.main import create_app, db
@@ -82,6 +85,25 @@ def test(integrated):
     # https://github.com/pytest-dev/pytest/issues/1357
     integrated = bool(util.strtobool(integrated))
     return (runner(integration_tests) if integrated else runner(non_integration_tests)).returncode
+
+
+@cli.command()
+def lint():
+    results = Run(['app'], do_exit=False)
+    score = round(results.linter.stats['global_note'], 2)
+
+    thresholds = {
+        2: 'red',
+        4: 'orange',
+        6: 'yellow',
+        10: 'green'
+    }
+    badge = anybadge.Badge('pylint', score, thresholds=thresholds)
+
+    pylint_svg = 'pylint.svg'
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(pylint_svg)
+    badge.write_badge(pylint_svg)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,8 @@
+anybadge
+click
+flask_migrate
 freezegun
+pylint
 pytest
 pytest-cov
 requests

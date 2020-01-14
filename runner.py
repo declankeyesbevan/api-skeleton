@@ -13,7 +13,7 @@ Requires:
  - Python 3.6+
 
 Pre-requisites:
- - pip install -r dev/dev-requirements.txt
+ - pip install -r tools/tools-requirements.txt
 """
 
 import subprocess
@@ -56,6 +56,8 @@ def _run_per_env(env):
             message = 'integrated' if integrated else 'non-integrated'
             click.echo(f'Running {message} test suite')
             _run_commands(env_file, 'test', options=['--integrated', str(integrated).lower()])
+
+        runner([sys.executable, 'api_skeleton.py', 'lint'])
 
 
 def _run_commands(env_file, command, options=None):

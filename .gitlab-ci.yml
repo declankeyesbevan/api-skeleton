@@ -18,12 +18,18 @@ image: python:latest
 #     - .cache/pip
 #     - venv/
 
-before_script:
-  - pip install -r dev/dev-requirements.txt
+stages:
+  - test
 
-test:
+run_dynamic_and_static_tests:
+  stage: test
   script:
+    - pip install -r tools/tools-requirements.txt
     - ./runner.py --env test
+  artifacts:
+    paths:
+      - pylint.svg
+    when: on_success
 
 # run:
 #   script:
