@@ -25,10 +25,11 @@ run_dynamic_and_static_tests:
   stage: test
   script:
     - pip install -r tools/tools-requirements.txt
-    - ./runner.py --env test
+    - tools/runner.py --env test
   artifacts:
     paths:
       - pylint.svg
+      - radon.svg
     when: on_success
 
 # run:

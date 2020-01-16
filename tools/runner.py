@@ -55,13 +55,14 @@ def _run_per_env(env):
         for env_file, integrated in {'test-internal': False, 'test-external': True}.items():
             message = 'integrated' if integrated else 'non-integrated'
             click.echo(f'Running {message} test suite')
-            _run_commands(env_file, 'test', options=['--integrated', str(integrated).lower()])
+            _load_env_vars(env_file)
+            _run_commands('test', options=['--integrated', str(integrated).lower()])
 
-        runner([sys.executable, 'api_skeleton.py', 'lint'])
+        for static_analyser in ['lint', 'cc']:
+            _run_commands(static_analyser)
 
 
-def _run_commands(env_file, command, options=None):
-    _load_env_vars(env_file)
+def _run_commands(command, options=None):
     commands = [sys.executable, 'api_skeleton.py', command]
     if options:
         commands.extend(options)

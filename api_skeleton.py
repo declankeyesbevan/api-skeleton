@@ -22,6 +22,7 @@ from app import blueprint
 from app.main import create_app, db
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
+from tools.static_code_analysis import CyclomaticComplexity, Lint
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
 app.register_blueprint(blueprint)
@@ -89,21 +90,18 @@ def test(integrated):
 
 @cli.command()
 def lint():
-    results = Run(['app'], do_exit=False)
-    score = round(results.linter.stats['global_note'], 2)
+    """Calculate lintiness and create badge from score"""
+    pylint = Lint()
+    score = pylint.run_test()
+    pylint.create_badge(score)
 
-    thresholds = {
-        2: 'red',
-        4: 'orange',
-        6: 'yellow',
-        10: 'green'
-    }
-    badge = anybadge.Badge('pylint', score, thresholds=thresholds)
 
-    pylint_svg = 'pylint.svg'
-    with contextlib.suppress(FileNotFoundError):
-        os.remove(pylint_svg)
-    badge.write_badge(pylint_svg)
+@cli.command()
+def cc():
+    """Calculate Cyclomatic Complexity and create badge from score"""
+    radon = CyclomaticComplexity()
+    score = radon.run_test()
+    radon.create_badge(score)
 
 
 if __name__ == '__main__':
