@@ -39,11 +39,11 @@ class User(db.Model):
             exp=time_now + datetime.timedelta(days=1, seconds=5), iat=time_now, sub=user_id
         )
         try:
-            enc = jwt.encode(payload, key, algorithm='HS256')
-        except Exception as exc:
-            raise exc
+            token = jwt.encode(payload, key, algorithm='HS256')
+        except Exception:
+            raise
         else:
-            return enc
+            return token
 
     @classmethod
     def decode_auth_token(cls, auth_token):

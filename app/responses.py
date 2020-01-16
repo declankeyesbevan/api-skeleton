@@ -38,6 +38,7 @@ MALFORMED = 'Malformed data passed.'
 
 # Payloads
 # Success
+LOGOUT_SUCCESS_PAYLOAD = dict(status=SUCCESS, message=LOGOUT_SUCCESS), OK
 
 # Fail
 # 4xx

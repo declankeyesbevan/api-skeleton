@@ -1,8 +1,8 @@
 from flask import request
 from flask_restplus import Resource
 
+from app.main.data.dto import AuthDto
 from app.main.service.auth import Auth
-from app.main.util.dto import AuthDto
 from app.responses import (
     BAD_REQUEST, EMAIL_OR_PASSWORD, INTERNAL_SERVER_ERROR, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
     OK, UNAUTHORIZED, UNKNOWN,

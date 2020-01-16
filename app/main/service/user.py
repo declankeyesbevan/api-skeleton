@@ -1,8 +1,8 @@
 import datetime
 import uuid
 
+from app.main.data.dao import save_changes
 from app.main.model.user import User
-from app.main.util.dao import save_changes
 from app.responses import (
     CONFLICT_PAYLOAD, CREATED, REGISTRATION_SUCCESS, SUCCESS, UNKNOWN_ERROR_PAYLOAD,
 )
