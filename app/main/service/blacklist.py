@@ -1,6 +1,6 @@
+from app.http_codes import OK
 from app.main import db
 from app.main.model.blacklist import BlacklistToken
-from http_codes import OK
 
 
 def blacklist_token(token):

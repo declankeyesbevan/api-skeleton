@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from http_codes import FORBIDDEN, UNAUTHORIZED
+from app.http_codes import FORBIDDEN, UNAUTHORIZED
 from tests.data_factory import random_text
 from tests.helpers import log_in_user, log_out_user
 

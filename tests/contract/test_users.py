@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from http_codes import OK, NOT_FOUND
+from app.http_codes import NOT_FOUND, OK
 from tests.data_factory import random_text, user_attributes
 from tests.helpers import api_get, register_api_user
 

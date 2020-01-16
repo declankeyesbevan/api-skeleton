@@ -1,9 +1,9 @@
 from flask import request
 from flask_restplus import Resource
 
+from app.http_codes import BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, OK
 from app.main.service.user import get_a_user, get_all_users, save_new_user
 from app.main.util.dto import UserDto
-from http_codes import BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, OK
 
 api = UserDto.api
 user = UserDto.user

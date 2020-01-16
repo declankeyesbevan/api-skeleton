@@ -1,6 +1,6 @@
+from app.http_codes import FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
-from http_codes import FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED
 
 
 # FIXME: refactor all of these, they are very hard to read

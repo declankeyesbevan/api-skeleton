@@ -1,9 +1,9 @@
 import datetime
 import uuid
 
+from app.http_codes import CONFLICT, CREATED, UNAUTHORIZED
 from app.main import db
 from app.main.model.user import User
-from http_codes import CONFLICT, CREATED, UNAUTHORIZED
 
 
 def save_new_user(data):

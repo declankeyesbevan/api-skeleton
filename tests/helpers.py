@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from http_codes import CREATED, OK
+from app.http_codes import CREATED, OK
 
 api_base_url = os.environ.get('API_BASE_URL')
 
