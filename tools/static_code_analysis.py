@@ -25,7 +25,9 @@ class StaticCodeAnalysis:
         raise NotImplementedError('Subclasses should implement this')
 
     def create_badge(self, score):
-        badge = anybadge.Badge(self._analyser, score, thresholds=self._thresholds)
+        badge = anybadge.Badge(
+            self._analyser, score, thresholds=self._thresholds, value_prefix=' ', value_suffix=' '
+        )
         analyser_svg = f'{self._analyser}.svg'
         with contextlib.suppress(FileNotFoundError):
             os.remove(analyser_svg)
