@@ -1,26 +1,27 @@
 import datetime
 import uuid
 
-from app.http_codes import CONFLICT, CREATED, UNAUTHORIZED
-from app.main import db
 from app.main.model.user import User
+from app.main.util.dao import save_changes
+from app.responses import (
+    CONFLICT_PAYLOAD, CREATED, REGISTRATION_SUCCESS, SUCCESS, UNKNOWN_ERROR_PAYLOAD,
+)
 
 
 def save_new_user(data):
     user = User.query.filter_by(email=data['email']).first()
-    if not user:
-        new_user = User(
-            public_id=str(uuid.uuid4()),
-            email=data['email'],
-            username=data['username'],
-            password=data['password'],
-            registered_on=datetime.datetime.utcnow()
-        )
-        save_changes(new_user)
-        return generate_token(new_user)
+    if user:
+        return CONFLICT_PAYLOAD
 
-    response_object = dict(status='fail', message='User already exists. Please Log in.')
-    return response_object, CONFLICT
+    new_user = User(
+        public_id=str(uuid.uuid4()),
+        email=data.get('email'),
+        username=data.get('username'),
+        password=data.get('password'),
+        registered_on=datetime.datetime.utcnow()
+    )
+    save_changes(new_user)
+    return generate_token(new_user)
 
 
 def get_all_users():
@@ -35,18 +36,12 @@ def generate_token(user):
     try:
         auth_token = user.encode_auth_token(user.id)
         response_object = dict(
-            status='success',
-            message='Successfully registered.',
+            status=SUCCESS,
+            message=REGISTRATION_SUCCESS,
             public_id=user.public_id,
             Authorization=auth_token.decode(),
         )
     except Exception:
-        response_object = dict(status='fail', message='An error occurred. Please try again.')
-        return response_object, UNAUTHORIZED
+        return UNKNOWN_ERROR_PAYLOAD
     else:
         return response_object, CREATED
-
-
-def save_changes(data):
-    db.session.add(data)
-    db.session.commit()

@@ -1,14 +1,13 @@
-from app.http_codes import OK
-from app.main import db
 from app.main.model.blacklist import BlacklistToken
+from app.main.util.dao import save_changes
+from app.responses import FAIL, LOGOUT_SUCCESS, OK, SUCCESS
 
 
 def blacklist_token(token):
     token = BlacklistToken(token=token)
     try:
-        db.session.add(token)
-        db.session.commit()
+        save_changes(token)
     except Exception as exc:
-        return dict(status='fail', message=exc), OK
+        return dict(status=FAIL, message=exc.args[0]), OK
     else:
-        return dict(status='success', message='Successfully logged out.'), OK
+        return dict(status=SUCCESS, message=LOGOUT_SUCCESS), OK

@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from app.http_codes import BAD_REQUEST, CONFLICT, NOT_FOUND, OK
+from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK
 from tests.data_factory import random_text, user_attributes
 from tests.helpers import client_get, register_client_user
 

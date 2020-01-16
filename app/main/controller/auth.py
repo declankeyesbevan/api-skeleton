@@ -3,6 +3,10 @@ from flask_restplus import Resource
 
 from app.main.service.auth import Auth
 from app.main.util.dto import AuthDto
+from app.responses import (
+    BAD_REQUEST, EMAIL_OR_PASSWORD, INTERNAL_SERVER_ERROR, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
+    OK, UNAUTHORIZED, UNKNOWN,
+)
 
 api = AuthDto.api
 auth = AuthDto.auth
@@ -11,6 +15,11 @@ auth = AuthDto.auth
 @api.route('/login')
 class UserLogin(Resource):
     """User Login Resource."""
+
+    @api.response(OK, LOGIN_SUCCESS)
+    @api.response(BAD_REQUEST, MALFORMED)
+    @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
+    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.doc('user_login')
     @api.expect(auth, validate=True)
     def post(self):
@@ -21,7 +30,16 @@ class UserLogin(Resource):
 @api.route('/logout')
 class UserLogout(Resource):
     """User Logout Resource."""
+
+    parser = api.parser()
+    parser.add_argument('Authorization', location='headers', help='Bearer token')
+
+    @api.response(OK, LOGOUT_SUCCESS)
+    @api.response(BAD_REQUEST, MALFORMED)
+    @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
+    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.doc('user_logout')
+    @api.expect(parser)
     def post(self):
         """Log the user out."""
         return Auth.logout_user(data=request.headers.get('Authorization'))

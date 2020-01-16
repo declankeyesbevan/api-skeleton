@@ -2,8 +2,9 @@ import datetime
 
 import jwt
 
-from app.main import db, flask_bcrypt
 from app.config import key
+from app.exceptions import UnauthorisedException
+from app.main import db, flask_bcrypt
 from app.main.model.blacklist import BlacklistToken
 
 
@@ -40,7 +41,7 @@ class User(db.Model):
         try:
             enc = jwt.encode(payload, key, algorithm='HS256')
         except Exception as exc:
-            return exc
+            raise exc
         else:
             return enc
 
@@ -50,11 +51,11 @@ class User(db.Model):
         try:
             payload = jwt.decode(auth_token, key)
         except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
+            raise UnauthorisedException('Signature expired. Please log in again.')
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
+            raise UnauthorisedException('Invalid token. Please log in again.')
         else:
             is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
             if is_blacklisted_token:
-                return 'Token blacklisted. Please log in again.'
+                raise UnauthorisedException('Token blacklisted. Please log in again.')
             return payload['sub']

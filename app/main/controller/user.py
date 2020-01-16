@@ -1,9 +1,12 @@
 from flask import request
 from flask_restplus import Resource
 
-from app.http_codes import BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, OK
 from app.main.service.user import get_a_user, get_all_users, save_new_user
 from app.main.util.dto import UserDto
+from app.responses import (
+    BAD_REQUEST, CONFLICT, CREATED, CREATE_SUCCESS, INTERNAL_SERVER_ERROR, MALFORMED, NOT_FOUND, OK,
+    UNKNOWN, USERS_LIST_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND,
+)
 
 api = UserDto.api
 user = UserDto.user
@@ -13,16 +16,17 @@ user = UserDto.user
 class UserList(Resource):
     """User List Resource."""
 
-    @api.response(OK, 'Users successfully listed.')
+    @api.response(OK, USERS_LIST_SUCCESS)
     @api.doc('list_of_users')
     @api.marshal_list_with(user)
     def get(self):
         """List all users."""
         return get_all_users()
 
-    @api.response(CONFLICT, 'User already exists.')
-    @api.response(BAD_REQUEST, 'Malformed user data passed.')
-    @api.response(CREATED, 'User successfully created.')
+    @api.response(CREATED, CREATE_SUCCESS)
+    @api.response(BAD_REQUEST, MALFORMED)
+    @api.response(CONFLICT, USER_EXISTS)
+    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.doc('create_a_new_user')
     @api.expect(user, validate=True)
     def post(self):
@@ -35,8 +39,8 @@ class UserList(Resource):
 class User(Resource):
     """User Resource."""
 
-    @api.response(NOT_FOUND, 'User not found.')
-    @api.response(OK, 'User successfully listed.')
+    @api.response(OK, USER_LIST_SUCCESS)
+    @api.response(NOT_FOUND, USER_NOT_FOUND)
     @api.doc('get_a_user')
     @api.marshal_with(user)
     def get(self, public_id):
