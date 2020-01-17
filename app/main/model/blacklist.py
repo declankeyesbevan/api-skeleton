@@ -1,8 +1,10 @@
+import dataclasses
 import datetime
 
 from app.main import DB
 
 
+@dataclasses.dataclass
 class BlacklistToken(DB.Model):
     """Token Model for storing JWT tokens."""
     __tablename__ = 'blacklist_tokens'

@@ -10,7 +10,7 @@ horrible. This drops down into the shell when necessary but allows a nice high-l
 It calls Python from Python so make sure you have the below version in your path.
 
 Requires:
- - Python 3.6+
+ - python 3.7+
 
 Pre-requisites:
  - pip install -r tools/tools-requirements.txt

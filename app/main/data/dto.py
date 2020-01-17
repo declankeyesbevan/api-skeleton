@@ -1,3 +1,5 @@
+import dataclasses
+
 from flask_restplus import Namespace, fields
 
 COMMON = dict(
@@ -6,6 +8,7 @@ COMMON = dict(
 )
 
 
+@dataclasses.dataclass(frozen=True)
 class UserDto:
     api = Namespace('user', description='User related operations')
     user = api.model(
@@ -19,6 +22,7 @@ class UserDto:
     )
 
 
+@dataclasses.dataclass(frozen=True)
 class AuthDto:
     api = Namespace('auth', description='Authentication related operations')
     auth = api.model(
