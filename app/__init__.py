@@ -4,8 +4,8 @@ from flask_restplus import Api
 from app.main.controller.auth import api as auth_ns
 from app.main.controller.user import api as user_ns
 
-blueprint = Blueprint('api', __name__)
-authorizations = {
+BLUEPRINT = Blueprint('api', __name__)
+AUTHORIZATIONS = {
     'apikey': {
         'type': 'apiKey',
         'in': 'header',
@@ -13,14 +13,14 @@ authorizations = {
     }
 }
 
-api = Api(
-    blueprint,
+API = Api(
+    BLUEPRINT,
     title='Flask-RESTPlus API boiler-plate with JWT',
     version='1.0',
     description='A boilerplate for Flask-RESTPlus web service',
-    authorizations=authorizations,
+    authorizations=AUTHORIZATIONS,
     security='apikey',
 )
 
-api.add_namespace(auth_ns)
-api.add_namespace(user_ns, path='/users')
+API.add_namespace(auth_ns)
+API.add_namespace(user_ns, path='/users')

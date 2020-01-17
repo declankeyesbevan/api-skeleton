@@ -8,6 +8,8 @@ from app.responses import (
     OK, UNAUTHORIZED, UNKNOWN,
 )
 
+# pylint: disable=invalid-name, no-self-use
+
 api = AuthDto.api
 auth = AuthDto.auth
 

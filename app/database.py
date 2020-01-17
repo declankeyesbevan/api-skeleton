@@ -1,6 +1,6 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 class Database:
@@ -18,7 +18,7 @@ class SQLite(Database):
 class SQLiteFile(SQLite):
     @property
     def connection_string(self):
-        return super().connection_string.format(os.path.join(basedir, 'api-skeleton-dev.db'))
+        return super().connection_string.format(os.path.join(BASEDIR, 'api-skeleton-dev.db'))
 
 
 class SQLiteMemory(SQLite):

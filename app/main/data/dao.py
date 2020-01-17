@@ -1,6 +1,6 @@
-from app.main import db
+from app.main import DB
 
 
 def save_changes(data):
-    db.session.add(data)
-    db.session.commit()
+    DB.session.add(data)
+    DB.session.commit()

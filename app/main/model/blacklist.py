@@ -1,15 +1,15 @@
 import datetime
 
-from app.main import db
+from app.main import DB
 
 
-class BlacklistToken(db.Model):
+class BlacklistToken(DB.Model):
     """Token Model for storing JWT tokens."""
     __tablename__ = 'blacklist_tokens'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    token = db.Column(db.String(500), unique=True, nullable=False)
-    blacklisted_on = db.Column(db.DateTime, nullable=False)
+    id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+    token = DB.Column(DB.String(500), unique=True, nullable=False)
+    blacklisted_on = DB.Column(DB.DateTime, nullable=False)
 
     def __init__(self, token):
         self.token = token

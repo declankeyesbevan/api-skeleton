@@ -8,27 +8,24 @@ Pre-requisites:
  - pip install -r tests/test-requirements.txt
 """
 
-import contextlib
 import os
 import subprocess
 from distutils import util
 
-import anybadge
 import click
 from flask_migrate import Migrate, init, upgrade
-from pylint.lint import Run
 
-from app import blueprint
-from app.main import create_app, db
+from app import BLUEPRINT
+from app.main import create_app, DB
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
 from tools.static_code_analysis import CyclomaticComplexity, Lint
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
-app.register_blueprint(blueprint)
+app.register_blueprint(BLUEPRINT)
 app.app_context().push()
 
-migrate = Migrate(app, db)
+migrate = Migrate(app, DB)
 
 runner = subprocess.run
 docker_compose = ['docker-compose', '-f', 'tests/docker-compose.yml']
@@ -64,12 +61,12 @@ def db_container(state):
 def db_ddl(action):
     if action == 'init':
         init()
-        set_up_database(db)
+        set_up_database(DB)
     elif action == 'upgrade':
         upgrade()
-        set_up_database(db)
+        set_up_database(DB)
     elif action == 'drop':
-        tear_down_database(db)
+        tear_down_database(DB)
 
 
 # App Commands

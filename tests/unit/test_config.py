@@ -5,9 +5,9 @@ import pytest
 from app.config import (
     DevelopmentConfig, IntegratedTestingConfig, NonIntegratedTestingConfig, ProductionConfig,
 )
-from app.database import basedir
+from app.database import BASEDIR
 
-sqlite_file_uri = f'sqlite:///{os.path.join(basedir, "api-skeleton-dev.db")}'
+sqlite_file_uri = f'sqlite:///{os.path.join(BASEDIR, "api-skeleton-dev.db")}'
 sqlite_memory_uri = 'sqlite:///:memory:'
 postgres_database_uri = 'postgresql+psycopg2://test:password@localhost:5432/example'
 

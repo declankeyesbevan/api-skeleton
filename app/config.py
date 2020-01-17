@@ -38,11 +38,11 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
-config_by_name = {
+CONFIG_BY_NAME = {
     'dev': DevelopmentConfig,
     'test-internal': NonIntegratedTestingConfig,
     'test-external': IntegratedTestingConfig,
     'prod': ProductionConfig,
 }
 
-key = Config.SECRET_KEY
+KEY = Config.SECRET_KEY

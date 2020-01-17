@@ -8,6 +8,8 @@ from app.responses import (
     UNKNOWN, USERS_LIST_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
 
+# pylint: disable=invalid-name, no-self-use
+
 api = UserDto.api
 user = UserDto.user
 
