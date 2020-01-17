@@ -1,2 +1,2 @@
 [TYPECHECK]
-ignored-classes=SQLALCHEMY,sqlalchemy.orm.scoping.scoped_session
+ignored-classes=SQLAlchemy,sqlalchemy.orm.scoping.scoped_session
