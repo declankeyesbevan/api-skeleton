@@ -16,7 +16,7 @@ import click
 from flask_migrate import Migrate, init, upgrade
 
 from app import BLUEPRINT
-from app.main import create_app, DB
+from app.main import DB, create_app
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
 from tools.static_code_analysis import CyclomaticComplexity, Lint

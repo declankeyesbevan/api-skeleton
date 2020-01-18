@@ -16,9 +16,12 @@ Pre-requisites:
  - pip install -r tools/tools-requirements.txt
 """
 
+import os
 import subprocess
 import sys
+from distutils import util
 from pathlib import Path
+from threading import Thread
 
 import click
 from dotenv import load_dotenv
@@ -26,6 +29,7 @@ from dotenv import load_dotenv
 runner = subprocess.run
 app_dependencies = 'requirements.txt'
 test_dependencies = 'tests/test-requirements.txt'
+local = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
 
 
 @click.command()
@@ -38,10 +42,16 @@ def run(env):
 
 def _set_up_environment():
     click.echo('Creating venv and installing app dependencies')
-    runner([sys.executable, '-V'])
-    runner([sys.executable, '-m', 'venv', 'venv'])
-    runner([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'])
-    runner([sys.executable, '-m', 'pip', 'install', '-r', app_dependencies])
+    commands = [
+        ['-V'],
+        ['-m', 'venv', 'venv'],
+        ['-m', 'pip', 'install', '--upgrade', 'pip'],
+        ['-m', 'pip', 'install', '-r', app_dependencies],
+    ]
+    for command in commands:
+        python_executable = [sys.executable]
+        python_executable.extend(command)
+        runner(python_executable)
 
 
 def _run_per_env(env):
@@ -56,10 +66,27 @@ def _run_per_env(env):
             message = 'integrated' if integrated else 'non-integrated'
             click.echo(f'Running {message} test suite')
             _load_env_vars(env_file)
+            if local and integrated:
+                _start_local_dependencies()
             _run_commands('test', options=['--integrated', str(integrated).lower()])
 
         for static_analyser in ['lint', 'cc']:
             _run_commands(static_analyser)
+
+
+def _start_local_dependencies():
+    database = {
+        'db-container': ['--state', 'up'],
+        'db-ddl': ['--action', 'upgrade'],
+    }
+    for command, options in database.items():
+        _run_commands(command, options=options)
+
+    from api_skeleton import app  # Cannot import at start of execution as env vars haven't loaded.
+
+    thread = Thread(target=app.run)  # Must be daemon threaded because process runs in foreground.
+    thread.daemon = True
+    thread.start()
 
 
 def _run_commands(command, options=None):
@@ -70,8 +97,8 @@ def _run_commands(command, options=None):
 
 
 def _load_env_vars(env_file):
-    load_dotenv(dotenv_path=Path('configuration') / 'common.env')
-    load_dotenv(dotenv_path=Path('configuration') / f'{env_file}.env')
+    for var_file in ['common', env_file]:
+        load_dotenv(dotenv_path=Path('configuration') / f'{var_file}.env', override=True)
 
 
 if __name__ == '__main__':
