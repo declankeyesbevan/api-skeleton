@@ -23,6 +23,7 @@ def test_user_list_get(client, registered_users, number_of_users):
 
 @pytest.mark.usefixtures('database')
 def test_user_list_post(client):
+    """Test for creating a new user."""
     with client:
         users = [user_attributes() for _ in range(2)]
         register_client_user(client, users[1])
@@ -38,9 +39,8 @@ def test_user_get(client, registered_user):
     """Test for specific registered user."""
     with client:
         body = json.loads(registered_user.data.decode())
-        public_id = body.get('public_id')
 
-        response = client_get(client, f'/users/{public_id}')
+        response = client_get(client, f'/users/{body.get("public_id")}')
         body = json.loads(response.data.decode())
         assert response.status_code == OK
         assert 'email' and 'username' and 'public_id' in body

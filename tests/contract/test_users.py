@@ -12,7 +12,7 @@ api_base_url = os.environ.get('API_BASE_URL')
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_list_get_and_post():
-    """Test for list of all registered users."""
+    """Test for list of all registered users and creating a new user."""
     # TODO: Convert set up to fixture
     user_data = user_attributes()
     register_api_user(user_data)
@@ -30,6 +30,7 @@ def test_user_list_get_and_post():
 @pytest.mark.usefixtures('database')
 def test_user_get_by_id():
     """Test for specific registered user."""
+    # TODO: Convert set up to fixture
     user_data = user_attributes()
     response = register_api_user(user_data)
     body = response.json()
