@@ -20,7 +20,7 @@ from app import BLUEPRINT
 from app.main import DB, create_app
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
-from tools.static_code_analysis import CyclomaticComplexity, Lint
+from tools.static_code_analysis import CyclomaticComplexity, Lint, LogicalLinesOfCode
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
 app.register_blueprint(BLUEPRINT)
@@ -102,10 +102,18 @@ def lint():
 
 @cli.command()
 def cc():
-    """Calculate Cyclomatic Complexity and create badge from score"""
-    radon = CyclomaticComplexity()
-    score = radon.run_test()
-    radon.create_badge(score)
+    """Calculate cyclomatic complexity and create badge from score"""
+    radon_cc = CyclomaticComplexity()
+    score = radon_cc.run_test()
+    radon_cc.create_badge(score)
+
+
+@cli.command()
+def lloc():
+    """Calculate logical lines of code and create badge from score"""
+    radon_raw = LogicalLinesOfCode()
+    score = radon_raw.run_test()
+    radon_raw.create_badge(score)
 
 
 if __name__ == '__main__':

@@ -20,5 +20,4 @@ venv/
 .DS_Store
 
 # anybadge
-pylint.svg
-radon.svg
+*.svg

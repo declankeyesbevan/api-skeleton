@@ -78,7 +78,7 @@ def _run_per_env(env):
                 _start_local_dependencies()
             _run_commands('test', options=['--integrated', str(integrated).lower()])
 
-        for static_analyser in ['lint', 'cc']:
+        for static_analyser in ['lint', 'cc', 'lloc']:
             _run_commands(static_analyser)
 
 

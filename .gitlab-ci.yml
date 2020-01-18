@@ -29,7 +29,8 @@ run_dynamic_and_static_tests:
   artifacts:
     paths:
       - pylint.svg
-      - radon.svg
+      - cyclomatic-complexity.svg
+      - logical-lines-of-code.svg
     when: on_success
 
 # run:

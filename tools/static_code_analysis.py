@@ -3,7 +3,7 @@ import os
 
 import anybadge
 from pylint.lint import Run
-from radon.cli import CCHarvester, Config
+from radon.cli import CCHarvester, Config, RawHarvester
 from radon.complexity import SCORE
 
 
@@ -28,7 +28,8 @@ class StaticCodeAnalysis:
         badge = anybadge.Badge(
             self._analyser, score, thresholds=self._thresholds, value_prefix=' ', value_suffix=' '
         )
-        analyser_svg = f'{self._analyser}.svg'
+        filename = self._analyser.replace(' ', '-')
+        analyser_svg = f'{filename}.svg'
         with contextlib.suppress(FileNotFoundError):
             os.remove(analyser_svg)
         badge.write_badge(analyser_svg)
@@ -59,7 +60,7 @@ class CyclomaticComplexity(StaticCodeAnalysis):
 
     @property
     def _analyser(self):
-        return 'radon'
+        return 'cyclomatic complexity'
 
     @property
     def _thresholds(self):
@@ -90,8 +91,44 @@ class CyclomaticComplexity(StaticCodeAnalysis):
     def run_test(self):
         harvester = CCHarvester(self._paths, self._config)
         # Weird ripping apart of iterators because to_terminal() seems to be the only way to get the
-        # overall average. And it is only returned through iterators.
+        # overall average. And it is only returned through iterators. Maybe I should do a pull
+        # request to the project.
         *_, last = harvester.to_terminal()
         _, mid, _ = last
         _, score, *_ = mid
+        return score
+
+
+class LogicalLinesOfCode(StaticCodeAnalysis):
+
+    @property
+    def _analyser(self):
+        return 'logical lines of code'
+
+    @property
+    def _thresholds(self):
+        return {
+            0: 'green',
+        }
+
+    @property
+    def _config(self):
+        return Config(
+            exclude=None,
+            ignore=None,
+            summary=True,
+        )
+
+    def run_test(self):
+        harvester = RawHarvester(self._paths, self._config)
+        # This is horrible but the code wasn't designed to be used this way. This is parsing the
+        # terminal output programmatically. I smells a pull request to the project.
+        target_idx = 0
+        lloc = 0
+        for idx, item in enumerate(harvester.to_terminal()):
+            if item[0] == '** Total **':
+                target_idx = idx + 2
+            if target_idx == idx:
+                lloc = item
+        score = lloc[1][1]
         return score
