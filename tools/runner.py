@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
 """
-This script is for running the test suite on the GitLab Continuous Integration server or it can be
-used to run the Flask development server with zero config. It loads pre-defined environment
-variables from *.env files.
+This script is for zero-config running of the test suite on the GitLab Continuous Integration server
+or it can be used to run the Flask development server. It loads pre-defined environment variables
+from *.env files.
+
+When the environment variable LOCAL is set to true, the runner will start the Docker Postgres
+database container, upgrade the DDL and start a Flask app. This allows for local debugging of an
+"integrated" database and "deployed" HTTP Flask endpoint. The Flask app is in separate daemon thread
+because otherwise it would begin and never return to the script as it is a foreground process.
 
 The goal is to avoid writing this in a BASH script - because that existed previously and it was
 horrible. This drops down into the shell when necessary but allows a nice high-level Python wrapper.
@@ -56,8 +61,11 @@ def _set_up_environment():
 
 def _run_per_env(env):
     if env == 'dev':
+        # Database must have DDL manually set by the developer using api_skeleton.db_ddl(). Unlike
+        # tests below, it is not automatically run to allow control over data persistence.
         click.echo('Running Flask development server')
-        _run_commands(env, 'run')
+        _load_env_vars(env)
+        _run_commands('run')
     elif env == 'test':
         click.echo('Running non-integrated then integrated test suites')
         click.echo('Installing test dependencies')
@@ -83,8 +91,10 @@ def _start_local_dependencies():
         _run_commands(command, options=options)
 
     from api_skeleton import app  # Cannot import at start of execution as env vars haven't loaded.
-
-    thread = Thread(target=app.run)  # Must be daemon threaded because process runs in foreground.
+    # The Flask app must be run as a daemon thread because it runs in the foreground and will not
+    # return control to this script if invoked in this process. As a daemon, it will exit when this
+    # script's process ends.
+    thread = Thread(target=app.run)
     thread.daemon = True
     thread.start()
 
