@@ -11,9 +11,10 @@ Pre-requisites:
 import os
 import subprocess
 from distutils import util
+from types import SimpleNamespace
 
 import click
-from flask_migrate import Migrate, init, upgrade
+from flask_migrate import Migrate, init, migrate, upgrade
 
 from app import BLUEPRINT
 from app.main import DB, create_app
@@ -25,7 +26,7 @@ app = create_app(os.environ.get('APP_ENV') or 'dev')
 app.register_blueprint(BLUEPRINT)
 app.app_context().push()
 
-migrate = Migrate(app, DB)
+Migrate(app, DB)
 
 runner = subprocess.run
 docker_compose = ['docker-compose', '-f', 'tests/docker-compose.yml']
@@ -57,11 +58,17 @@ def db_container(state):
 
 
 @cli.command()
-@click.option('--action', '-a', required=True, type=click.Choice(['init', 'upgrade', 'drop']))
+@click.option(
+    '--action', '-a',
+    required=True,
+    type=click.Choice(['init', 'migrate', 'upgrade', 'drop'])
+)
 def db_ddl(action):
     if action == 'init':
         init()
         set_up_database(DB)
+    elif action == 'migrate':
+        migrate()
     elif action == 'upgrade':
         upgrade()
         set_up_database(DB)
@@ -102,10 +109,10 @@ def cc():
 
 
 if __name__ == '__main__':
-    # FIXME: this is a crap solution
-    # To allow migration to find models these are imported but not called. Print them so they aren't
-    # unused imports which get auto-removed.
-    print(blacklist)
-    print(user)
+    # To allow flask_migrate to find models these are imported but not used. To avoid them being
+    # auto removed by PyCharm when using 'Optimize Imports', pop them here so they are "used".
+    simple_namespace = SimpleNamespace()
+    simple_namespace.blacklist = blacklist
+    simple_namespace.user = user
 
     cli()
