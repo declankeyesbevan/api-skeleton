@@ -27,7 +27,7 @@ def test_decode_auth_token(client, auth_token):
     user = user_attributes()
     register_client_user(client, user)
     login_response = log_in_user(client, user)
-    token = json.loads(login_response.data.decode())['Authorization']
+    token = json.loads(login_response.data.decode())['token']
     headers = dict(Authorization=f"Bearer {token}")
     log_out_user(client, headers)
     with pytest.raises(UnauthorisedException):

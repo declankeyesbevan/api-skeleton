@@ -16,22 +16,22 @@ auth = AuthDto.auth
 
 @api.route('/login')
 class UserLogin(Resource):
-    """User Login Resource."""
+    """User Login Resource"""
 
     @api.response(OK, LOGIN_SUCCESS)
     @api.response(BAD_REQUEST, MALFORMED)
     @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.doc('user_login')
+    @api.doc('/auth/login')
     @api.expect(auth, validate=True)
     def post(self):
-        """Log the user in and return an auth token."""
+        """Log the user in and return an auth token"""
         return Auth.login_user(data=request.json)
 
 
 @api.route('/logout')
 class UserLogout(Resource):
-    """User Logout Resource."""
+    """User Logout Resource"""
 
     parser = api.parser()
     parser.add_argument('Authorization', location='headers', help='Bearer token')
@@ -40,8 +40,8 @@ class UserLogout(Resource):
     @api.response(BAD_REQUEST, MALFORMED)
     @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.doc('user_logout')
+    @api.doc('/auth/logout')
     @api.expect(parser)
     def post(self):
-        """Log the user out."""
+        """Log the user out"""
         return Auth.logout_user(data=request.headers.get('Authorization'))

@@ -39,7 +39,7 @@ def generate_token(user):
             status=SUCCESS,
             message=REGISTRATION_SUCCESS,
             public_id=user.public_id,
-            Authorization=auth_token.decode(),
+            token=auth_token.decode(),
         )
     except Exception:
         return UNKNOWN_ERROR_PAYLOAD

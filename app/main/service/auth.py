@@ -28,7 +28,7 @@ class Auth:
         except Exception:
             return UNKNOWN_ERROR_PAYLOAD
         else:
-            return dict(status=SUCCESS, message=LOGIN_SUCCESS, Authorization=token), OK
+            return dict(status=SUCCESS, message=LOGIN_SUCCESS, token=token), OK
 
     @classmethod
     def logout_user(cls, data):

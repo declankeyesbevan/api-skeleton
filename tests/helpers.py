@@ -1,11 +1,12 @@
 import json
-import os
 
 import requests
 
+from app.config import CONFIG_BY_NAME
 from app.responses import CREATED, OK
 
-api_base_url = os.environ.get('API_BASE_URL')
+CONFIG_OBJECT = CONFIG_BY_NAME['test-external']
+API_BASE_URL = f'{CONFIG_OBJECT.PREFERRED_URL_SCHEME}://{CONFIG_OBJECT.SERVER_NAME}'
 
 
 def set_up_database(db):
@@ -40,16 +41,16 @@ def api_post(url, headers=None, data=None):
 
 
 def register_client_user(client, user_data, expected=CREATED):
-    response = client_post(client, '/users/', data=json.dumps(user_data))
+    response = client_post(client, '/users', data=json.dumps(user_data))
     data = json.loads(response.data.decode())
     if expected == CREATED:
-        assert data['Authorization']
+        assert data['token']
     assert response.status_code == expected
     return response
 
 
 def register_api_user(user_data, expected=CREATED):
-    response = api_post(f'{api_base_url}/users/', data=user_data)
+    response = api_post(f'{API_BASE_URL}/users', data=user_data)
     assert response.status_code == expected
     return response
 
@@ -58,7 +59,7 @@ def log_in_user(client, user_data, expected=OK):
     response = client_post(client, '/auth/login', data=json.dumps(user_data))
     data = json.loads(response.data.decode())
     if expected == OK:
-        assert data['Authorization']
+        assert data['token']
     assert response.status_code == expected
     return response
 

@@ -1,12 +1,8 @@
-import os
-
 import pytest
 
 from app.responses import NOT_FOUND, OK
 from tests.data_factory import random_text, user_attributes
-from tests.helpers import api_get, register_api_user
-
-api_base_url = os.environ.get('API_BASE_URL')
+from tests.helpers import API_BASE_URL, api_get, register_api_user
 
 
 @pytest.mark.local
@@ -17,7 +13,7 @@ def test_user_list_get_and_post():
     user_data = user_attributes()
     register_api_user(user_data)
 
-    response = api_get(f'{api_base_url}/users/')
+    response = api_get(f'{API_BASE_URL}/users')
     assert response.status_code == OK
     body = response.json()
     assert len(body) > 0
@@ -35,12 +31,12 @@ def test_user_get_by_id():
     response = register_api_user(user_data)
     body = response.json()
 
-    response = api_get(f'{api_base_url}/users/{body.get("public_id")}')
+    response = api_get(f'{API_BASE_URL}/users/{body.get("public_id")}')
     assert response.status_code == OK
     body = response.json()
     assert 'email' and 'username' and 'public_id' in body
     assert body.get('password') is None
 
     fake_id = random_text()
-    response = api_get(f'{api_base_url}/users/{fake_id}')
+    response = api_get(f'{API_BASE_URL}/users/{fake_id}')
     assert response.status_code == NOT_FOUND

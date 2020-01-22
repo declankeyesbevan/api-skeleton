@@ -10,7 +10,7 @@ COMMON = dict(
 
 @dataclasses.dataclass(frozen=True)
 class UserDto:
-    api = Namespace('user', description='User related operations')
+    api = Namespace('users', description='User related operations')
     user = api.model(
         'user',
         dict(

@@ -16,8 +16,12 @@ venv/
 # JetBrains
 .idea/
 
-# macos
+# macOS
 .DS_Store
 
 # anybadge
 *.svg
+
+# Postman
+postman_collection.json
+postman_environment.json

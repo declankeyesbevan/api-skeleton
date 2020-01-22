@@ -1,9 +1,12 @@
 import dataclasses
 import os
+from distutils import util
 
 from app.database import Postgres, SQLiteFile, SQLiteMemory
 
 # pylint: disable=invalid-name
+
+DEFAULT_LOCAL_SERVER = '127.0.0.1:5000'
 
 
 @dataclasses.dataclass(frozen=True)
@@ -21,6 +24,8 @@ class Config:
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PREFERRED_URL_SCHEME = 'http'
+    SERVER_NAME = os.environ.get('SERVER_NAME', DEFAULT_LOCAL_SERVER)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -41,11 +46,20 @@ class NonIntegratedTestingConfig(TestingConfig):
 
 @dataclasses.dataclass(frozen=True)
 class IntegratedTestingConfig(TestingConfig):
+    # Non-Flask vars to allow running the integrated tests locally for debugging purposes.
+    LOCAL = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
+    SERVER = DEFAULT_LOCAL_SERVER if LOCAL else ''  # TODO: set this once deployed to GCP
+
+    # Back to Flask vars.
+    PREFERRED_URL_SCHEME = 'http' if LOCAL else 'https'
+    SERVER_NAME = os.environ.get('SERVER_NAME', SERVER)
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
 @dataclasses.dataclass(frozen=True)
 class ProductionConfig(Config):
+    PREFERRED_URL_SCHEME = 'https'
+    SERVER_NAME = os.environ.get('SERVER_NAME')
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 

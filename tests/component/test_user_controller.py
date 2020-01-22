@@ -11,7 +11,7 @@ from tests.helpers import client_get, register_client_user
 def test_user_list_get(client, registered_users, number_of_users):
     """Test for list of all registered users."""
     with client:
-        response = client_get(client, '/users/')
+        response = client_get(client, '/users')
         data = json.loads(response.data.decode())
         assert response.status_code == OK
         assert len(data) == number_of_users

@@ -20,6 +20,7 @@ from app import BLUEPRINT
 from app.main import DB, create_app
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
+from tools.postman_creator import create_postman
 from tools.static_code_analysis import CyclomaticComplexity, Lint, LogicalLinesOfCode
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
@@ -114,6 +115,12 @@ def lloc():
     radon_raw = LogicalLinesOfCode()
     score = radon_raw.run_test()
     radon_raw.create_badge(score)
+
+
+@cli.command()
+def postman():
+    """Dump the API to a Postman collection"""
+    create_postman(app)
 
 
 if __name__ == '__main__':

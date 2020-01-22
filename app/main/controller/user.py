@@ -14,36 +14,36 @@ api = UserDto.api
 user = UserDto.user
 
 
-@api.route('/')
+@api.route('')
 class UserList(Resource):
-    """User List Resource."""
+    """User List Resource"""
 
     @api.response(OK, USERS_LIST_SUCCESS)
-    @api.doc('list_of_users')
+    @api.doc('/users')
     @api.marshal_list_with(user)
     def get(self):
-        """List all users."""
+        """List all users"""
         return get_all_users()
 
     @api.response(CREATED, CREATE_SUCCESS)
     @api.response(BAD_REQUEST, MALFORMED)
     @api.response(CONFLICT, USER_EXISTS)
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.doc('create_a_new_user')
+    @api.doc('/users')
     @api.expect(user, validate=True)
     def post(self):
-        """Creates a new user."""
+        """Create a new user"""
         return save_new_user(data=request.json)
 
 
 @api.route('/<public_id>')
 @api.param('public_id', 'The User identifier')
 class User(Resource):
-    """User Resource."""
+    """User Resource"""
 
     @api.response(OK, USER_LIST_SUCCESS)
     @api.response(NOT_FOUND, USER_NOT_FOUND)
-    @api.doc('get_a_user')
+    @api.doc('/users/:public_id')
     @api.marshal_with(user)
     def get(self, public_id):
         """Get a user given their identifier."""

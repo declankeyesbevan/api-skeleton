@@ -23,7 +23,7 @@ def test_user_logout(client, user_data):
     with client:
         login_response = log_in_user(client, user_data)
         headers = dict(
-            Authorization=f"Bearer {json.loads(login_response.data.decode()).get('Authorization')}"
+            Authorization=f"Bearer {json.loads(login_response.data.decode()).get('token')}"
         )
         log_out_user(client, headers)
 
