@@ -6,10 +6,11 @@ from app.main.controller.user import api as user_ns
 
 BLUEPRINT = Blueprint('api', __name__)
 AUTHORIZATIONS = {
-    'apikey': {
+    'bearer': {
         'type': 'apiKey',
         'in': 'header',
-        'name': 'X-API-KEY'
+        'name': 'Authorization',
+        'description': 'JWT: use \'Bearer {{token}}\' i.e. Bearer then space then your token'
     }
 }
 
@@ -19,7 +20,7 @@ API = Api(
     version='0.1.0',  # TODO: set dynamically from Git
     description='Boilerplate for Flask-RESTPlus web service',
     authorizations=AUTHORIZATIONS,
-    security='apikey',
+    security='bearer',
 )
 
 API.add_namespace(auth_ns, path='/auth')

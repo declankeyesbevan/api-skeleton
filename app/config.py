@@ -26,6 +26,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PREFERRED_URL_SCHEME = 'http'
     SERVER_NAME = os.environ.get('SERVER_NAME', DEFAULT_LOCAL_SERVER)
+    RESTPLUS_MASK_SWAGGER = False
 
 
 @dataclasses.dataclass(frozen=True)

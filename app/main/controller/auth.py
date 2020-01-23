@@ -33,15 +33,11 @@ class UserLogin(Resource):
 class UserLogout(Resource):
     """User Logout Resource"""
 
-    parser = api.parser()
-    parser.add_argument('Authorization', location='headers', help='Bearer token')
-
     @api.response(OK, LOGOUT_SUCCESS)
     @api.response(BAD_REQUEST, MALFORMED)
     @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.doc('/auth/logout')
-    @api.expect(parser)
     def post(self):
         """Log the user out"""
         return Auth.logout_user(data=request.headers.get('Authorization'))

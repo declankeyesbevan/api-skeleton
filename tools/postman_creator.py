@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 from app import API
-from tools.postman_config import FIRST, add_body, add_header, add_snippet, routes
+from tools.postman_config import FIRST, add_auth, add_body, add_snippet_to_event, routes
 
 
 def create_postman(app):
@@ -12,14 +12,14 @@ def create_postman(app):
         env_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman.env')
         api = API.as_postman(swagger=True)
         files = dict(
-            postman_collection=add_to_json(api),
-            postman_environment=template_environment_file(env_vars),
+            postman_collection=_update_api_json(api),
+            postman_environment=_template_environment_file(env_vars),
         )
         for filename, data in files.items():
-            write_to_file(filename, data)
+            _write_to_file(filename, data)
 
 
-def template_environment_file(env_vars):
+def _template_environment_file(env_vars):
     values = [dict(key=f'{k.lower()}', value=v, enabled=True) for k, v in env_vars.items()]
     return dict(
         name='Flask-RESTPlus API skeleton 0.1.0',
@@ -28,12 +28,13 @@ def template_environment_file(env_vars):
     )
 
 
-def write_to_file(filename, data):
+def _write_to_file(filename, data):
     with open(f'{filename}.json', 'w') as file:
         file.write(json.dumps(data, indent=4))
 
 
-def add_to_json(data):
+def _update_api_json(data):
+    _execute_parent_auth(data)
     for request in data.get('requests'):
         for section, metadata in routes.items():
             _execute_actions(request, section, metadata)
@@ -43,31 +44,31 @@ def add_to_json(data):
     return data
 
 
-def execute_actions(request, section, actions):
-    for route, methods in section.items():
-        if request.get('name') == route and request.get('method') in methods:
-            actions()
+def _execute_parent_auth(data):
+    data['auth'] = add_auth()
 
 
-def execute_header(request):
-    request['headerData'] = add_header()
-
-
-def execute_body(request):
+def _execute_body(request):
     request['dataMode'] = 'raw'
     request['rawModeData'] = add_body()
 
 
-def execute_snippet(request, keys):
-    request['events'] = add_snippet(keys.get('events'))
+def _execute_event(request, keys):
+    request['events'] = add_snippet_to_event(keys.get('events'))
+
+
+def _drop_auth_header(request):
+    headers = request.get('headers').replace('Authorization:', '')
+    if headers.endswith('\n'):
+        headers = headers.replace('\n', '')
+    request['headers'] = headers
 
 
 def _execute_actions(request, section, metadata):
+    _drop_auth_header(request)
     for keys in metadata:
         if request.get('name') == keys.get('name') and request.get('method') == keys.get('method'):
-            if section == 'headers':
-                execute_header(request)
             if section == 'bodies':
-                execute_body(request)
+                _execute_body(request)
             if section == 'snippets':
-                execute_snippet(request, keys)
+                _execute_event(request, keys)

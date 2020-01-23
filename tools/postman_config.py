@@ -38,20 +38,22 @@ routes = {
     ]
 }
 
-javascript_snippets = {
+_javascript_snippets = {
     'token': 'pm.environment.set("token", jsonData.token);',
     'public_id': 'pm.environment.set("public_id", jsonData.public_id);'
 }
 
 
-def add_header():
-    return [
-        {
-            'key': 'Authorization',
-            'value': 'Bearer {{token}}',
-            'enabled': True
-        }
-    ]
+def add_auth():
+    return {
+        'type': 'bearer',
+        'bearer': [
+            {
+                'key': 'token',
+                'value': '{{token}}'
+            }
+        ]
+    }
 
 
 def add_body():
@@ -64,7 +66,7 @@ def add_body():
     return json.dumps(raw_data, indent=4)
 
 
-def add_snippet(postman_variables):
+def add_snippet_to_event(postman_variables):
     event = [
         {
             'listen': 'test',
@@ -77,6 +79,6 @@ def add_snippet(postman_variables):
         }
     ]
     for postman_variable in postman_variables:
-        if postman_variable in javascript_snippets:
-            event[FIRST]['script']['exec'].append(javascript_snippets[postman_variable])
+        if postman_variable in _javascript_snippets:
+            event[FIRST]['script']['exec'].append(_javascript_snippets[postman_variable])
     return event
