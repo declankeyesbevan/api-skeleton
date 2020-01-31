@@ -20,7 +20,7 @@ class UserList(Resource):
 
     @api.response(OK, USERS_LIST_SUCCESS)
     @api.doc('/users')
-    @api.marshal_list_with(user)
+    @api.marshal_list_with(user, skip_none=True)
     def get(self):
         """List all users"""
         return get_all_users()
@@ -44,7 +44,7 @@ class User(Resource):
     @api.response(OK, USER_LIST_SUCCESS)
     @api.response(NOT_FOUND, USER_NOT_FOUND)
     @api.doc('/users/:public_id')
-    @api.marshal_with(user)
+    @api.marshal_with(user, skip_none=True)
     def get(self, public_id):
         """Get a user given their identifier."""
         user_to_get = get_a_user(public_id)

@@ -16,7 +16,7 @@ from types import SimpleNamespace
 import click
 from flask_migrate import Migrate, init, migrate, upgrade
 
-from app import BLUEPRINT
+from app import blueprint
 from app.main import DB, create_app
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
@@ -24,7 +24,7 @@ from tools.postman_creator import create_postman
 from tools.static_code_analysis import CyclomaticComplexity, Lint, LogicalLinesOfCode
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
-app.register_blueprint(BLUEPRINT)
+app.register_blueprint(blueprint)
 app.app_context().push()
 
 Migrate(app, DB)

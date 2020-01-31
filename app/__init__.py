@@ -1,11 +1,14 @@
 from flask import Blueprint
 from flask_restplus import Api
 
-from app.main.controller.auth import api as auth_ns
-from app.main.controller.user import api as user_ns
+from app.main.data.dto import api as base_ns
+from app.main.routes.auth import api as auth_ns
+from app.main.routes.user import api as user_ns
 
-BLUEPRINT = Blueprint('api', __name__)
-AUTHORIZATIONS = {
+# pylint: disable=invalid-name
+
+blueprint = Blueprint('api', __name__)
+authorizations = {
     'bearer': {
         'type': 'apiKey',
         'in': 'header',
@@ -14,14 +17,15 @@ AUTHORIZATIONS = {
     }
 }
 
-API = Api(
-    BLUEPRINT,
+api = Api(
+    blueprint,
     title='Flask-RESTPlus API skeleton',
     version='0.1.0',  # TODO: set dynamically from Git
     description='Boilerplate for Flask-RESTPlus web service',
-    authorizations=AUTHORIZATIONS,
+    authorizations=authorizations,
     security='bearer',
 )
 
-API.add_namespace(auth_ns, path='/auth')
-API.add_namespace(user_ns, path='/users')
+api.add_namespace(base_ns)
+api.add_namespace(auth_ns, path='/auth')
+api.add_namespace(user_ns, path='/users')

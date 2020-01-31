@@ -3,16 +3,16 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from app import API
+from app import api
 from tools.postman_config import FIRST, add_auth, add_body, add_snippet_to_event, routes
 
 
 def create_postman(app):
     with app.app_context():
         env_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman.env')
-        api = API.as_postman(swagger=True)
+        postman_api = api.as_postman(swagger=True)
         files = dict(
-            postman_collection=_update_api_json(api),
+            postman_collection=_update_api_json(postman_api),
             postman_environment=_template_environment_file(env_vars),
         )
         for filename, data in files.items():
