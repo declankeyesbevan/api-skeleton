@@ -22,9 +22,8 @@ def test_user_logout(client, user_data):
     """Test for logout before token expires."""
     with client:
         login_response = log_in_user(client, user_data)
-        headers = dict(
-            Authorization=f"Bearer {json.loads(login_response.data.decode()).get('token')}"
-        )
+        data = json.loads(login_response.data.decode()).get('data')
+        headers = dict(Authorization=f"Bearer {data.get('token')}")
         log_out_user(client, headers)
 
         headers['Authorization'] = f"Bearer {random_text()}"

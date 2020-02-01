@@ -42,9 +42,10 @@ def api_post(url, headers=None, data=None):
 
 def register_client_user(client, user_data, expected=CREATED):
     response = client_post(client, '/users', data=json.dumps(user_data))
-    data = json.loads(response.data.decode())
     if expected == CREATED:
-        assert data['token']
+        data = json.loads(response.data.decode()).get('data')
+        user = data.get('user')
+        assert user.get('token')
     assert response.status_code == expected
     return response
 
@@ -57,9 +58,9 @@ def register_api_user(user_data, expected=CREATED):
 
 def log_in_user(client, user_data, expected=OK):
     response = client_post(client, '/auth/login', data=json.dumps(user_data))
-    data = json.loads(response.data.decode())
     if expected == OK:
-        assert data['token']
+        data = json.loads(response.data.decode()).get('data')
+        assert data.get('token')
     assert response.status_code == expected
     return response
 

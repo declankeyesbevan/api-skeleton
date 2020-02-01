@@ -1,8 +1,6 @@
 import json
 
-FIRST = 0
-LAST = 1
-
+from app.utils import FIRST
 
 routes = {
     'headers': [
@@ -33,14 +31,15 @@ routes = {
         {
             'name': '/users',
             'method': 'POST',
-            'events': ['token', 'public_id'],
+            'events': ['token_user', 'public_id_user'],
         },
     ]
 }
 
 _javascript_snippets = {
-    'token': 'pm.environment.set("token", jsonData.token);',
-    'public_id': 'pm.environment.set("public_id", jsonData.public_id);'
+    'token': 'pm.environment.set("token", jsonData.data.token);',
+    'token_user': 'pm.environment.set("token", jsonData.data.user.token);',
+    'public_id_user': 'pm.environment.set("public_id", jsonData.data.user.public_id);',
 }
 
 

@@ -2,9 +2,10 @@ from app.exceptions import UnauthorisedException
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
 from app.responses import (
-    FAIL, LOGIN_SUCCESS, MALFORMED_PAYLOAD, OK, SUCCESS, UNAUTHORISED_PAYLOAD, UNAUTHORIZED,
+    FAIL, MALFORMED_PAYLOAD, OK, SUCCESS, UNAUTHORISED_PAYLOAD, UNAUTHORIZED,
     UNKNOWN_ERROR_PAYLOAD,
 )
+from app.utils import FIRST, SECOND
 
 
 class Auth:
@@ -28,19 +29,19 @@ class Auth:
         except Exception:
             return UNKNOWN_ERROR_PAYLOAD
         else:
-            return dict(status=SUCCESS, message=LOGIN_SUCCESS, token=token), OK
+            return dict(status=SUCCESS, data=dict(token=token)), OK
 
     @classmethod
     def logout_user(cls, data):
         try:
-            auth_token = data.split('Bearer ')[1]
+            auth_token = data.split('Bearer ')[SECOND]
         except (AttributeError, IndexError):
             return MALFORMED_PAYLOAD
 
         try:
             User.decode_auth_token(auth_token)
         except UnauthorisedException as exc:
-            return dict(status=FAIL, message=exc.args[0]), UNAUTHORIZED
+            return dict(status=FAIL, data=dict(unauthorised=exc.args[FIRST])), UNAUTHORIZED
         except Exception:
             return UNKNOWN_ERROR_PAYLOAD
         else:

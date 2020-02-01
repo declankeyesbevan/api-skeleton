@@ -15,11 +15,12 @@ def test_user_list_get_and_post():
 
     response = api_get(f'{API_BASE_URL}/users')
     assert response.status_code == OK
-    body = response.json()
-    assert len(body) > 0
+    body = response.json().get('data')
+    users = body.get('users')
+    assert len(users) > 0
     for key in ['email', 'username']:
-        assert any(item.get(key) == user_data.get(key) for item in body)
-        assert not any(item.get('password') == user_data.get('password') for item in body)
+        assert any(item.get(key) == user_data.get(key) for item in users)
+        assert not any('password' in item for item in users)
 
 
 @pytest.mark.local
@@ -29,13 +30,15 @@ def test_user_get_by_id():
     # TODO: Convert set up to fixture
     user_data = user_attributes()
     response = register_api_user(user_data)
-    body = response.json()
+    data = response.json().get('data')
+    user = data.get('user')
 
-    response = api_get(f'{API_BASE_URL}/users/{body.get("public_id")}')
+    response = api_get(f'{API_BASE_URL}/users/{user.get("public_id")}')
     assert response.status_code == OK
-    body = response.json()
-    assert 'email' and 'username' and 'public_id' in body
-    assert body.get('password') is None
+    data = response.json().get('data')
+    user = data.get('user')
+    assert 'email' and 'username' and 'public_id' in user
+    assert 'password' not in user
 
     fake_id = random_text()
     response = api_get(f'{API_BASE_URL}/users/{fake_id}')

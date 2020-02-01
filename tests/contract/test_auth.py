@@ -16,7 +16,7 @@ def test_user_login():
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
     body = response.json()
     assert response.status_code == OK
-    assert 'token' in body
+    assert 'token' in body.get('data')
 
     user_data['password'] = random_text()
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
@@ -31,9 +31,8 @@ def test_user_logout():
     user_data = user_attributes()
     register_api_user(user_data)
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
-    headers = dict(
-        Authorization=f"Bearer {response.json().get('token')}"
-    )
+    data = response.json().get('data')
+    headers = dict(Authorization=f"Bearer {data.get('token')}")
 
     response = api_post(f'{API_BASE_URL}/auth/logout', headers=headers)
     assert response.status_code == OK

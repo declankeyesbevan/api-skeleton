@@ -6,6 +6,7 @@ from app.config import KEY
 from app.exceptions import UnauthorisedException
 from app.main import DB, FLASK_BCRYPT
 from app.main.model.blacklist import BlacklistToken
+from app.responses import INVALID_TOKEN, SIGNATURE_EXPIRED, TOKEN_BLACKLISTED
 
 
 class User(DB.Model):
@@ -51,11 +52,19 @@ class User(DB.Model):
         try:
             payload = jwt.decode(auth_token, KEY)
         except jwt.ExpiredSignatureError:
-            raise UnauthorisedException('Signature expired. Please log in again.')
+            raise UnauthorisedException(SIGNATURE_EXPIRED)
         except jwt.InvalidTokenError:
-            raise UnauthorisedException('Invalid token. Please log in again.')
+            raise UnauthorisedException(INVALID_TOKEN)
         else:
             is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
             if is_blacklisted_token:
-                raise UnauthorisedException('Token blacklisted. Please log in again.')
+                raise UnauthorisedException(TOKEN_BLACKLISTED)
             return payload['sub']
+
+    @classmethod
+    def deserialise_users(cls, users):
+        # FIXME: figure out how to combine response and DTO or use marshmallow
+        return [
+            dict(username=user.username, public_id=user.public_id, email=user.email) for user in
+            users
+        ]

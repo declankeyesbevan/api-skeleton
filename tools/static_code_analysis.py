@@ -6,6 +6,8 @@ from pylint.lint import Run
 from radon.cli import CCHarvester, Config, RawHarvester
 from radon.complexity import SCORE
 
+from app.utils import FIRST
+
 
 class StaticCodeAnalysis:
 
@@ -126,7 +128,7 @@ class LogicalLinesOfCode(StaticCodeAnalysis):
         target_idx = 0
         lloc = 0
         for idx, item in enumerate(harvester.to_terminal()):
-            if item[0] == '** Total **':
+            if item[FIRST] == '** Total **':
                 target_idx = idx + 2
             if target_idx == idx:
                 lloc = item

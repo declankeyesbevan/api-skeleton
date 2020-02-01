@@ -4,7 +4,8 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 from app import api
-from tools.postman_config import FIRST, add_auth, add_body, add_snippet_to_event, routes
+from app.utils import FIRST
+from tools.postman_config import add_auth, add_body, add_snippet_to_event, routes
 
 
 def create_postman(app):

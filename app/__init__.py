@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restplus import Api
 
-from app.main.data.dto import api as base_ns
+from app.main.data.dto import ResponseDto, BaseDto
 from app.main.routes.auth import api as auth_ns
 from app.main.routes.user import api as user_ns
 
@@ -13,7 +13,7 @@ authorizations = {
         'type': 'apiKey',
         'in': 'header',
         'name': 'Authorization',
-        'description': 'JWT: use \'Bearer {{token}}\' i.e. Bearer then space then your token'
+        'description': 'JWT: use \'Bearer {{token}}\' i.e. Bearer then space then token'
     }
 }
 
@@ -26,6 +26,7 @@ api = Api(
     security='bearer',
 )
 
-api.add_namespace(base_ns)
+api.add_namespace(ResponseDto.api)
+api.add_namespace(BaseDto.api)
 api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(user_ns, path='/users')

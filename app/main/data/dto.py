@@ -15,9 +15,6 @@ class BaseDto:
     )
 
 
-api = BaseDto.api
-
-
 @dataclasses.dataclass(frozen=True)
 class UserDto:
     api = Namespace('users', description='User related operations')
@@ -36,5 +33,23 @@ class AuthDto:
     api = Namespace('auth', description='Authentication related operations')
     auth = BaseDto.base.inherit(
         'auth',
+        dict()
     )
     api.add_model('auth', auth)
+
+
+@dataclasses.dataclass(frozen=True)
+class ResponseDto:
+    api = Namespace('response', description='Response object')
+    response = api.model(
+        'response',
+        dict(
+            status=fields.String(required=True, description='Success, fail or error.'),
+            data=fields.Raw(
+                required=False,
+                description='Dict of data or null. Returned with success or fail.'
+            ),
+            message=fields.String(required=False, description='String returned with error.'),
+        )
+    )
+    api.add_model('response', response)
