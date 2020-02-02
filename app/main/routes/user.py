@@ -49,5 +49,5 @@ class User(Resource):
         """Get a user given their identifier."""
         user_to_get = get_a_user(public_id)
         if not user_to_get:
-            api.abort(NOT_FOUND)
+            api.abort(code=NOT_FOUND, message=USER_NOT_FOUND)
         return user_to_get
