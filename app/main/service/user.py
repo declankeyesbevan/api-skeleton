@@ -13,11 +13,11 @@ def save_new_user(data):
         return CONFLICT_PAYLOAD
 
     new_user = User(
-        public_id=str(uuid.uuid4()),
         email=data.get('email'),
-        username=data.get('username'),
         password=data.get('password'),
-        registered_on=datetime.datetime.utcnow()
+        username=data.get('username'),
+        public_id=str(uuid.uuid4()),
+        registered_on=datetime.datetime.utcnow(),
     )
     save_changes(new_user)
     return generate_token(new_user)

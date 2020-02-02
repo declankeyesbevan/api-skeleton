@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_restplus import Api
 
-from app.main.data.dto import ResponseDto, BaseDto
+from app.main.data.dto import RequestDto, ResponseDto
 from app.main.routes.auth import api as auth_ns
 from app.main.routes.user import api as user_ns
 
@@ -26,7 +26,7 @@ api = Api(
     security='bearer',
 )
 
+api.add_namespace(RequestDto.api)
 api.add_namespace(ResponseDto.api)
-api.add_namespace(BaseDto.api)
 api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(user_ns, path='/users')

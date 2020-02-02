@@ -30,15 +30,15 @@ class UserList(Resource):
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.response(CONFLICT, USER_EXISTS)
     @api.response(BAD_REQUEST, MALFORMED)
-    @api.marshal_with(response, description=USER_CREATE_SUCCESS, skip_none=True)
     @api.expect(user, validate=True)
+    @api.marshal_with(response, description=USER_CREATE_SUCCESS, skip_none=True)
     def post(self):
         """Create a new user"""
         return save_new_user(data=request.json)
 
 
 @api.route('/<public_id>')
-@api.param('public_id', 'The User identifier')
+@api.param('public_id', description='The User identifier')
 class User(Resource):
     """User Resource"""
 

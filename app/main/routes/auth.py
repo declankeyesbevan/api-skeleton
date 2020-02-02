@@ -23,8 +23,8 @@ class UserLogin(Resource):
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
     @api.response(BAD_REQUEST, MALFORMED)
-    @api.marshal_with(response, description=LOGIN_SUCCESS, skip_none=True)
     @api.expect(auth, validate=True)
+    @api.marshal_with(response, description=LOGIN_SUCCESS, skip_none=True)
     def post(self):
         """Log the user in and return an auth token"""
         return Auth.login_user(data=request.json)
