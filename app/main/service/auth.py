@@ -1,33 +1,30 @@
-from app.exceptions import UnauthorisedException
+from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
+
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
 from app.responses import (
-    FAIL, MALFORMED_PAYLOAD, OK, SUCCESS, UNAUTHORISED_PAYLOAD, UNAUTHORIZED,
-    UNKNOWN_ERROR_PAYLOAD,
+    EMAIL_PASSWORD_PAYLOAD, MALFORMED_PAYLOAD, OK, SUCCESS,
 )
-from app.utils import FIRST, SECOND
+from app.utils import SECOND
 
 
 class Auth:
 
     @classmethod
     def login_user(cls, data):
-        try:
-            user = User.query.filter_by(email=data.get('email')).first()
-        except Exception:
-            return UNKNOWN_ERROR_PAYLOAD
-        else:
-            if not user:
-                return UNAUTHORISED_PAYLOAD
+        user = User().find_user_by_email(data)
+
+        if not user:
+            return EMAIL_PASSWORD_PAYLOAD
 
         if not user.check_password(data.get('password')):
-            return UNAUTHORISED_PAYLOAD
+            return EMAIL_PASSWORD_PAYLOAD
 
         try:
             auth_token = user.encode_auth_token(user.id)
             token = auth_token.decode()
-        except Exception:
-            return UNKNOWN_ERROR_PAYLOAD
+        except InternalServerError:
+            raise
         else:
             return dict(status=SUCCESS, data=dict(token=token)), OK
 
@@ -36,13 +33,11 @@ class Auth:
         try:
             auth_token = data.split('Bearer ')[SECOND]
         except (AttributeError, IndexError):
-            return MALFORMED_PAYLOAD
+            raise BadRequest(MALFORMED_PAYLOAD)
 
         try:
             User.decode_auth_token(auth_token)
-        except UnauthorisedException as exc:
-            return dict(status=FAIL, data=dict(unauthorised=exc.args[FIRST])), UNAUTHORIZED
-        except Exception:
-            return UNKNOWN_ERROR_PAYLOAD
+        except Unauthorized:
+            raise
         else:
             return blacklist_token(token=auth_token)

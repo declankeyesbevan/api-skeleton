@@ -37,10 +37,10 @@ LOGOUT_SUCCESS = 'Logged out success'
 # Fail
 # 4xx
 MALFORMED = 'Malformed data passed'
-EMAIL_OR_PASSWORD = 'Email and password do not match'
+EMAIL_PASSWORD = 'Email and password do not match'
 USER_NOT_FOUND = 'User not found'
 USER_EXISTS = 'User exists: log in'
-SIGNATURE_EXPIRED = 'Signature expired: log in again'
+SIGNATURE_EXPIRED = 'JWT signature expired: log in again'
 INVALID_TOKEN = 'Invalid token: log in again'
 TOKEN_BLACKLISTED = 'Token blacklisted: log in again'
 
@@ -56,7 +56,7 @@ LOGOUT_SUCCESS_PAYLOAD = dict(status=SUCCESS, data=None), OK
 # Fail
 # 4xx
 MALFORMED_PAYLOAD = dict(status=FAIL, data=dict(malformed=MALFORMED)), BAD_REQUEST
-UNAUTHORISED_PAYLOAD = dict(status=FAIL, data=dict(credentials=EMAIL_OR_PASSWORD)), UNAUTHORIZED
+EMAIL_PASSWORD_PAYLOAD = dict(status=FAIL, data=dict(credentials=EMAIL_PASSWORD)), UNAUTHORIZED
 CONFLICT_PAYLOAD = dict(status=FAIL, data=dict(user=USER_EXISTS)), CONFLICT
 
 # Error

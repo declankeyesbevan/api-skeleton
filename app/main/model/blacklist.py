@@ -1,12 +1,14 @@
 import dataclasses
 import datetime
 
+from sqlalchemy.exc import SQLAlchemyError
+from werkzeug.exceptions import InternalServerError
+
 from app.main import DB
 
 
 @dataclasses.dataclass
 class BlacklistToken(DB.Model):
-    """Token Model for storing JWT tokens."""
     __tablename__ = 'blacklist_tokens'
 
     # Seriously pylint?!
@@ -22,5 +24,9 @@ class BlacklistToken(DB.Model):
 
     @classmethod
     def check_blacklist(cls, auth_token):
-        blacklisted = BlacklistToken.query.filter_by(token=str(auth_token)).first()
-        return bool(blacklisted)
+        try:
+            blacklisted = BlacklistToken.query.filter_by(token=str(auth_token)).first()
+        except SQLAlchemyError as err:
+            raise InternalServerError(f"Error getting token blacklist: {err}")
+        else:
+            return bool(blacklisted)

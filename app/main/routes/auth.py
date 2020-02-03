@@ -4,7 +4,7 @@ from flask_restplus import Resource
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth
 from app.responses import (
-    BAD_REQUEST, EMAIL_OR_PASSWORD, INTERNAL_SERVER_ERROR, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
+    BAD_REQUEST, EMAIL_PASSWORD, INTERNAL_SERVER_ERROR, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
     UNAUTHORIZED, UNKNOWN,
 )
 
@@ -21,7 +21,7 @@ class UserLogin(Resource):
 
     @api.doc('/auth/login')
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
+    @api.response(UNAUTHORIZED, EMAIL_PASSWORD)
     @api.response(BAD_REQUEST, MALFORMED)
     @api.expect(auth, validate=True)
     @api.marshal_with(response, description=LOGIN_SUCCESS, skip_none=True)
@@ -36,7 +36,7 @@ class UserLogout(Resource):
 
     @api.doc('/auth/logout')
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.response(UNAUTHORIZED, EMAIL_OR_PASSWORD)
+    @api.response(UNAUTHORIZED, EMAIL_PASSWORD)
     @api.response(BAD_REQUEST, MALFORMED)
     @api.marshal_with(response, description=LOGOUT_SUCCESS)
     def post(self):

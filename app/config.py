@@ -31,12 +31,14 @@ class Config:
 
 @dataclasses.dataclass(frozen=True)
 class DevelopmentConfig(Config):
+    PROPAGATE_EXCEPTIONS = False
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', SQLiteFile().connection_string)
 
 
 @dataclasses.dataclass(frozen=True)
 class TestingConfig(Config):
+    PROPAGATE_EXCEPTIONS = False
     TESTING = True
 
 
