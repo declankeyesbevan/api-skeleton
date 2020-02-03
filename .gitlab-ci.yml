@@ -23,14 +23,16 @@ stages:
 
 run_dynamic_and_static_tests:
   stage: test
+  variables:
+    BUILD_DIR: "build"
   script:
     - pip install -r tools/tools-requirements.txt
     - tools/runner.py --env test
   artifacts:
     paths:
-      - pylint.svg
-      - cyclomatic-complexity.svg
-      - logical-lines-of-code.svg
+      - $BUILD_DIR/pylint.svg
+      - $BUILD_DIR/cyclomatic-complexity.svg
+      - $BUILD_DIR/logical-lines-of-code.svg
     when: on_success
 
 # run:

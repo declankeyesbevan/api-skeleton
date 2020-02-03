@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -30,7 +31,8 @@ def _template_environment_file(env_vars):
 
 
 def _write_to_file(filename, data):
-    with open(f'{filename}.json', 'w') as file:
+    Path(f'{os.environ.get("BUILD_DIR", "build")}').mkdir(parents=True, exist_ok=True)
+    with open(f'{os.environ.get("BUILD_DIR", "build")}/{filename}.json', 'w') as file:
         file.write(json.dumps(data, indent=4))
 
 

@@ -1,5 +1,6 @@
 import contextlib
 import os
+from pathlib import Path
 
 import anybadge
 from pylint.lint import Run
@@ -31,7 +32,8 @@ class StaticCodeAnalysis:
             self._analyser, score, thresholds=self._thresholds, value_prefix=' ', value_suffix=' '
         )
         filename = self._analyser.replace(' ', '-')
-        analyser_svg = f'{filename}.svg'
+        Path(f'{os.environ.get("BUILD_DIR", "build")}').mkdir(parents=True, exist_ok=True)
+        analyser_svg = f'{os.environ.get("BUILD_DIR", "build")}/{filename}.svg'
         with contextlib.suppress(FileNotFoundError):
             os.remove(analyser_svg)
         badge.write_badge(analyser_svg)
