@@ -1,5 +1,6 @@
 from flask import request
 from flask_restplus import Resource
+from werkzeug.exceptions import NotFound
 
 from app.main.data.dto import ResponseDto, UserDto
 from app.main.service.user import get_a_user, get_all_users, save_new_user
@@ -49,5 +50,5 @@ class User(Resource):
         """Get a user given their identifier."""
         user_to_get = get_a_user(public_id)
         if not user_to_get:
-            api.abort(code=NOT_FOUND, message=USER_NOT_FOUND)
+            raise NotFound(USER_NOT_FOUND)
         return user_to_get

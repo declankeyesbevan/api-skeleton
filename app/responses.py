@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
+# TODO: move strings to en-AU file
+
 # Status
 SUCCESS = 'success'
 FAIL = 'fail'
 ERROR = 'error'
-
 
 # HTTP codes
 # Success
@@ -16,7 +17,6 @@ CREATED = HTTPStatus.CREATED.value  # 201
 # 4xx
 BAD_REQUEST = HTTPStatus.BAD_REQUEST.value  # 400
 UNAUTHORIZED = HTTPStatus.UNAUTHORIZED.value  # 401
-FORBIDDEN = HTTPStatus.FORBIDDEN.value  # 403
 NOT_FOUND = HTTPStatus.NOT_FOUND.value  # 404
 CONFLICT = HTTPStatus.CONFLICT.value  # 409
 
@@ -48,17 +48,12 @@ TOKEN_BLACKLISTED = 'Token blacklisted: log in again'
 # 5xx
 UNKNOWN = 'Unknown error: try again'
 
+RESPONDER_REQUIRES = 'Responder requires one of these kinds'
 
-# Payloads
-# Success
-LOGOUT_SUCCESS_PAYLOAD = dict(status=SUCCESS, data=None), OK
 
-# Fail
-# 4xx
-MALFORMED_PAYLOAD = dict(status=FAIL, data=dict(malformed=MALFORMED)), BAD_REQUEST
-EMAIL_PASSWORD_PAYLOAD = dict(status=FAIL, data=dict(credentials=EMAIL_PASSWORD)), UNAUTHORIZED
-CONFLICT_PAYLOAD = dict(status=FAIL, data=dict(user=USER_EXISTS)), CONFLICT
-
-# Error
-# 5xx
-UNKNOWN_ERROR_PAYLOAD = dict(status=ERROR, message=UNKNOWN), INTERNAL_SERVER_ERROR
+def responder(code, data=None):
+    if code < BAD_REQUEST:
+        return dict(status=SUCCESS, data=data), code
+    elif BAD_REQUEST <= code < INTERNAL_SERVER_ERROR:
+        return dict(status=FAIL, data=data), code
+    return dict(status=ERROR, message=UNKNOWN), INTERNAL_SERVER_ERROR

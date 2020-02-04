@@ -2,9 +2,7 @@ from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
-from app.responses import (
-    EMAIL_PASSWORD_PAYLOAD, MALFORMED_PAYLOAD, OK, SUCCESS,
-)
+from app.responses import EMAIL_PASSWORD, MALFORMED, OK, responder
 from app.utils import SECOND
 
 
@@ -14,11 +12,8 @@ class Auth:
     def login_user(cls, data):
         user = User().find_user_by_email(data)
 
-        if not user:
-            return EMAIL_PASSWORD_PAYLOAD
-
-        if not user.check_password(data.get('password')):
-            return EMAIL_PASSWORD_PAYLOAD
+        if not user or not user.check_password(data.get('password')):
+            raise Unauthorized(EMAIL_PASSWORD)
 
         try:
             auth_token = user.encode_auth_token(user.id)
@@ -26,14 +21,14 @@ class Auth:
         except InternalServerError:
             raise
         else:
-            return dict(status=SUCCESS, data=dict(token=token)), OK
+            return responder(code=OK, data=dict(token=token))
 
     @classmethod
     def logout_user(cls, data):
         try:
             auth_token = data.split('Bearer ')[SECOND]
         except (AttributeError, IndexError):
-            raise BadRequest(MALFORMED_PAYLOAD)
+            raise BadRequest(MALFORMED)
 
         try:
             User.decode_auth_token(auth_token)

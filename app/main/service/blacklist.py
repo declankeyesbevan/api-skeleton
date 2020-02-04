@@ -2,7 +2,7 @@ from werkzeug.exceptions import InternalServerError
 
 from app.main.data.dao import save_changes
 from app.main.model.blacklist import BlacklistToken
-from app.responses import LOGOUT_SUCCESS_PAYLOAD
+from app.responses import OK, responder
 
 
 def blacklist_token(token):
@@ -16,4 +16,4 @@ def blacklist_token(token):
     except InternalServerError:
         raise
     else:
-        return LOGOUT_SUCCESS_PAYLOAD
+        return responder(code=OK)

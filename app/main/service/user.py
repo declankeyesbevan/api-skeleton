@@ -2,11 +2,11 @@ import datetime
 import uuid
 
 from sqlalchemy.exc import SQLAlchemyError
-from werkzeug.exceptions import InternalServerError
+from werkzeug.exceptions import Conflict, InternalServerError
 
 from app.main.data.dao import save_changes
 from app.main.model.user import User
-from app.responses import CONFLICT_PAYLOAD, CREATED, OK, SUCCESS
+from app.responses import CREATED, OK, USER_EXISTS, responder
 from app.utils import FIRST
 
 
@@ -14,7 +14,7 @@ def save_new_user(data):
     user = User().find_user_by_email(data)
 
     if user:
-        return CONFLICT_PAYLOAD
+        raise Conflict(USER_EXISTS)
 
     new_user = User(
         email=data.get('email'),
@@ -34,7 +34,7 @@ def get_all_users():
         raise InternalServerError(f"Error getting all users: {err}")
     else:
         users = User.deserialise_users(users)
-        return dict(status=SUCCESS, data=dict(users=users)), OK
+        return responder(code=OK, data=dict(users=users))
 
 
 def get_a_user(public_id):
@@ -44,14 +44,14 @@ def get_a_user(public_id):
         raise InternalServerError(f"Error getting a user: {err}")
     else:
         user = User.deserialise_users([user])[FIRST] if user else None
-        return (dict(status=SUCCESS, data=dict(user=user)), OK) if user else None
+        return (responder(code=OK, data=dict(user=user))) if user else None
 
 
 def generate_token(user):
     try:
         auth_token = user.encode_auth_token(user.id)
-        user = dict(public_id=user.public_id, token=auth_token.decode())
     except InternalServerError:
         raise
     else:
-        return dict(status=SUCCESS, data=dict(user=user)), CREATED
+        user = dict(public_id=user.public_id, token=auth_token.decode())
+        return responder(code=CREATED, data=dict(user=user))
