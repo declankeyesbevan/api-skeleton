@@ -38,7 +38,15 @@ class UserLogout(Resource):
     @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
     @api.response(UNAUTHORIZED, EMAIL_PASSWORD)
     @api.response(BAD_REQUEST, MALFORMED)
-    @api.marshal_with(response, description=LOGOUT_SUCCESS)
+    @api.marshal_with(response, description=LOGOUT_SUCCESS, mask='status,data')
     def post(self):
         """Log the user out"""
+        # Upon success the data attribute is returned but with null per the JSend spec. We want to
+        # keep this but strip the 'message' attribute from the marshalling.
+        # Using skip_none=True correctly removes the 'message' attribute but incorrectly removes
+        # 'data: null' from the response.
+        # Upon success we use a mask to keep the 'data' field.
+        # Upon fail the data field has content so it won't be lost.
+        # Upon error, 'message' is returned correctly and 'data' is not returned.
+        # Status is ever present.
         return Auth.logout_user(data=request.headers.get('Authorization'))
