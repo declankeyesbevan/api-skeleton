@@ -90,7 +90,8 @@ def test(integrated):
     # FIXME: would prefer to use pytest.main(['tests']) but there is a known coverage bug in pytest
     # https://github.com/pytest-dev/pytest/issues/1357
     integrated = bool(util.strtobool(integrated))
-    return (runner(integration_tests) if integrated else runner(non_integration_tests)).returncode
+    result = (runner(integration_tests) if integrated else runner(non_integration_tests))
+    exit(result.returncode)
 
 
 @cli.command()
