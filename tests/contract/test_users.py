@@ -1,14 +1,17 @@
+import copy
+
 import pytest
 
-from app.responses import NOT_FOUND, OK
-from tests.data_factory import random_text, user_attributes
+from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK
+from app.utils import FIRST, SECOND, THIRD, THREE_ITEMS
+from tests.data_factory import random_email, random_text, user_attributes
 from tests.helpers import API_BASE_URL, api_get, register_api_user
 
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_list_get_and_post():
-    """Test for list of all registered users and creating a new user."""
+def test_user_list_get():
+    """Test for list of all registered users."""
     # TODO: Convert set up to fixture
     user_data = user_attributes()
     register_api_user(user_data)
@@ -21,6 +24,22 @@ def test_user_list_get_and_post():
     for key in ['email', 'username']:
         assert any(item.get(key) == user_data.get(key) for item in users)
         assert not any('password' in item for item in users)
+
+
+@pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_user_list_post():
+    """Test for creating a new user."""
+    user_data = user_attributes()
+    register_api_user(user_data)
+    users = [copy.copy(user_data) for _ in range(THREE_ITEMS)]
+
+    users[FIRST]['password'] = None
+    users[SECOND]['email'] = random_email()  # Must be unique username
+    users[THIRD]['username'] = random_text()  # Must be unique email
+    expected = [BAD_REQUEST, CONFLICT, CONFLICT]
+    for idx, user in enumerate(users):
+        register_api_user(user, expected=expected[idx])
 
 
 @pytest.mark.local

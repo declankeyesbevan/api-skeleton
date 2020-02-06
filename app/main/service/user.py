@@ -11,7 +11,9 @@ from app.utils import FIRST
 
 
 def save_new_user(data):
-    user = User().find_user_by_email(data)
+    filter_params = [{filter_by: data.get(filter_by)} for filter_by in ['email', 'username']]
+    user_results = [User().find_user(filter_param) for filter_param in filter_params]
+    user = [user for user in user_results if user]
 
     if user:
         raise Conflict(USER_EXISTS)

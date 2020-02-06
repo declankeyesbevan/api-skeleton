@@ -32,11 +32,11 @@ class User(DB.Model):
     def check_password(self, password):
         return FLASK_BCRYPT.check_password_hash(self.password_hash, password)
 
-    def find_user_by_email(self, data):
+    def find_user(self, filter_by):
         try:
-            user = self.query.filter_by(email=data.get('email')).first()
+            user = self.query.filter_by(**filter_by).first()
         except SQLAlchemyError as err:
-            raise InternalServerError(f"Error finding user by email: {err}")
+            raise InternalServerError(f"Error finding user by {filter_by}: {err}")
         return user
 
     @classmethod

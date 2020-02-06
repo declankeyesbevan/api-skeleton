@@ -10,7 +10,7 @@ class Auth:
 
     @classmethod
     def login_user(cls, data):
-        user = User().find_user_by_email(data)
+        user = User().find_user(dict(email=data.get('email')))
 
         if not user or not user.check_password(data.get('password')):
             raise Unauthorized(EMAIL_PASSWORD)

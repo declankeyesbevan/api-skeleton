@@ -6,10 +6,11 @@ from app.main.model.user import User
 
 
 def user_attributes():
+    length = 16
     return dict(
         email=random_email(),
-        password=random_text(length=16),
-        username=random_text(length=8),
+        password=random_text(length=length),
+        username=random_text(length=length),
     )
 
 

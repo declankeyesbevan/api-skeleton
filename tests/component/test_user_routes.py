@@ -1,10 +1,11 @@
+import copy
 import json
 
 import pytest
 
 from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK
-from app.utils import FIRST, SECOND
-from tests.data_factory import random_text, user_attributes
+from app.utils import FIRST, SECOND, THIRD, THREE_ITEMS
+from tests.data_factory import random_email, random_text, user_attributes
 from tests.helpers import client_get, register_client_user
 
 
@@ -27,17 +28,20 @@ def test_user_list_get(client, registered_users, number_of_users):
 def test_user_list_post(client):
     """Test for creating a new user."""
     with client:
-        users = [user_attributes() for _ in range(2)]
-        register_client_user(client, users[SECOND])
+        user = user_attributes()
+        users = [copy.copy(user) for _ in range(THREE_ITEMS)]
+        register_client_user(client, users[FIRST])
 
         users[FIRST]['password'] = None
-        expected = [BAD_REQUEST, CONFLICT]
+        users[SECOND]['email'] = random_email()  # Must be unique username
+        users[THIRD]['username'] = random_text()  # Must be unique email
+        expected = [BAD_REQUEST, CONFLICT, CONFLICT]
         for idx, user in enumerate(users):
             register_client_user(client, user, expected=expected[idx])
 
 
 @pytest.mark.usefixtures('database')
-def test_user_get(client, registered_user):
+def test_user_get_by_id(client, registered_user):
     """Test for specific registered user."""
     with client:
         data = json.loads(registered_user.data.decode()).get('data')

@@ -18,9 +18,10 @@ def test_user_login():
     assert response.status_code == OK
     assert 'token' in body.get('data')
 
-    user_data['password'] = random_text()
-    response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
-    assert response.status_code == UNAUTHORIZED
+    for key in ['email', 'password']:
+        user_data[key] = random_text()
+        response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
+        assert response.status_code == UNAUTHORIZED
 
 
 @pytest.mark.local

@@ -13,8 +13,9 @@ def test_user_login(client, user_data):
     with client:
         log_in_user(client, user_data)
 
-        user_data['password'] = random_text()
-        log_in_user(client, user_data, UNAUTHORIZED)
+        for key in ['email', 'password']:
+            user_data[key] = random_text()
+            log_in_user(client, user_data, UNAUTHORIZED)
 
 
 @pytest.mark.usefixtures('database', 'registered_user')
