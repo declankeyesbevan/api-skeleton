@@ -5,21 +5,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError, Unauthorized
 
 from app.config import KEY
-from app.main import DB, FLASK_BCRYPT
+from app.main import db, flask_bcrypt
 from app.main.model.blacklist import BlacklistToken
 from app.responses import INVALID_TOKEN, SIGNATURE_EXPIRED, TOKEN_BLACKLISTED
 
 
-class User(DB.Model):
+class User(db.Model):
     __tablename__ = 'user'
 
-    id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
-    email = DB.Column(DB.String(255), unique=True, nullable=False)
-    registered_on = DB.Column(DB.DateTime, nullable=False)
-    admin = DB.Column(DB.Boolean, nullable=False, default=False)
-    public_id = DB.Column(DB.String(100), unique=True)
-    username = DB.Column(DB.String(50), unique=True)
-    password_hash = DB.Column(DB.String(100))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    registered_on = db.Column(db.DateTime, nullable=False)
+    admin = db.Column(db.Boolean, nullable=False, default=False)
+    public_id = db.Column(db.String(100), unique=True)
+    username = db.Column(db.String(50), unique=True)
+    password_hash = db.Column(db.String(100))
 
     @property
     def password(self):
@@ -27,10 +27,10 @@ class User(DB.Model):
 
     @password.setter
     def password(self, password):
-        self.password_hash = FLASK_BCRYPT.generate_password_hash(password).decode('utf-8')
+        self.password_hash = flask_bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
-        return FLASK_BCRYPT.check_password_hash(self.password_hash, password)
+        return flask_bcrypt.check_password_hash(self.password_hash, password)
 
     def find_user(self, filter_by):
         try:

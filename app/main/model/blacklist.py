@@ -4,19 +4,19 @@ import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError
 
-from app.main import DB
+from app.main import db
 
 
 @dataclasses.dataclass
-class BlacklistToken(DB.Model):
+class BlacklistToken(db.Model):
     __tablename__ = 'blacklist_tokens'
 
     # Seriously pylint?!
     # pylint: disable=invalid-name
-    id = DB.Column(DB.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # pylint: enable=invalid-name
-    token = DB.Column(DB.String(500), unique=True, nullable=False)
-    blacklisted_on = DB.Column(DB.DateTime, nullable=False)
+    token = db.Column(db.String(500), unique=True, nullable=False)
+    blacklisted_on = db.Column(db.DateTime, nullable=False)
 
     def __init__(self, token):
         self.token = token

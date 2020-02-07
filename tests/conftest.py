@@ -1,7 +1,7 @@
 import pytest
 
 from api_skeleton import app
-from app.main import DB
+from app.main import db
 from tests.data_factory import user_attributes, user_model
 from tests.helpers import add_to_database, register_client_user, set_up_database, tear_down_database
 
@@ -35,9 +35,9 @@ def client():
 
 @pytest.fixture(scope='function')
 def database():
-    set_up_database(DB)
+    set_up_database(db)
     yield
-    tear_down_database(DB)
+    tear_down_database(db)
 
 
 @pytest.fixture(scope='function')
@@ -72,7 +72,7 @@ def registered_users(client, user_data, number_of_users):
 
 @pytest.fixture(scope='function')
 def database_user(user_obj):
-    add_to_database(DB, user_obj)
+    add_to_database(db, user_obj)
     return user_obj
 
 

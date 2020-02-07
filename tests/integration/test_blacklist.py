@@ -1,6 +1,6 @@
 import pytest
 
-from app.main import DB
+from app.main import db
 from tests.data_factory import blacklist_token_model, user_attributes, user_model
 from tests.helpers import add_to_database, set_up_database, tear_down_database
 
@@ -14,11 +14,11 @@ def test_blacklist_to_db():
     # user_obj()
     # auth_token()
     """
-    set_up_database(DB)
+    set_up_database(db)
 
     user_data = user_attributes()
     user_obj = user_model(user_data)
     token_obj = blacklist_token_model(user_obj)
-    add_to_database(DB, token_obj)
+    add_to_database(db, token_obj)
 
-    tear_down_database(DB)
+    tear_down_database(db)

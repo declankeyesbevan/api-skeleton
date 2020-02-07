@@ -17,7 +17,7 @@ import click
 from flask_migrate import Migrate, init, migrate, upgrade
 
 from app import blueprint
-from app.main import DB, create_app
+from app.main import db, create_app
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
 from tools.postman_creator import create_postman
@@ -27,7 +27,7 @@ app = create_app(os.environ.get('APP_ENV') or 'dev')
 app.register_blueprint(blueprint)
 app.app_context().push()
 
-Migrate(app, DB)
+Migrate(app, db)
 
 runner = subprocess.run
 docker_compose = ['docker-compose', '-f', 'tests/docker-compose.yml']
@@ -67,14 +67,14 @@ def db_container(state):
 def db_ddl(action):
     if action == 'init':
         init()
-        set_up_database(DB)
+        set_up_database(db)
     elif action == 'migrate':
         migrate()
     elif action == 'upgrade':
         upgrade()
-        set_up_database(DB)
+        set_up_database(db)
     elif action == 'drop':
-        tear_down_database(DB)
+        tear_down_database(db)
 
 
 # App Commands
