@@ -7,4 +7,4 @@ flask_testing
 psycopg2-binary
 pyjwt
 sqlalchemy
-werkzeug
+werkzeug==0.16.0
