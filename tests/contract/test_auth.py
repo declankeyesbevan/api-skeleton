@@ -1,7 +1,7 @@
 import pytest
 
 from app.responses import BAD_REQUEST, OK, UNAUTHORIZED
-from tests.data_factory import random_text, user_attributes
+from tests.data_factory import random_text, user_attributes, random_email
 from tests.helpers import API_BASE_URL, api_post, register_api_user
 
 
@@ -19,7 +19,7 @@ def test_user_login():
     assert 'token' in body.get('data')
 
     for key in ['email', 'password']:
-        user_data[key] = random_text()
+        user_data[key] = random_email() if key == 'email' else random_text()
         response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
         assert response.status_code == UNAUTHORIZED
 

@@ -4,8 +4,6 @@ from distutils import util
 
 from app.database import Postgres, SQLiteFile, SQLiteMemory
 
-# pylint: disable=invalid-name
-
 DEFAULT_LOCAL_SERVER = '127.0.0.1:5000'
 
 

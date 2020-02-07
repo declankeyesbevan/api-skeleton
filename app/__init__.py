@@ -1,5 +1,8 @@
+import logging
+
 from flask import Blueprint
 from flask_restplus import Api
+from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
 from app.main.data.dto import RequestDto, ResponseDto
 from app.main.routes.auth import api as auth_ns
@@ -8,6 +11,7 @@ from app.responses import responder
 
 # pylint: disable=invalid-name
 
+logger = logging.getLogger('api-skeleton')
 blueprint = Blueprint('api', __name__)
 authorizations = {
     'bearer': {
@@ -33,8 +37,18 @@ api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(user_ns, path='/users')
 
 
-@api.errorhandler(Exception)
+@api.errorhandler(BadRequest)
+@api.errorhandler(Unauthorized)
+@api.errorhandler(NotFound)
+@api.errorhandler(Conflict)
 def handler(error):
-    print(f'Error code: {error.code}')
-    print(f'Error description: {str(error.description)}')
+    logger.error(f"Error code: {error.code}")
+    logger.error(f"Error description: {str(error.description)}")
+    return responder(code=error.code, data={error.name.lower(): str(error.description)})
+
+
+@api.errorhandler(InternalServerError)
+def handler(error):
+    logger.critical(f"Error code: {error.code}")
+    logger.critical(f"Error description: {str(error.description)}")
     return responder(code=error.code, data={error.name.lower(): str(error.description)})

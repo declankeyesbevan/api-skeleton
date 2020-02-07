@@ -1,4 +1,5 @@
 import datetime
+import logging
 import uuid
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -8,6 +9,10 @@ from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.responses import CREATED, OK, USER_EXISTS, responder
 from app.utils import FIRST
+
+# pylint: disable=invalid-name
+
+logger = logging.getLogger('api-skeleton')
 
 
 def save_new_user(data):
@@ -26,6 +31,10 @@ def save_new_user(data):
         registered_on=datetime.datetime.utcnow(),
     )
     save_changes(new_user)
+    logger.info(f"New user successfully created")
+    logger.info(f"New user email: {new_user.email}")
+    logger.info(f"New user username: {new_user.username}")
+    logger.info(f"New user public_id: {new_user.public_id}")
     return generate_token(new_user)
 
 
@@ -55,5 +64,6 @@ def generate_token(user):
     except InternalServerError:
         raise
     else:
+        logger.info(f"Generated auth token for user with public_id: {user.public_id}")
         user = dict(public_id=user.public_id, token=auth_token.decode())
         return responder(code=CREATED, data=dict(user=user))

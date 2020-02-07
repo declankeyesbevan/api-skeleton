@@ -1,3 +1,5 @@
+import logging
+
 from flask import request
 from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
@@ -8,9 +10,11 @@ from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, MALFORMED, NOT_FOUND, UNKNOWN, USERS_LIST_SUCCESS,
     USER_CREATE_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
+from app.security import remove
 
 # pylint: disable=invalid-name, no-self-use
 
+logger = logging.getLogger('api-skeleton')
 api = UserDto.api
 user = UserDto.user
 response = ResponseDto.response
@@ -25,6 +29,7 @@ class UserList(Resource):
     @api.marshal_with(response, description=USERS_LIST_SUCCESS, skip_none=True)
     def get(self):
         """List all users"""
+        logger.info(f"Getting all users")
         return get_all_users()
 
     @api.doc('/users')
@@ -35,6 +40,7 @@ class UserList(Resource):
     @api.marshal_with(response, description=USER_CREATE_SUCCESS, skip_none=True)
     def post(self):
         """Create a new user"""
+        logger.info(f"Creating new user: {remove(request.json, ['password'])}")
         return save_new_user(data=request.json)
 
 
@@ -48,6 +54,7 @@ class User(Resource):
     @api.marshal_with(response, description=USER_LIST_SUCCESS, skip_none=True)
     def get(self, public_id):
         """Get a user given their identifier."""
+        logger.info(f"Getting user with public_id: {public_id}")
         user_to_get = get_a_user(public_id)
         if not user_to_get:
             raise NotFound(USER_NOT_FOUND)
