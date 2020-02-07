@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name, logging-format-interpolation, try-except-raise
+
 import datetime
 import logging
 import uuid
@@ -9,8 +11,6 @@ from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.responses import CREATED, OK, USER_EXISTS, responder
 from app.utils import FIRST
-
-# pylint: disable=invalid-name
 
 logger = logging.getLogger('api-skeleton')
 

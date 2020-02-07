@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name, logging-format-interpolation
+
 import logging
 
 from flask import Blueprint
@@ -8,8 +10,6 @@ from app.main.data.dto import RequestDto, ResponseDto
 from app.main.routes.auth import api as auth_ns
 from app.main.routes.user import api as user_ns
 from app.responses import responder
-
-# pylint: disable=invalid-name
 
 logger = logging.getLogger('api-skeleton')
 blueprint = Blueprint('api', __name__)
@@ -41,14 +41,14 @@ api.add_namespace(user_ns, path='/users')
 @api.errorhandler(Unauthorized)
 @api.errorhandler(NotFound)
 @api.errorhandler(Conflict)
-def handler(error):
+def fail_handler(error):
     logger.error(f"Error code: {error.code}")
     logger.error(f"Error description: {str(error.description)}")
     return responder(code=error.code, data={error.name.lower(): str(error.description)})
 
 
 @api.errorhandler(InternalServerError)
-def handler(error):
+def error_handler(error):
     logger.critical(f"Error code: {error.code}")
     logger.critical(f"Error description: {str(error.description)}")
     return responder(code=error.code, data={error.name.lower(): str(error.description)})

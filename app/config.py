@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name, too-many-instance-attributes
+
 import dataclasses
 import os
 from distutils import util

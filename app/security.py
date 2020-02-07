@@ -1,9 +1,9 @@
 """
 Utilities for increasing security in the package.
 """
-import logging
-
 # pylint: disable=invalid-name
+
+import logging
 
 logger = logging.getLogger('api-skeleton')
 

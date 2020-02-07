@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name, no-self-use, logging-format-interpolation
+
 import logging
 
 from flask import request
@@ -11,8 +13,6 @@ from app.responses import (
     USER_CREATE_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
 from app.security import remove
-
-# pylint: disable=invalid-name, no-self-use
 
 logger = logging.getLogger('api-skeleton')
 api = UserDto.api

@@ -54,6 +54,6 @@ RESPONDER_REQUIRES = 'Responder requires one of these kinds'
 def responder(code, data=None):
     if code < BAD_REQUEST:
         return dict(status=SUCCESS, data=data), code
-    elif BAD_REQUEST <= code < INTERNAL_SERVER_ERROR:
+    if BAD_REQUEST <= code < INTERNAL_SERVER_ERROR:
         return dict(status=FAIL, data=data), code
     return dict(status=ERROR, message=UNKNOWN), INTERNAL_SERVER_ERROR

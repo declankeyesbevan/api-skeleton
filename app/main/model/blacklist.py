@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 import dataclasses
 import datetime
 
@@ -11,10 +13,7 @@ from app.main import db
 class BlacklistToken(db.Model):
     __tablename__ = 'blacklist_tokens'
 
-    # Seriously pylint?!
-    # pylint: disable=invalid-name
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    # pylint: enable=invalid-name
     token = db.Column(db.String(500), unique=True, nullable=False)
     blacklisted_on = db.Column(db.DateTime, nullable=False)
 

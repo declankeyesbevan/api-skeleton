@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name, logging-format-interpolation, no-self-use
+
 import logging
 
 from flask import request
@@ -10,8 +12,6 @@ from app.responses import (
     UNAUTHORIZED, UNKNOWN,
 )
 from app.security import remove
-
-# pylint: disable=invalid-name, no-self-use
 
 logger = logging.getLogger('api-skeleton')
 api = AuthDto.api

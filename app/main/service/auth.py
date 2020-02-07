@@ -1,3 +1,5 @@
+# pylint: disable=try-except-raise
+
 from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 
 from app.main.model.user import User

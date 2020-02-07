@@ -1,3 +1,5 @@
+# pylint: disable=try-except-raise
+
 from werkzeug.exceptions import InternalServerError
 
 from app.main.data.dao import save_changes
