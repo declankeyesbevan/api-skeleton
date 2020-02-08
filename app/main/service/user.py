@@ -5,11 +5,12 @@ import logging
 import uuid
 
 from sqlalchemy.exc import SQLAlchemyError
-from werkzeug.exceptions import Conflict, InternalServerError
+from werkzeug.exceptions import BadRequest, Conflict, InternalServerError
 
 from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.responses import CREATED, OK, USER_EXISTS, responder
+from app.security import PasswordValidator
 from app.utils import FIRST
 
 logger = logging.getLogger('api-skeleton')
@@ -22,6 +23,10 @@ def save_new_user(data):
 
     if user:
         raise Conflict(USER_EXISTS)
+
+    password_invalid = PasswordValidator().validate_password(data.get('password'))
+    if password_invalid:
+        raise BadRequest(password_invalid)
 
     new_user = User(
         email=data.get('email'),

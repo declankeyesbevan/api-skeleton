@@ -3,7 +3,7 @@ import json
 import pytest
 
 from app.responses import BAD_REQUEST, UNAUTHORIZED
-from tests.data_factory import random_text
+from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import log_in_user, log_out_user
 
 
@@ -14,7 +14,7 @@ def test_user_login(client, user_data):
         log_in_user(client, user_data)
 
         for key in ['email', 'password']:
-            user_data[key] = random_text()
+            user_data[key] = random_email() if key == 'email' else random_password()
             log_in_user(client, user_data, UNAUTHORIZED)
 
 
