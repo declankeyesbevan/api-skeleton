@@ -7,6 +7,7 @@ from distutils import util
 from app.database import Postgres, SQLiteFile, SQLiteMemory
 
 DEFAULT_LOCAL_SERVER = '127.0.0.1:5000'
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,6 +29,8 @@ class Config:
     SERVER_NAME = os.environ.get('SERVER_NAME', DEFAULT_LOCAL_SERVER)
     RESTPLUS_MASK_SWAGGER = False
     ERROR_INCLUDE_MESSAGE = False
+    BABEL_TRANSLATION_DIRECTORIES = f'{BASEDIR}/i18n/translations'
+    LANGUAGES = ['en', 'en-AU']
 
 
 @dataclasses.dataclass(frozen=True)

@@ -1,3 +1,4 @@
+flask-babel
 flask
 flask-bcrypt
 Flask-Migrate

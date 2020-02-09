@@ -1,0 +1,83 @@
+# English (Australia) translations for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-02-09 20:04+1000\n"
+"PO-Revision-Date: 2020-02-09 20:05+1000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en_AU\n"
+"Language-Team: en_AU <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: app/i18n/en.py:4
+msgid "success"
+msgstr "success"
+
+#: app/i18n/en.py:5
+msgid "fail"
+msgstr "fail"
+
+#: app/i18n/en.py:6
+msgid "error"
+msgstr "error"
+
+#: app/i18n/en.py:11
+msgid "Successfully created user"
+msgstr "Successfully created user"
+
+#: app/i18n/en.py:12
+msgid "Successfully listed user"
+msgstr "Successfully listed user"
+
+#: app/i18n/en.py:13
+msgid "Successfully listed users"
+msgstr "Successfully listed users"
+
+#: app/i18n/en.py:14
+msgid "Successfully logged in"
+msgstr "Successfully logged in"
+
+#: app/i18n/en.py:15
+msgid "Successfully logged out"
+msgstr "Successfully logged out"
+
+#: app/i18n/en.py:19
+msgid "Malformed data passed"
+msgstr "Malformed data passed"
+
+#: app/i18n/en.py:20
+msgid "Email and password do not match"
+msgstr "Email and password do not match"
+
+#: app/i18n/en.py:21
+msgid "User not found"
+msgstr "User not found"
+
+#: app/i18n/en.py:22
+msgid "User exists: log in"
+msgstr "User exists: log in"
+
+#: app/i18n/en.py:23
+msgid "JWT signature expired: log in again"
+msgstr "JWT signature expired: log in again"
+
+#: app/i18n/en.py:24
+msgid "Invalid token: log in again"
+msgstr "Invalid token: log in again"
+
+#: app/i18n/en.py:25
+msgid "Token blacklisted: log in again"
+msgstr "Token blacklisted: log in again"
+
+#: app/i18n/en.py:29
+msgid "Unknown error: try again"
+msgstr "Unknown error: try again"

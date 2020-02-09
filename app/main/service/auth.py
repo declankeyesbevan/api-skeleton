@@ -2,9 +2,10 @@
 
 from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 
+from app.i18n.base import EMAIL_PASSWORD, MALFORMED
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
-from app.responses import EMAIL_PASSWORD, MALFORMED, OK, responder
+from app.responses import OK, responder
 from app.utils import SECOND
 
 

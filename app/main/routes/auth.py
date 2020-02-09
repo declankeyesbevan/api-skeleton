@@ -5,12 +5,10 @@ import logging
 from flask import request
 from flask_restplus import Resource
 
+from app.i18n.base import EMAIL_PASSWORD, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth
-from app.responses import (
-    BAD_REQUEST, EMAIL_PASSWORD, INTERNAL_SERVER_ERROR, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
-    UNAUTHORIZED, UNKNOWN,
-)
+from app.responses import BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN
 from app.security import remove
 
 logger = logging.getLogger('api-skeleton')

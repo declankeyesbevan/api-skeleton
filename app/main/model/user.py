@@ -5,9 +5,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError, Unauthorized
 
 from app.config import KEY
+from app.i18n.base import INVALID_TOKEN, SIGNATURE_EXPIRED, TOKEN_BLACKLISTED
 from app.main import db, flask_bcrypt
 from app.main.model.blacklist import BlacklistToken
-from app.responses import INVALID_TOKEN, SIGNATURE_EXPIRED, TOKEN_BLACKLISTED
 
 
 class User(db.Model):

@@ -7,9 +7,10 @@ import uuid
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError
 
+from app.i18n.base import USER_EXISTS
 from app.main.data.dao import save_changes
 from app.main.model.user import User
-from app.responses import CREATED, OK, USER_EXISTS, responder
+from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
 from app.utils import FIRST
 

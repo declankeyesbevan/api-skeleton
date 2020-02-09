@@ -28,3 +28,7 @@ postman_environment.json
 
 # CI
 build/
+
+# Babel
+*.pot
+*.mo

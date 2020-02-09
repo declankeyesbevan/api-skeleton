@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name
 
-from flask import Flask
+from flask import Flask, current_app, request
+from flask_babel import Babel
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,6 +10,7 @@ from app.logger import init_logging
 
 db = SQLAlchemy()
 flask_bcrypt = Bcrypt()
+babel = Babel()
 
 
 def create_app(config_name):
@@ -16,5 +18,11 @@ def create_app(config_name):
     app.config.from_object(CONFIG_BY_NAME[config_name])
     db.init_app(app)
     flask_bcrypt.init_app(app)
+    babel.init_app(app)
     init_logging(config_name)
     return app
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(current_app.config['LANGUAGES'])

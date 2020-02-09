@@ -1,11 +1,6 @@
 from http import HTTPStatus
 
-# TODO: move strings to en-AU file
-
-# Status
-SUCCESS = 'success'
-FAIL = 'fail'
-ERROR = 'error'
+from app.i18n.base import ERROR, FAIL, SUCCESS, UNKNOWN
 
 # HTTP codes
 # Success
@@ -23,32 +18,6 @@ CONFLICT = HTTPStatus.CONFLICT.value  # 409
 # Error
 # 5xx
 INTERNAL_SERVER_ERROR = HTTPStatus.INTERNAL_SERVER_ERROR.value  # 500
-
-
-# Messages
-# Success
-# 2xx
-USER_CREATE_SUCCESS = 'Created user success'
-USER_LIST_SUCCESS = 'Listed user success'
-USERS_LIST_SUCCESS = 'Listed users success'
-LOGIN_SUCCESS = 'Logged in success'
-LOGOUT_SUCCESS = 'Logged out success'
-
-# Fail
-# 4xx
-MALFORMED = 'Malformed data passed'
-EMAIL_PASSWORD = 'Email and password do not match'
-USER_NOT_FOUND = 'User not found'
-USER_EXISTS = 'User exists: log in'
-SIGNATURE_EXPIRED = 'JWT signature expired: log in again'
-INVALID_TOKEN = 'Invalid token: log in again'
-TOKEN_BLACKLISTED = 'Token blacklisted: log in again'
-
-# Error
-# 5xx
-UNKNOWN = 'Unknown error: try again'
-
-RESPONDER_REQUIRES = 'Responder requires one of these kinds'
 
 
 def responder(code, data=None):
