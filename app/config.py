@@ -6,7 +6,7 @@ from distutils import util
 
 from app.database import Postgres, SQLiteFile, SQLiteMemory
 
-DEFAULT_LOCAL_SERVER = '127.0.0.1:5000'
+DEFAULT_LOCAL_SERVER = 'localhost.localdomain:5000'
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
