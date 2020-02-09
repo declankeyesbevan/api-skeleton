@@ -3,11 +3,10 @@ Utilities for increasing security in the package.
 """
 # pylint: disable=invalid-name
 
+import logging
 from string import ascii_lowercase, ascii_uppercase, digits
 
 from app.utils import SPECIAL_CHARACTERS
-
-import logging
 
 logger = logging.getLogger('api-skeleton')
 

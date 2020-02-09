@@ -3,6 +3,7 @@
 import logging
 
 from flask import request
+from flask._compat import text_type as _
 from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
 
@@ -26,19 +27,19 @@ class UserList(Resource):
     """User List Resource"""
 
     @api.doc('/users')
-    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.marshal_with(response, description=USERS_LIST_SUCCESS, skip_none=True)
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.marshal_with(response, description=_(USERS_LIST_SUCCESS), skip_none=True)
     def get(self):
         """List all users"""
         logger.info(f"Getting all users")
         return get_all_users()
 
     @api.doc('/users')
-    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.response(CONFLICT, USER_EXISTS)
-    @api.response(BAD_REQUEST, MALFORMED)
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(CONFLICT, _(USER_EXISTS))
+    @api.response(BAD_REQUEST, _(MALFORMED))
     @api.expect(user, validate=True)
-    @api.marshal_with(response, description=USER_CREATE_SUCCESS, skip_none=True)
+    @api.marshal_with(response, description=_(USER_CREATE_SUCCESS), skip_none=True)
     def post(self):
         """Create a new user"""
         logger.info(f"Creating new user: {remove(request.json, ['password'])}")
@@ -51,8 +52,8 @@ class User(Resource):
     """User Resource"""
 
     @api.doc('/users/:public_id')
-    @api.response(NOT_FOUND, USER_NOT_FOUND)
-    @api.marshal_with(response, description=USER_LIST_SUCCESS, skip_none=True)
+    @api.response(NOT_FOUND, _(USER_NOT_FOUND))
+    @api.marshal_with(response, description=_(USER_LIST_SUCCESS), skip_none=True)
     def get(self, public_id):
         """Get a user given their identifier."""
         logger.info(f"Getting user with public_id: {public_id}")

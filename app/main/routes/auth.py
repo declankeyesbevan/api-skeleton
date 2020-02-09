@@ -3,6 +3,7 @@
 import logging
 
 from flask import request
+from flask._compat import text_type as _
 from flask_restplus import Resource
 
 from app.i18n.base import EMAIL_PASSWORD, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED
@@ -22,11 +23,11 @@ class UserLogin(Resource):
     """User Login Resource"""
 
     @api.doc('/auth/login')
-    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.response(UNAUTHORIZED, EMAIL_PASSWORD)
-    @api.response(BAD_REQUEST, MALFORMED)
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(UNAUTHORIZED, _(EMAIL_PASSWORD))
+    @api.response(BAD_REQUEST, _(MALFORMED))
     @api.expect(auth, validate=True)
-    @api.marshal_with(response, description=LOGIN_SUCCESS, skip_none=True)
+    @api.marshal_with(response, description=_(LOGIN_SUCCESS), skip_none=True)
     def post(self):
         """Log the user in and return an auth token"""
         logger.info(f"Logging in user: {remove(request.json, ['password'])}")
@@ -38,10 +39,10 @@ class UserLogout(Resource):
     """User Logout Resource"""
 
     @api.doc('/auth/logout')
-    @api.response(INTERNAL_SERVER_ERROR, UNKNOWN)
-    @api.response(UNAUTHORIZED, EMAIL_PASSWORD)
-    @api.response(BAD_REQUEST, MALFORMED)
-    @api.marshal_with(response, description=LOGOUT_SUCCESS, mask='status,data')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(UNAUTHORIZED, _(EMAIL_PASSWORD))
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.marshal_with(response, description=_(LOGOUT_SUCCESS), mask='status,data')
     def post(self):
         """Log the user out"""
         # Upon success the data attribute is returned but with null per the JSend spec. We want to

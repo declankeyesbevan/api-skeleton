@@ -30,7 +30,7 @@ class Config:
     RESTPLUS_MASK_SWAGGER = False
     ERROR_INCLUDE_MESSAGE = False
     BABEL_TRANSLATION_DIRECTORIES = f'{BASEDIR}/i18n/translations'
-    LANGUAGES = ['en', 'en-AU']
+    LANGUAGES = ['en', 'en_AU']
 
 
 @dataclasses.dataclass(frozen=True)
