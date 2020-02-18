@@ -7,7 +7,7 @@ import uuid
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError
 
-from app.i18n.base import USER_EXISTS
+from app.i18n.base import GETTING_USER, GETTING_USERS, USER_EXISTS
 from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.responses import CREATED, OK, responder
@@ -48,7 +48,7 @@ def get_all_users():
     try:
         users = User.query.all()
     except SQLAlchemyError as err:
-        raise InternalServerError(f"Error getting all users: {err}")
+        raise InternalServerError(f"{GETTING_USERS}: {err}")
     else:
         users = User.deserialise_users(users)
         return responder(code=OK, data=dict(users=users))
@@ -58,7 +58,7 @@ def get_a_user(public_id):
     try:
         user = User.query.filter_by(public_id=public_id).first()
     except SQLAlchemyError as err:
-        raise InternalServerError(f"Error getting a user: {err}")
+        raise InternalServerError(f"{GETTING_USER}: {err}")
     else:
         user = User.deserialise_users([user])[FIRST] if user else None
         return (responder(code=OK, data=dict(user=user))) if user else None

@@ -4,7 +4,7 @@ from jwt import DecodeError, ExpiredSignatureError
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError, Unauthorized
 
-from app.i18n.base import JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID
+from app.i18n.base import ENCODING_JWT, FINDING_USER, JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID
 from app.main import db, flask_bcrypt
 from app.main.model.blacklist import BlacklistToken
 
@@ -35,7 +35,7 @@ class User(db.Model):
         try:
             user = self.query.filter_by(**filter_by).first()
         except SQLAlchemyError as err:
-            raise InternalServerError(f"Error finding user by {filter_by}: {err}")
+            raise InternalServerError(f"{FINDING_USER} {filter_by}: {err}")
         return user
 
     @classmethod
@@ -43,7 +43,7 @@ class User(db.Model):
         try:
             token = create_jwt(identity=user_id)
         except FlaskJWTException as err:
-            raise InternalServerError(f"Error encoding JWT token: {err}")
+            raise InternalServerError(f"{ENCODING_JWT}: {err}")
         else:
             return token
 

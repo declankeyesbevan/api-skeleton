@@ -6,6 +6,7 @@ import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError
 
+from app.i18n.base import TOKEN_BLACKLIST
 from app.main import db
 
 
@@ -26,6 +27,6 @@ class BlacklistToken(db.Model):
         try:
             blacklisted = BlacklistToken.query.filter_by(token=str(auth_token)).first()
         except SQLAlchemyError as err:
-            raise InternalServerError(f"Error getting token blacklist: {err}")
+            raise InternalServerError(f"{TOKEN_BLACKLIST}: {err}")
         else:
             return bool(blacklisted)

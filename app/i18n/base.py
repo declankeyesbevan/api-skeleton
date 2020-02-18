@@ -29,3 +29,9 @@ JWT_UNPROCESSABLE = _('JWT malformed')
 # Error
 # 5xx
 UNKNOWN = _('Unknown error: try again')
+FINDING_USER = _('Error finding user by')
+GETTING_USER = _('Error getting all users')
+GETTING_USERS = _('Error getting a user')
+ENCODING_JWT = _('Error encoding JWT token')
+SAVING_TO_DATABASE = _('Error saving to database')
+TOKEN_BLACKLIST = _('Error getting token blacklist')
