@@ -4,12 +4,18 @@ import logging
 
 from flask import request
 from flask._compat import text_type as _
+from flask_jwt_simple import jwt_required
 from flask_restplus import Resource
 
-from app.i18n.base import EMAIL_PASSWORD, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED
+from app.i18n.base import (
+    EMAIL_PASSWORD, JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID, JWT_UNPROCESSABLE, LOGIN_SUCCESS,
+    LOGOUT_SUCCESS, MALFORMED,
+)
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth
-from app.responses import BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN
+from app.responses import (
+    BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN, UNPROCESSABLE_ENTITY,
+)
 from app.security import remove
 
 logger = logging.getLogger('api-skeleton')
@@ -31,16 +37,18 @@ class UserLogin(Resource):
     def post(self):
         """Log the user in and return an auth token"""
         logger.info(f"Logging in user: {remove(request.json, ['password'])}")
-        return Auth.login_user(data=request.json)
+        return Auth.login_user(request.json)
 
 
 @api.route('/logout')
 class UserLogout(Resource):
     """User Logout Resource"""
 
+    @jwt_required
     @api.doc('/auth/logout')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(UNAUTHORIZED, _(EMAIL_PASSWORD))
+    @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
+    @api.response(UNAUTHORIZED, _(f'{JWT_BLACKLISTED} | {JWT_EXPIRED} | {JWT_INVALID}'))
     @api.response(BAD_REQUEST, _(MALFORMED))
     @api.marshal_with(response, description=_(LOGOUT_SUCCESS), mask='status,data')
     def post(self):
@@ -54,4 +62,4 @@ class UserLogout(Resource):
         # Upon error, 'message' is returned correctly and 'data' is not returned.
         # Status is ever present.
         logger.info(f"Logging out user")
-        return Auth.logout_user(data=request.headers.get('Authorization'))
+        return Auth.logout_user(request.headers.get('Authorization'))

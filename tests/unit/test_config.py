@@ -21,5 +21,6 @@ postgres_database_uri = 'postgresql+psycopg2://test:password@localhost:5432/exam
 def test_app_is_correct_env(config, database_uri, debug, testing):
     assert config.SQLALCHEMY_DATABASE_URI == database_uri
     assert config.SECRET_KEY
+    assert config.JWT_SECRET_KEY
     assert config.DEBUG is debug
     assert config.TESTING is testing

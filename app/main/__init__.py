@@ -5,6 +5,7 @@ from flask._compat import text_type
 from flask.json import JSONEncoder as BaseEncoder
 from flask_babel import Babel
 from flask_bcrypt import Bcrypt
+from flask_jwt_simple import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from speaklater import _LazyString
 
@@ -20,6 +21,8 @@ def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(CONFIG_BY_NAME[config_name])
     db.init_app(app)
+    jwt = JWTManager(app)
+    jwt.init_app(app)
     flask_bcrypt.init_app(app)
     babel.init_app(app)
     app.json_encoder = JSONEncoder

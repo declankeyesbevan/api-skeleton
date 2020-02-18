@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name, too-many-instance-attributes
 
 import dataclasses
+import datetime
 import os
 from distutils import util
 
@@ -22,6 +23,9 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if SECRET_KEY is None:
         raise ValueError('Secret key has not been set')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    if JWT_SECRET_KEY is None:
+        raise ValueError('JWT secret key has not been set')
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -31,6 +35,7 @@ class Config:
     ERROR_INCLUDE_MESSAGE = False
     BABEL_TRANSLATION_DIRECTORIES = f'{BASEDIR}/i18n/translations'
     LANGUAGES = ['en', 'en_AU']
+    JWT_EXPIRES = datetime.timedelta(days=1)
 
 
 @dataclasses.dataclass(frozen=True)

@@ -1,12 +1,12 @@
-flask-babel
 flask
+flask-babel
 flask-bcrypt
-Flask-Migrate
+flask-jwt-simple
+flask-migrate
 flask-restplus
 flask-sqlalchemy
 flask_testing
 psycopg2-binary
-pyjwt
 speaklater
 sqlalchemy
 werkzeug==0.16.0

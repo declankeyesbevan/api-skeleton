@@ -16,13 +16,15 @@ LOGOUT_SUCCESS = _('Successfully logged out')
 
 # Fail
 # 4xx
-MALFORMED = _('Malformed data passed')
+# TODO: move JWT errors in here: 'Error encoding JWT token' etc
+MALFORMED = _('Request malformed')
 EMAIL_PASSWORD = _('Email and password do not match')
 USER_NOT_FOUND = _('User not found')
 USER_EXISTS = _('User exists: log in')
-SIGNATURE_EXPIRED = _('JWT signature expired: log in again')
-INVALID_TOKEN = _('Invalid token: log in again')
-TOKEN_BLACKLISTED = _('Token blacklisted: log in again')
+JWT_EXPIRED = _('JWT signature expired: log in again')
+JWT_INVALID = _('JWT invalid: log in again')
+JWT_BLACKLISTED = _('JWT blacklisted: log in again')
+JWT_UNPROCESSABLE = _('JWT malformed')
 
 # Error
 # 5xx

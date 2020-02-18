@@ -71,5 +71,5 @@ def generate_token(user):
         raise
     else:
         logger.info(f"Generated auth token for user with public_id: {user.public_id}")
-        user = dict(public_id=user.public_id, token=auth_token.decode())
+        user = dict(public_id=user.public_id, token=auth_token)
         return responder(code=CREATED, data=dict(user=user))

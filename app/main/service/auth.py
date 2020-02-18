@@ -19,8 +19,7 @@ class Auth:
             raise Unauthorized(EMAIL_PASSWORD)
 
         try:
-            auth_token = user.encode_auth_token(user.id)
-            token = auth_token.decode()
+            token = user.encode_auth_token(user.id)
         except InternalServerError:
             raise
         else:

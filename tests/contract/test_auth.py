@@ -1,8 +1,8 @@
 import pytest
 
-from app.responses import BAD_REQUEST, OK, UNAUTHORIZED
-from tests.data_factory import random_email, random_password, random_text, user_attributes
-from tests.helpers import API_BASE_URL, api_post, register_api_user
+from app.responses import OK, UNAUTHORIZED
+from tests.data_factory import random_email, random_password, user_attributes
+from tests.helpers import API_BASE_URL, api_post, denied_api_post_endpoint, register_api_user
 
 
 @pytest.mark.local
@@ -31,16 +31,16 @@ def test_user_logout():
     # TODO: Convert set up to fixture
     user_data = user_attributes()
     register_api_user(user_data)
+
+    # Don't use fixture as we need a token that's been blacklisted in the database.
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
     data = response.json().get('data')
     headers = dict(Authorization=f"Bearer {data.get('token')}")
 
-    response = api_post(f'{API_BASE_URL}/auth/logout', headers=headers)
-    assert response.status_code == OK
-
-    headers['Authorization'] = f"Bearer {random_text()}"
-    test_headers = [headers, None]
-    expected = [UNAUTHORIZED, BAD_REQUEST]
-    for idx, header in enumerate(test_headers):
-        response = api_post(f'{API_BASE_URL}/auth/logout', headers=header)
+    endpoint = f'{API_BASE_URL}/auth/logout'
+    expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
+    for idx, header in enumerate([headers, headers]):
+        response = api_post(endpoint, headers=headers)
         assert response.status_code == expected[idx]
+
+    denied_api_post_endpoint(endpoint)

@@ -37,10 +37,10 @@ api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(user_ns, path='/users')
 
 
-@api.errorhandler(BadRequest)
-@api.errorhandler(Unauthorized)
-@api.errorhandler(NotFound)
 @api.errorhandler(Conflict)
+@api.errorhandler(NotFound)
+@api.errorhandler(Unauthorized)
+@api.errorhandler(BadRequest)
 def fail_handler(error):
     logger.error(f"Error code: {error.code}")
     logger.error(f"Error description: {str(error.description)}")
