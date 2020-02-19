@@ -1,17 +1,15 @@
 import pytest
 
 from app.responses import OK, UNAUTHORIZED
-from tests.data_factory import random_email, random_password, user_attributes
-from tests.helpers import API_BASE_URL, api_post, denied_api_post_endpoint, register_api_user
+from tests.data_factory import random_email, random_password
+from tests.helpers import API_BASE_URL, api_post, denied_endpoint, register_user
 
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_login():
+def test_user_login(user_data):
     """Test for login of registered user."""
-    # TODO: Convert set up to fixture
-    user_data = user_attributes()
-    register_api_user(user_data)
+    register_user(user_data)
 
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
     body = response.json()
@@ -26,11 +24,9 @@ def test_user_login():
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_logout():
+def test_user_logout(user_data):
     """Test for logout before token expires."""
-    # TODO: Convert set up to fixture
-    user_data = user_attributes()
-    register_api_user(user_data)
+    register_user(user_data)
 
     # Don't use fixture as we need a token that's been blacklisted in the database.
     response = api_post(f'{API_BASE_URL}/auth/login', data=user_data)
@@ -43,4 +39,4 @@ def test_user_logout():
         response = api_post(endpoint, headers=headers)
         assert response.status_code == expected[idx]
 
-    denied_api_post_endpoint(endpoint)
+    denied_endpoint(endpoint, method='post')

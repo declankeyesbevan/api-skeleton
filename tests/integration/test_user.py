@@ -12,7 +12,6 @@ def test_user_to_db():
     # database()
     # user_data()
     # user_obj()
-    # database_user()
     """
     set_up_database(db)
 

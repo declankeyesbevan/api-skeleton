@@ -16,7 +16,6 @@ LOGOUT_SUCCESS = _('Successfully logged out')
 
 # Fail
 # 4xx
-# TODO: move JWT errors in here: 'Error encoding JWT token' etc
 MALFORMED = _('Request malformed')
 EMAIL_PASSWORD = _('Email and password do not match')
 USER_NOT_FOUND = _('User not found')

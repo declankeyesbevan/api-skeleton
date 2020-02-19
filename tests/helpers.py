@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 from app.config import CONFIG_BY_NAME
@@ -25,7 +23,6 @@ def tear_down_database(db):
     db.drop_all()
 
 
-# TODO: maybe convert to class for re-use below
 def client_get(client, url, headers=None):
     return client.get(url, headers=headers, content_type='application/json')
 
@@ -39,67 +36,36 @@ def api_get(url, headers=None):
 
 
 def api_post(url, headers=None, data=None):
-    return requests.post(url, json=data, headers=headers)
+    return requests.post(url, headers=headers, json=data)
 
 
-def register_client_user(client, user_data, expected=CREATED):
-    response = client_post(client, '/users', data=json.dumps(user_data))
+def register_user(user_data, expected=CREATED, client=None):
+    url = '/users' if client else f'{API_BASE_URL}/users'
+    response = client_post(client, url, data=user_data) if client else api_post(url, data=user_data)
     if expected == CREATED:
-        data = json.loads(response.data.decode()).get('data')
+        data = (response.json if client else response.json()).get('data')
         user = data.get('user')
         assert user.get('token')
     assert response.status_code == expected
     return response
 
 
-def register_api_user(user_data, expected=CREATED):
-    response = api_post(f'{API_BASE_URL}/users', data=user_data)
-    assert response.status_code == expected
-    return response
-
-
-def log_in_client_user(client, user_data, expected=OK):
-    response = client_post(client, '/auth/login', data=json.dumps(user_data))
-    if expected == OK:
-        data = json.loads(response.data.decode()).get('data')
+def authenticate_client_user(client, action, data=None, headers=None, expected=OK):
+    response = client_post(client, f'auth/{action}', data=data, headers=headers)
+    if expected == OK and action == 'login':
+        data = response.json.get('data')
         assert data.get('token')
     assert response.status_code == expected
     return response
 
 
-def log_out_client_user(client, headers, expected=OK):
-    response = client_post(client, '/auth/logout', headers=headers)
-    assert response.status_code == expected
-    return response
+def denied_endpoint(endpoint, method='get', client=None):
+    methods = dict(get=client_get, post=client_post) if client else dict(get=api_get, post=api_post)
+    method = methods.get(method)
 
-
-def denied_client_get_endpoint(client, endpoint):
     headers = dict(Authorization=f"Bearer {random_text()}")
     expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
     for idx, header in enumerate([headers, None]):
-        response = client_get(client, endpoint, headers=header)
-        assert response.status_code == expected[idx]
-
-
-def denied_client_post_endpoint(client, endpoint):
-    headers = dict(Authorization=f"Bearer {random_text()}")
-    expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
-    for idx, header in enumerate([headers, None]):
-        response = client_post(client, endpoint, headers=header)
-        assert response.status_code == expected[idx]
-
-
-def denied_api_get_endpoint(endpoint):
-    headers = dict(Authorization=f"Bearer {random_text()}")
-    expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
-    for idx, header in enumerate([headers, None]):
-        response = api_get(endpoint, headers=header)
-        assert response.status_code == expected[idx]
-
-
-def denied_api_post_endpoint(endpoint):
-    headers = dict(Authorization=f"Bearer {random_text()}")
-    expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
-    for idx, header in enumerate([headers, None]):
-        response = api_post(endpoint, headers=header)
+        response = method(
+            client, endpoint, headers=header) if client else method(endpoint, headers=header)
         assert response.status_code == expected[idx]
