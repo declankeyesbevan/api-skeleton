@@ -1,12 +1,11 @@
-from flask_jwt_simple import create_jwt, decode_jwt
-from flask_jwt_simple.exceptions import FlaskJWTException
-from jwt import DecodeError, ExpiredSignatureError
+from distutils import util
+
+from flask_jwt_simple import get_jwt
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError, Unauthorized
 
-from app.i18n.base import ENCODING_JWT, FINDING_USER, JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID
+from app.i18n.base import FINDING_USER, JWT_INSUFFICIENT, JWT_REQUIRED
 from app.main import db, flask_bcrypt
-from app.main.model.blacklist import BlacklistToken
 
 
 class User(db.Model):
@@ -39,31 +38,28 @@ class User(db.Model):
         return user
 
     @classmethod
-    def encode_auth_token(cls, user_id):
-        try:
-            token = create_jwt(identity=user_id)
-        except FlaskJWTException as err:
-            raise InternalServerError(f"{ENCODING_JWT}: {err}")
-        else:
-            return token
-
-    @classmethod
-    def decode_auth_token(cls, auth_token):
-        try:
-            payload = decode_jwt(auth_token)
-        except ExpiredSignatureError:
-            raise Unauthorized(JWT_EXPIRED)
-        except DecodeError:
-            raise Unauthorized(JWT_INVALID)
-        else:
-            is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
-            if is_blacklisted_token:
-                raise Unauthorized(JWT_BLACKLISTED)
-            return payload['sub']
-
-    @classmethod
     def deserialise_users(cls, users):
         return [
             dict(username=user.username, public_id=user.public_id, email=user.email) for user in
             users
         ]
+
+    @classmethod
+    def should_create_admin(cls, data):
+        users_exist = User().query.all()
+        if not users_exist:
+            should_create = True  # First user becomes Admin by default
+        else:
+            should_create = bool(util.strtobool(data.get('admin', 'false')))
+            if should_create:
+                jwt_data = get_jwt()
+                if not jwt_data:
+                    raise Unauthorized(JWT_REQUIRED)
+                if jwt_data.get('roles') != 'admin':
+                    raise Unauthorized(JWT_INSUFFICIENT)
+        return should_create
+
+    @classmethod
+    def is_admin(cls):
+        jwt_data = get_jwt()
+        return jwt_data.get('roles') == 'admin', jwt_data.get('sub')

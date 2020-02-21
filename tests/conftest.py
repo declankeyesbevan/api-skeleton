@@ -2,8 +2,8 @@ import pytest
 
 from api_skeleton import app
 from app.main import db
-from tests.data_factory import user_attributes, user_model
-from tests.helpers import set_up_database, tear_down_database
+from tests.data_factory import user_attributes
+from tests.helpers import create_header, create_user, set_up_database, tear_down_database
 
 
 def pytest_addoption(parser):
@@ -40,21 +40,19 @@ def database():
 
 @pytest.fixture(scope='function')
 def user_data():
-    """Used to create a user through the public API using a dict."""
     return user_attributes()
 
 
 @pytest.fixture(scope='function')
-def user_obj(user_data):
-    """Used to create a user through the ORM using an object."""
-    return user_model(user_data)
+def database_user():
+    return create_user(db, user_attributes())
 
 
 @pytest.fixture(scope='function')
-def auth_token(user_obj):
-    return user_obj.encode_auth_token(user_obj.id)
+def headers():
+    return create_header(db, user_attributes())
 
 
 @pytest.fixture(scope='function')
-def headers(user_obj, auth_token):
-    return dict(Authorization=f"Bearer {auth_token}")
+def admin_headers():
+    return create_header(db, user_attributes(), admin=True)

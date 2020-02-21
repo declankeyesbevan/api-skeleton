@@ -4,7 +4,7 @@ import pytest
 
 from app.responses import OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password
-from tests.helpers import authenticate_client_user, denied_endpoint, register_user
+from tests.helpers import authenticate_user, deny_endpoint, register_user
 
 
 @pytest.mark.usefixtures('database')
@@ -12,12 +12,12 @@ def test_user_login(client, user_data):
     """Test for login of registered user."""
     with client:
         register_user(json.dumps(user_data), client=client)
-        authenticate_client_user(client, 'login', data=json.dumps(user_data))
+        authenticate_user('login', data=json.dumps(user_data), client=client)
 
         for key in ['email', 'password']:
             user_data[key] = random_email() if key == 'email' else random_password()
-            authenticate_client_user(
-                client, 'login', data=json.dumps(user_data), expected=UNAUTHORIZED
+            authenticate_user(
+                'login', data=json.dumps(user_data), expected=UNAUTHORIZED, client=client
             )
 
 
@@ -27,12 +27,12 @@ def test_user_logout(client, user_data):
     with client:
         # Don't use fixture as we need a token that's been blacklisted in the database.
         register_user(json.dumps(user_data), client=client)
-        response = authenticate_client_user(client, 'login', data=json.dumps(user_data))
+        response = authenticate_user('login', data=json.dumps(user_data), client=client)
         data = response.json.get('data')
         headers = dict(Authorization=f"Bearer {data.get('token')}")
 
         expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
         for idx, header in enumerate([headers, headers]):
-            authenticate_client_user(client, 'logout', headers=header, expected=expected[idx])
+            authenticate_user('logout', headers=header, expected=expected[idx], client=client)
 
-        denied_endpoint('/auth/logout', method='post', client=client)
+        deny_endpoint('/auth/logout', method='post', client=client)

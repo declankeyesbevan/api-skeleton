@@ -5,11 +5,12 @@ import logging
 import uuid
 
 from sqlalchemy.exc import SQLAlchemyError
-from werkzeug.exceptions import BadRequest, Conflict, InternalServerError
+from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, Unauthorized
 
-from app.i18n.base import GETTING_USER, GETTING_USERS, USER_EXISTS
+from app.i18n.base import GETTING_USER, GETTING_USERS, USER_EXISTS, CANNOT_VIEW_OTHERS
 from app.main.data.dao import save_changes
 from app.main.model.user import User
+from app.main.service.auth import Auth
 from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
 from app.utils import FIRST
@@ -29,12 +30,15 @@ def save_new_user(data):
     if password_invalid:
         raise BadRequest(password_invalid)
 
+    create_admin = User.should_create_admin(data)
+
     new_user = User(
         email=data.get('email'),
         password=data.get('password'),
         username=data.get('username'),
         public_id=str(uuid.uuid4()),
         registered_on=datetime.datetime.utcnow(),
+        admin=create_admin,
     )
     save_changes(new_user)
     logger.info(f"New user successfully created")
@@ -51,6 +55,10 @@ def get_all_users():
         raise InternalServerError(f"{GETTING_USERS}: {err}")
     else:
         users = User.deserialise_users(users)
+        user_is_admin, user_sub = User.is_admin()
+        if not user_is_admin:
+            user = User.query.filter_by(public_id=user_sub).first()
+            users = [User.deserialise_users([user])[FIRST]]
         return responder(code=OK, data=dict(users=users))
 
 
@@ -61,12 +69,16 @@ def get_a_user(public_id):
         raise InternalServerError(f"{GETTING_USER}: {err}")
     else:
         user = User.deserialise_users([user])[FIRST] if user else None
+        user_is_admin, user_sub = User.is_admin()
+        if not user_is_admin:
+            if public_id != user_sub:
+                raise Unauthorized(CANNOT_VIEW_OTHERS)
         return (responder(code=OK, data=dict(user=user))) if user else None
 
 
 def generate_token(user):
     try:
-        auth_token = user.encode_auth_token(user.id)
+        auth_token = Auth.encode_auth_token(user)
     except InternalServerError:
         raise
     else:

@@ -4,7 +4,7 @@ import logging
 
 from flask import request
 from flask._compat import text_type as _
-from flask_jwt_simple import jwt_required
+from flask_jwt_simple import jwt_optional, jwt_required
 from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
 
@@ -41,6 +41,7 @@ class UserList(Resource):
         logger.info(f"Getting all users")
         return get_all_users()
 
+    @jwt_optional
     @api.doc('/users')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(CONFLICT, _(USER_EXISTS))
