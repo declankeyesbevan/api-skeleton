@@ -9,8 +9,8 @@ from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
-    JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID, JWT_UNPROCESSABLE, MALFORMED, USERS_LIST_SUCCESS,
-    USER_CREATE_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND,
+    JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED, USERS_LIST_SUCCESS, USER_CREATE_SUCCESS, USER_EXISTS,
+    USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
 from app.main.data.dto import ResponseDto, UserDto
 from app.main.service.user import get_a_user, get_all_users, save_new_user
@@ -34,7 +34,7 @@ class UserList(Resource):
     @api.doc('/users')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
-    @api.response(UNAUTHORIZED, _(f'{JWT_BLACKLISTED} | {JWT_EXPIRED} | {JWT_INVALID}'))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.marshal_with(response, description=_(USERS_LIST_SUCCESS), skip_none=True)
     def get(self):
         """List all users"""
@@ -62,7 +62,7 @@ class User(Resource):
     @jwt_required
     @api.doc('/users/:public_id')
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
-    @api.response(UNAUTHORIZED, _(f'{JWT_BLACKLISTED} | {JWT_EXPIRED} | {JWT_INVALID}'))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.response(NOT_FOUND, _(USER_NOT_FOUND))
     @api.marshal_with(response, description=_(USER_LIST_SUCCESS), skip_none=True)
     def get(self, public_id):

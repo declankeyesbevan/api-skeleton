@@ -8,8 +8,7 @@ from flask_jwt_simple import jwt_required
 from flask_restplus import Resource
 
 from app.i18n.base import (
-    EMAIL_PASSWORD, JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID, JWT_UNPROCESSABLE, LOGIN_SUCCESS,
-    LOGOUT_SUCCESS, MALFORMED,
+    EMAIL_PASSWORD, JWT_ERROR, JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
 )
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth
@@ -48,7 +47,7 @@ class UserLogout(Resource):
     @api.doc('/auth/logout')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
-    @api.response(UNAUTHORIZED, _(f'{JWT_BLACKLISTED} | {JWT_EXPIRED} | {JWT_INVALID}'))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.response(BAD_REQUEST, _(MALFORMED))
     @api.marshal_with(response, description=_(LOGOUT_SUCCESS), mask='status,data')
     def post(self):
