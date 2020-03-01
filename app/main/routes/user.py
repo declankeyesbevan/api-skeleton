@@ -55,7 +55,7 @@ class UserList(Resource):
 
 
 @api.route('/<public_id>')
-@api.param('public_id', description='The User identifier')
+@api.param('public_id', description='User identifier')
 class User(Resource):
     """User Resource"""
 

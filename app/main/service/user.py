@@ -7,10 +7,10 @@ import uuid
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, Unauthorized
 
-from app.i18n.base import GETTING_USER, GETTING_USERS, USER_EXISTS, CANNOT_VIEW_OTHERS
+from app.email_client import send_confirmation_email
+from app.i18n.base import CANNOT_VIEW_OTHERS, GETTING_USER, GETTING_USERS, USER_EXISTS
 from app.main.data.dao import save_changes
 from app.main.model.user import User
-from app.main.service.auth import Auth
 from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
 from app.utils import FIRST
@@ -32,20 +32,28 @@ def save_new_user(data):
 
     create_admin = User.should_create_admin(data)
 
+    now = datetime.datetime.utcnow()
     new_user = User(
         email=data.get('email'),
         password=data.get('password'),
         username=data.get('username'),
         public_id=str(uuid.uuid4()),
-        registered_on=datetime.datetime.utcnow(),
         admin=create_admin,
+        registered_on=now,
+        email_confirmation_sent_on=now,
+        email_confirmed=False,
+        email_confirmed_on=None,
     )
     save_changes(new_user)
+    send_confirmation_email(new_user.email)
+
     logger.info(f"New user successfully created")
     logger.info(f"New user email: {new_user.email}")
     logger.info(f"New user username: {new_user.username}")
     logger.info(f"New user public_id: {new_user.public_id}")
-    return generate_token(new_user)
+
+    user = dict(public_id=new_user.public_id)
+    return responder(code=CREATED, data=dict(user=user))
 
 
 def get_all_users():
@@ -74,14 +82,3 @@ def get_a_user(public_id):
             if public_id != user_sub:
                 raise Unauthorized(CANNOT_VIEW_OTHERS)
         return (responder(code=OK, data=dict(user=user))) if user else None
-
-
-def generate_token(user):
-    try:
-        auth_token = Auth.encode_auth_token(user)
-    except InternalServerError:
-        raise
-    else:
-        logger.info(f"Generated auth token for user with public_id: {user.public_id}")
-        user = dict(public_id=user.public_id, token=auth_token)
-        return responder(code=CREATED, data=dict(user=user))

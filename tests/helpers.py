@@ -1,8 +1,12 @@
+import json
+import os
+
 import requests
 
 from app.config import CONFIG_BY_NAME
 from app.main.service.auth import Auth
 from app.responses import CREATED, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY
+from app.utils import FIRST
 from tests.data_factory import random_text, user_model
 
 CONFIG_OBJECT = CONFIG_BY_NAME['test-external']
@@ -57,7 +61,7 @@ def register_user(user_data, expected=CREATED, client=None):
     if expected == CREATED:
         data = (response.json if client else response.json()).get('data')
         user = data.get('user')
-        assert user.get('token')
+        assert user.get('public_id')
     assert response.status_code == expected
     return response
 
@@ -87,3 +91,16 @@ def deny_endpoint(endpoint, method='get', client=None):
             method(endpoint, headers=header)
         )
         assert response.status_code == expected[idx]
+
+
+def get_email_confirmation_token(user_data):
+    build_dir = os.environ.get('BUILD_DIR', 'build')
+    with open(f'{build_dir}/{user_data.get("email").split("@")[FIRST]}.json', 'r') as f:
+        token_dict = json.load(f)
+    return token_dict.get('token')
+
+
+def confirm_email_token(token, client=None):
+    url = f'auth/confirm/{token}' if client else f'{API_BASE_URL}/auth/confirm/{token}'
+    response = client_post(client, url) if client else api_post(url)
+    assert response.status_code == OK

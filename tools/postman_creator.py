@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 
 from app import api
 from app.utils import FIRST
-from tools.postman_config import add_auth, add_body, add_snippet_to_event, routes
+from tools.postman_config import add_attribute_to_body, add_auth, add_snippet_to_event, routes
 
 
 def create_postman(app):
@@ -24,15 +24,16 @@ def create_postman(app):
 def _template_environment_file(env_vars):
     values = [dict(key=f'{k.lower()}', value=v, enabled=True) for k, v in env_vars.items()]
     return dict(
-        name='Flask-RESTPlus API skeleton 0.1.0',
+        name='Flask-RESTPlus API skeleton 0.1.0',  # TODO: set dynamically from Git
         values=values,
         _postman_variable_scope='environment',
     )
 
 
 def _write_to_file(filename, data):
-    Path(f'{os.environ.get("BUILD_DIR", "build")}').mkdir(parents=True, exist_ok=True)
-    with open(f'{os.environ.get("BUILD_DIR", "build")}/{filename}.json', 'w') as file:
+    build_dir = os.environ.get('BUILD_DIR', 'build')
+    Path(f'{build_dir}').mkdir(parents=True, exist_ok=True)
+    with open(f'{build_dir}/{filename}.json', 'w') as file:
         file.write(json.dumps(data, indent=4))
 
 
@@ -51,9 +52,9 @@ def _execute_parent_auth(data):
     data['auth'] = add_auth()
 
 
-def _execute_body(request):
+def _execute_body(request, keys):
     request['dataMode'] = 'raw'
-    request['rawModeData'] = add_body()
+    request['rawModeData'] = add_attribute_to_body(keys.get('attributes'))
 
 
 def _execute_event(request, keys):
@@ -72,6 +73,6 @@ def _execute_actions(request, section, metadata):
     for keys in metadata:
         if request.get('name') == keys.get('name') and request.get('method') == keys.get('method'):
             if section == 'bodies':
-                _execute_body(request)
+                _execute_body(request, keys)
             if section == 'snippets':
                 _execute_event(request, keys)

@@ -8,12 +8,13 @@ from flask_jwt_simple import jwt_required
 from flask_restplus import Resource
 
 from app.i18n.base import (
-    EMAIL_PASSWORD, JWT_ERROR, JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
+    ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,
+    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
 )
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth
 from app.responses import (
-    BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN, UNPROCESSABLE_ENTITY,
+    BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN, UNPROCESSABLE_ENTITY,
 )
 from app.security import remove
 
@@ -62,3 +63,18 @@ class UserLogout(Resource):
         # Status is ever present.
         logger.info(f"Logging out user")
         return Auth.logout_user(request.headers.get('Authorization'))
+
+
+@api.route('/confirm/<confirmation_token>')
+@api.param('token', description='Email confirmation token')
+class EmailConfirm(Resource):
+    """Email Confirmation Resource"""
+
+    @api.doc('/auth/confirm/:confirmation_token')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
+    @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
+    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
+    def post(self, confirmation_token):
+        logger.info(f"Confirming user email address")
+        return Auth.confirm_email(confirmation_token)

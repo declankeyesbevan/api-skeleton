@@ -2,7 +2,10 @@ import pytest
 
 from app.responses import OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password
-from tests.helpers import API_BASE_URL, authenticate_user, deny_endpoint, register_user
+from tests.helpers import (
+    API_BASE_URL, authenticate_user, confirm_email_token, deny_endpoint,
+    get_email_confirmation_token, register_user,
+)
 
 
 @pytest.mark.local
@@ -10,6 +13,8 @@ from tests.helpers import API_BASE_URL, authenticate_user, deny_endpoint, regist
 def test_user_login(user_data):
     """Test for login of registered user."""
     register_user(user_data)
+    token = get_email_confirmation_token(user_data)
+    confirm_email_token(token)
 
     response = authenticate_user('login', data=user_data)
     body = response.json()
@@ -25,8 +30,10 @@ def test_user_login(user_data):
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_logout(user_data):
-    """Test for logout before token expires."""
+    """Test for logout."""
     register_user(user_data)
+    token = get_email_confirmation_token(user_data)
+    confirm_email_token(token)
 
     # Don't use fixture as we need a token that's been blacklisted in the database.
     response = authenticate_user('login', data=user_data)

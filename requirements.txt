@@ -2,10 +2,12 @@ flask
 flask-babel
 flask-bcrypt
 flask-jwt-simple
+flask-mail
 flask-migrate
 flask-restplus
 flask-sqlalchemy
 flask_testing
+itsdangerous
 psycopg2-binary
 speaklater
 sqlalchemy

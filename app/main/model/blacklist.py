@@ -20,7 +20,7 @@ class BlacklistToken(db.Model):
 
     def __init__(self, token):
         self.token = token
-        self.blacklisted_on = datetime.datetime.now()
+        self.blacklisted_on = datetime.datetime.utcnow()
 
     @classmethod
     def check_blacklist(cls, auth_token):

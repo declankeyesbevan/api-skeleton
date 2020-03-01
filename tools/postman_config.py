@@ -7,19 +7,18 @@ routes = {
         {
             'name': '/auth/logout',
             'method': 'POST',
-            'events': [],
         },
     ],
     'bodies': [
         {
             'name': '/auth/login',
             'method': 'POST',
-            'events': [],
+            'attributes': ['email', 'password'],
         },
         {
             'name': '/users',
             'method': 'POST',
-            'events': [],
+            'attributes': ['email', 'password', 'username'],
         },
     ],
     'snippets': [
@@ -31,15 +30,20 @@ routes = {
         {
             'name': '/users',
             'method': 'POST',
-            'events': ['token_user', 'public_id_user'],
+            'events': ['public_id'],
         },
     ]
 }
 
 _javascript_snippets = {
     'token': 'pm.environment.set("token", jsonData.data.token);',
-    'token_user': 'pm.environment.set("token", jsonData.data.user.token);',
-    'public_id_user': 'pm.environment.set("public_id", jsonData.data.user.public_id);',
+    'public_id': 'pm.environment.set("public_id", jsonData.data.user.public_id);',
+}
+
+_body_attributes = {
+    'email': '{{email}}',
+    'password': '{{password}}',
+    'username': '{{username}}',
 }
 
 
@@ -53,16 +57,6 @@ def add_auth():
             }
         ]
     }
-
-
-def add_body():
-    raw_data = {
-        'email': '{{email}}',
-        'password': '{{password}}',
-        'username': '{{username}}',
-        'public_id': '{{public_id}}',
-    }
-    return json.dumps(raw_data, indent=4)
 
 
 def add_snippet_to_event(postman_variables):
@@ -81,3 +75,11 @@ def add_snippet_to_event(postman_variables):
         if postman_variable in _javascript_snippets:
             event[FIRST]['script']['exec'].append(_javascript_snippets[postman_variable])
     return event
+
+
+def add_attribute_to_body(postman_variables):
+    body = dict()
+    for postman_variable in postman_variables:
+        if postman_variable in _body_attributes:
+            body.update({postman_variable: _body_attributes[postman_variable]})
+    return json.dumps(body, indent=4)

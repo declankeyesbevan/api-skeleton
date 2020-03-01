@@ -7,7 +7,9 @@ from werkzeug.exceptions import Unauthorized
 
 from app.main.service.auth import Auth
 from tests.data_factory import random_text
-from tests.helpers import authenticate_user, register_user
+from tests.helpers import (
+    authenticate_user, confirm_email_token, get_email_confirmation_token, register_user,
+)
 
 
 @pytest.mark.usefixtures('database')
@@ -28,7 +30,8 @@ def test_decode_auth_token(client, database_user, user_data):
         assert Auth.decode_auth_token(random_text())
 
     register_user(json.dumps(user_data), client=client)
-
+    token = get_email_confirmation_token(user_data)
+    confirm_email_token(token, client)
     # Don't use fixture as we need a token that's been blacklisted in the database.
     response = authenticate_user('login', data=json.dumps(user_data), client=client)
     data = response.json.get('data')

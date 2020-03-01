@@ -7,7 +7,7 @@ Requires:
 Pre-requisites:
  - pip install -r tests/test-requirements.txt
 """
-
+import asyncore
 import os
 import subprocess
 from distutils import util
@@ -20,6 +20,7 @@ from app import blueprint
 from app.main import create_app, db
 from app.main.model import blacklist, user
 from tests.helpers import set_up_database, tear_down_database
+from tools.email_server import CustomSMTPServer
 from tools.postman_creator import create_postman
 from tools.static_code_analysis import CyclomaticComplexity, Lint, LogicalLinesOfCode
 
@@ -122,6 +123,15 @@ def lloc():
 def postman():
     """Dump the API to a Postman collection"""
     create_postman(app)
+
+
+@cli.command()
+def mail():
+    """Create a local SMTP server"""
+    mail_server = 'localhost'
+    mail_port = 1025
+    CustomSMTPServer((mail_server, mail_port), None)
+    asyncore.loop()
 
 
 if __name__ == '__main__':
