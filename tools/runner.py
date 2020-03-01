@@ -46,7 +46,8 @@ def run(env):
 
 
 def _set_up_environment():
-    click.echo('Creating venv and installing app dependencies')
+    click.echo('Creating venv/build directory and installing app dependencies')
+
     commands = [
         ['-V'],
         ['-m', 'venv', 'venv'],
@@ -57,6 +58,8 @@ def _set_up_environment():
         python_executable = [sys.executable]
         python_executable.extend(command)
         runner(python_executable)
+
+    Path(f'{os.environ.get("BUILD_DIR", "build")}').mkdir(parents=True, exist_ok=True)
 
 
 def _run_per_env(env):
