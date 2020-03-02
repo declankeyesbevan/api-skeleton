@@ -12,11 +12,12 @@ from app.i18n.base import (
     JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
 )
 from app.main.data.dto import AuthDto, ResponseDto
-from app.main.service.auth import Auth
+from app.main.service.auth import Auth, jwt_valid
 from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN, UNPROCESSABLE_ENTITY,
 )
 from app.security import remove
+from app.utils import SECOND
 
 logger = logging.getLogger('api-skeleton')
 api = AuthDto.api
@@ -45,6 +46,7 @@ class UserLogout(Resource):
     """User Logout Resource"""
 
     @jwt_required
+    @jwt_valid
     @api.doc('/auth/logout')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
@@ -62,7 +64,8 @@ class UserLogout(Resource):
         # Upon error, 'message' is returned correctly and 'data' is not returned.
         # Status is ever present.
         logger.info(f"Logging out user")
-        return Auth.logout_user(request.headers.get('Authorization'))
+        auth_token = request.headers.get('Authorization').split('Bearer ')[SECOND]
+        return Auth.logout_user(auth_token)
 
 
 @api.route('/confirm/<confirmation_token>')

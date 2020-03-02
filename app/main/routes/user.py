@@ -13,6 +13,7 @@ from app.i18n.base import (
     USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
 from app.main.data.dto import ResponseDto, UserDto
+from app.main.service.auth import jwt_valid
 from app.main.service.user import get_a_user, get_all_users, save_new_user
 from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
@@ -31,6 +32,7 @@ class UserList(Resource):
     """User List Resource"""
 
     @jwt_required
+    @jwt_valid
     @api.doc('/users')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
@@ -60,6 +62,7 @@ class User(Resource):
     """User Resource"""
 
     @jwt_required
+    @jwt_valid
     @api.doc('/users/:public_id')
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))

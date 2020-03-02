@@ -40,4 +40,4 @@ def test_decode_auth_token(client, database_user, user_data):
 
     authenticate_user('logout', headers=headers, client=client)
     with pytest.raises(Unauthorized):
-        Auth.decode_auth_token(token)
+        Auth.validate_token_blacklist(token)

@@ -1,8 +1,10 @@
 # pylint: disable=try-except-raise
+
 import logging
 from datetime import datetime
+from functools import wraps
 
-from flask import current_app
+from flask import current_app, request
 from flask_jwt_simple import create_jwt, decode_jwt
 from flask_jwt_simple.exceptions import FlaskJWTException
 from itsdangerous import BadData, URLSafeTimedSerializer
@@ -46,12 +48,7 @@ class Auth:
             return responder(code=OK, data=dict(token=token))
 
     @classmethod
-    def logout_user(cls, data):
-        try:
-            auth_token = data.split('Bearer ')[SECOND]
-        except (AttributeError, IndexError):
-            raise BadRequest(MALFORMED)
-
+    def logout_user(cls, auth_token):
         try:
             public_id = Auth.decode_auth_token(auth_token)
         except Unauthorized:
@@ -78,9 +75,6 @@ class Auth:
         except DecodeError:
             raise Unauthorized(JWT_INVALID)
         else:
-            is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
-            if is_blacklisted_token:
-                raise Unauthorized(JWT_BLACKLISTED)
             return payload['sub']
 
     @classmethod
@@ -104,3 +98,28 @@ class Auth:
 
         logger.info(f"Confirmed email of user with public_id: {user.public_id}")
         return responder(code=OK)
+
+    @classmethod
+    def validate_token_format(cls, auth_token):
+        try:
+            auth_token = auth_token.split('Bearer ')[SECOND]
+        except (AttributeError, IndexError):
+            raise BadRequest(MALFORMED)
+        else:
+            return auth_token
+
+    @classmethod
+    def validate_token_blacklist(cls, auth_token):
+        is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
+        if is_blacklisted_token:
+            raise Unauthorized(JWT_BLACKLISTED)
+
+
+def jwt_valid(func):
+    @wraps(func)
+    def token_validator(*args, **kwargs):
+        auth_token = Auth.validate_token_format(request.headers.get('Authorization'))
+        Auth.validate_token_blacklist(auth_token)
+        return func(*args, **kwargs)
+
+    return token_validator
