@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+from flask._compat import text_type as _
+
 from app.i18n.base import ERROR, FAIL, SUCCESS, UNKNOWN
 
 # HTTP codes
@@ -23,7 +25,7 @@ INTERNAL_SERVER_ERROR = HTTPStatus.INTERNAL_SERVER_ERROR.value  # 500
 
 def responder(code, data=None):
     if code < BAD_REQUEST:
-        return dict(status=SUCCESS, data=data), code
+        return dict(status=_(SUCCESS), data=data), code
     if BAD_REQUEST <= code < INTERNAL_SERVER_ERROR:
-        return dict(status=FAIL, data=data), code
-    return dict(status=ERROR, message=UNKNOWN), INTERNAL_SERVER_ERROR
+        return dict(status=_(FAIL), data=data), code
+    return dict(status=_(ERROR), message=UNKNOWN), INTERNAL_SERVER_ERROR
