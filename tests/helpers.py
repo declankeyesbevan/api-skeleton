@@ -5,9 +5,9 @@ import requests
 
 from app.config import CONFIG_BY_NAME
 from app.main.service.auth import Auth
-from app.responses import CREATED, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY
-from app.utils import FIRST
-from tests.data_factory import random_text, user_model
+from app.responses import BAD_REQUEST, CONFLICT, CREATED, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY
+from app.utils import FIFTH, FIRST, FOURTH, SECOND, SEVENTH, SIXTH, THIRD
+from tests.data_factory import random_email, random_text, user_model
 
 CONFIG_OBJECT = CONFIG_BY_NAME['test-external']
 API_BASE_URL = f'{CONFIG_OBJECT.PREFERRED_URL_SCHEME}://{CONFIG_OBJECT.SERVER_NAME}'
@@ -104,3 +104,15 @@ def confirm_email_token(token, client=None):
     url = f'auth/confirm/{token}' if client else f'{API_BASE_URL}/auth/confirm/{token}'
     response = client_post(client, url) if client else api_post(url)
     assert response.status_code == OK
+
+
+def bad_username_and_email(users):
+    users[FIRST]['password'] = None
+    users[SECOND]['email'] = random_email()  # Must be unique username
+    users[THIRD]['username'] = random_text()  # Must be unique email
+    users[FOURTH]['email'] = ''  # Must not be null
+    users[FIFTH]['email'] = 'a@b.c'  # Must be at least 6 chars 'a@b.co'
+    users[SIXTH]['username'] = ''  # Must not be null
+    users[SEVENTH]['username'] = 'fooba'  # Must be at least 6 chars
+    expected = [BAD_REQUEST, CONFLICT, CONFLICT, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST]
+    return users, expected

@@ -2,7 +2,7 @@ import dataclasses
 
 from flask_restplus import Namespace, fields
 
-USERNAME_EMAIL_MINIMUM_LENGTH = 7
+USERNAME_EMAIL_MINIMUM_LENGTH = 6
 
 
 @dataclasses.dataclass(frozen=True)

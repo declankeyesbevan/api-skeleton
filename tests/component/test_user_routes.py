@@ -3,13 +3,12 @@ import json
 
 import pytest
 
-from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
-from app.utils import FIRST, SECOND, THIRD, THREE_ITEMS
+from app.responses import NOT_FOUND, OK, UNAUTHORIZED
+from app.utils import FIRST, SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
-    user_attributes,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_text, user_attributes,
 )
-from tests.helpers import client_get, deny_endpoint, register_user
+from tests.helpers import bad_username_and_email, client_get, deny_endpoint, register_user
 
 
 @pytest.mark.usefixtures('database')
@@ -42,13 +41,10 @@ def test_user_list_post(client):
     """Test for creating a new user."""
     with client:
         user = user_attributes()
-        users = [copy.copy(user) for _ in range(THREE_ITEMS)]
+        users = [copy.copy(user) for _ in range(SEVEN_ITEMS)]
         register_user(json.dumps(users[FIRST]), client=client)
 
-        users[FIRST]['password'] = None
-        users[SECOND]['email'] = random_email()  # Must be unique username
-        users[THIRD]['username'] = random_text()  # Must be unique email
-        expected = [BAD_REQUEST, CONFLICT, CONFLICT]
+        users, expected = bad_username_and_email(users)
         for idx, user in enumerate(users):
             register_user(json.dumps(user), expected=expected[idx], client=client)
 

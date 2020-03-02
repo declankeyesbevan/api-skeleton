@@ -1,7 +1,11 @@
 FIRST = 0
 SECOND = 1
 THIRD = 2
+FOURTH = 3
+FIFTH = 4
+SIXTH = 5
+SEVENTH = 6
 
-THREE_ITEMS = 3
+SEVEN_ITEMS = 7
 
 SPECIAL_CHARACTERS = r"""!@$%^&*()_-+={}[]|\,.></?~`"':;"""

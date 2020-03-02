@@ -2,13 +2,14 @@ import copy
 
 import pytest
 
-from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
-from app.utils import FIRST, SECOND, THIRD, THREE_ITEMS
+from app.responses import NOT_FOUND, OK, UNAUTHORIZED
+from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
-    user_attributes,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_text, user_attributes,
 )
-from tests.helpers import API_BASE_URL, api_get, deny_endpoint, register_user
+from tests.helpers import (
+    API_BASE_URL, api_get, bad_username_and_email, deny_endpoint, register_user,
+)
 
 
 @pytest.mark.local
@@ -41,12 +42,9 @@ def test_user_list_get(headers, admin_headers):
 def test_user_list_post(user_data):
     """Test for creating a new user."""
     register_user(user_data)
-    users = [copy.copy(user_data) for _ in range(THREE_ITEMS)]
+    users = [copy.copy(user_data) for _ in range(SEVEN_ITEMS)]
 
-    users[FIRST]['password'] = None
-    users[SECOND]['email'] = random_email()  # Must be unique username
-    users[THIRD]['username'] = random_text()  # Must be unique email
-    expected = [BAD_REQUEST, CONFLICT, CONFLICT]
+    users, expected = bad_username_and_email(users)
     for idx, user in enumerate(users):
         register_user(user, expected=expected[idx])
 
