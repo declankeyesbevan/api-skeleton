@@ -2,6 +2,8 @@ import dataclasses
 
 from flask_restplus import Namespace, fields
 
+USERNAME_EMAIL_MINIMUM_LENGTH = 7
+
 
 @dataclasses.dataclass(frozen=True)
 class RequestDto:
@@ -9,8 +11,13 @@ class RequestDto:
     request = api.model(
         'request',
         dict(
-            email=fields.String(required=True, description='User email address'),
-            password=fields.String(required=True, description='User password')
+            email=fields.String(
+                required=True,
+                allow_null=False,
+                min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
+                description='User email address'
+            ),
+            password=fields.String(required=True, allow_null=False, description='User password')
         )
     )
 
@@ -31,7 +38,12 @@ class UserDto:
     user = RequestDto.request.inherit(
         'user',
         dict(
-            username=fields.String(required=True, description='User username'),
+            username=fields.String(
+                required=True,
+                allow_null=False,
+                min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
+                description='User username'
+            ),
         )
     )
     api.add_model('user', user)
