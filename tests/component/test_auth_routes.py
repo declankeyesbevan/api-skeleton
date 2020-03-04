@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from app.responses import OK, UNAUTHORIZED
+from app.responses import CONFLICT, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
     authenticate_user, client_post, confirm_email_token, deny_endpoint, get_email_token,
@@ -16,7 +16,7 @@ def test_user_login(client, user_data):
     with client:
         register_user(json.dumps(user_data), client=client)
         token = get_email_token(user_data)
-        confirm_email_token(token, client)
+        confirm_email_token(token, client=client)
         authenticate_user('login', data=json.dumps(user_data), client=client)
 
         for key in ['email', 'password']:
@@ -33,7 +33,7 @@ def test_user_logout(client, user_data):
         # Don't use fixture as we need a token that's been blacklisted in the database.
         register_user(json.dumps(user_data), client=client)
         token = get_email_token(user_data)
-        confirm_email_token(token, client)
+        confirm_email_token(token, client=client)
         response = authenticate_user('login', data=json.dumps(user_data), client=client)
         data = response.json.get('data')
         headers = dict(Authorization=f"Bearer {data.get('token')}")
@@ -53,8 +53,9 @@ def test_email_confirm(client, user_data):
         token = get_email_token(user_data)
 
         authenticate_user('login', data=json.dumps(user_data), expected=UNAUTHORIZED, client=client)
-        confirm_email_token(token, client)
+        confirm_email_token(token, client=client)
         authenticate_user('login', data=json.dumps(user_data), client=client)
+        confirm_email_token(token, expected=CONFLICT, client=client)
 
 
 @pytest.mark.usefixtures('database')
@@ -68,7 +69,7 @@ def test_password_reset(client, user_data):
         response = client_post(client, request_url, data=json.dumps(user_data))
         assert response.status_code == UNAUTHORIZED
 
-        confirm_email_token(token, client)
+        confirm_email_token(token, client=client)
         old_email = user_data.get('email')
         old_password = user_data.get('password')
 

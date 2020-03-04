@@ -1,6 +1,6 @@
 import pytest
 
-from app.responses import OK, UNAUTHORIZED
+from app.responses import CONFLICT, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
     API_BASE_URL, api_post, authenticate_user, confirm_email_token, deny_endpoint, get_email_token,
@@ -47,6 +47,19 @@ def test_user_logout(user_data):
         assert response.status_code == expected[idx]
 
     deny_endpoint(endpoint, method='post')
+
+
+@pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_email_confirm(user_data):
+    """Test for email confirmation."""
+    register_user(user_data)
+    token = get_email_token(user_data)
+
+    authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
+    confirm_email_token(token)
+    authenticate_user('login', data=user_data)
+    confirm_email_token(token, expected=CONFLICT)
 
 
 @pytest.mark.local

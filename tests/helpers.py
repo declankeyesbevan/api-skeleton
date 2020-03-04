@@ -100,10 +100,10 @@ def get_email_token(user_data):
     return token_dict.get('token')
 
 
-def confirm_email_token(token, client=None):
+def confirm_email_token(token, expected=OK, client=None):
     url = f'auth/confirm/{token}' if client else f'{API_BASE_URL}/auth/confirm/{token}'
     response = client_post(client, url) if client else api_post(url)
-    assert response.status_code == OK
+    assert response.status_code == expected
 
 
 def bad_username_and_email(users):
