@@ -53,7 +53,7 @@ class UserList(Resource):
     def post(self):
         """Create a new user"""
         logger.info(f"Creating new user: {remove(request.json, ['password'])}")
-        return save_new_user(data=request.json)
+        return save_new_user(request.json)
 
 
 @api.route('/<public_id>')

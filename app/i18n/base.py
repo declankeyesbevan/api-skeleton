@@ -13,13 +13,17 @@ LOGOUT_SUCCESS = _('Successfully logged out')
 USER_LIST_SUCCESS = _('Successfully listed user')
 USERS_LIST_SUCCESS = _('Successfully listed users')
 USER_CREATE_SUCCESS = _('Successfully created user')
-EMAIL_CONFIRMED = _('Thank you for confirming your email address')
+EMAIL_CONFIRMED = _('Email confirmed')
+CHECK_EMAIL = _('Check your email for a password reset link')
+PASSWORD_UPDATED = _('Your password has been updated')
 
 # Fail
 # 4xx
 MALFORMED = _('Request malformed')
 EMAIL_PASSWORD = _('Email and password do not match')
 EMAIL_NOT_CONFIRMED = _('Email address not confirmed')
+EMAIL_NOT_CONFIRMED_RESET = _('Email address must be confirmed before attempting a password reset')
+EMAIL_INVALID = _('Email address is invalid')
 CANNOT_VIEW_OTHERS = _('Non-admin users can only view themselves')
 JWT_ERROR = _('JWT error')
 JWT_EXPIRED = _('JWT signature expired: log in again')
@@ -29,6 +33,8 @@ JWT_UNPROCESSABLE = _('JWT malformed')
 JWT_REQUIRED = _('JWT token with admin privileges required to create admin')
 JWT_INSUFFICIENT = _('User has insufficient privilege to create to create admin')
 CONFIRMATION_FAILED = _('Email confirmation failed')
+PASSWORD_RESET_FAILED = _('Password reset failed')
+RESET_FAILED = _('The password reset link is invalid or has expired')
 USER_NOT_FOUND = _('User not found')
 USER_EXISTS = _('User exists: log in')
 ACCOUNT_ALREADY_CONFIRMED = _('Account already confirmed: log in')
@@ -44,13 +50,22 @@ SAVING_TO_DATABASE = _('Error saving to database')
 TOKEN_BLACKLIST = _('Error getting token blacklist')
 
 # Email
-CONFIRM = _('Confirm Your Email Address')
-PLAINTEXT_EMAIL_BODY = """
+EMAIL_CONFIRM = _('Confirm Your Email Address')
+PLAINTEXT_EMAIL_CONFIRMATION_BODY = """
 Your account on API Skeleton was successfully created.
 Please click the link below to confirm your email address and
 activate your account:
   
 {url}
  
+Questions? Comments? Email Us: {email}
+"""
+PASSWORD_RESET = _('Password Reset Requested')
+PLAINTEXT_PASSWORD_RESET_BODY = """
+You requested that the password for your  API Skeleton account be reset.
+Please click the link below to reset your password:
+
+{url}
+
 Questions? Comments? Email Us: {email}
 """

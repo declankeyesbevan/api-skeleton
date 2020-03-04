@@ -93,7 +93,7 @@ def deny_endpoint(endpoint, method='get', client=None):
         assert response.status_code == expected[idx]
 
 
-def get_email_confirmation_token(user_data):
+def get_email_token(user_data):
     build_dir = os.environ.get('BUILD_DIR', 'build')
     with open(f'{build_dir}/{user_data.get("email").split("@")[FIRST]}.json', 'r') as f:
         token_dict = json.load(f)

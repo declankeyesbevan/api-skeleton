@@ -6,8 +6,10 @@ from types import SimpleNamespace
 FLASK_SERVER = 'http://localhost.localdomain:5000'
 FIRST = 0
 SECOND = 1
+JSON_INDENT = 4
 BUILD_DIR = os.environ.get('BUILD_DIR', 'build')
 AUTH_CONFIRM_URL = f'{FLASK_SERVER}/auth/confirm/'
+AUTH_RESET_URL = f'{FLASK_SERVER}/auth/reset/'
 
 
 class CustomSMTPServer(DebuggingServer):
@@ -27,11 +29,12 @@ class CustomSMTPServer(DebuggingServer):
             for splitter in ['Subject: ', 'From: ', 'To: ']:
                 if line.startswith(splitter):
                     values[splitter.lower().split(':')[FIRST]] = line.split(splitter)[SECOND]
-            if line.startswith(AUTH_CONFIRM_URL):
-                values['token'] = line.split(AUTH_CONFIRM_URL)[SECOND]
+            for url in [AUTH_CONFIRM_URL, AUTH_RESET_URL]:
+                if line.startswith(url):
+                    values['token'] = line.split(url)[SECOND]
         return values
 
     @classmethod
     def _write_mail_to_file(cls, values):
         with open(f'{BUILD_DIR}/{values.get("to").split("@")[FIRST]}.json', 'w') as email_file:
-            json.dump(values, email_file, ensure_ascii=False, indent=4)
+            json.dump(values, email_file, ensure_ascii=False, indent=JSON_INDENT)

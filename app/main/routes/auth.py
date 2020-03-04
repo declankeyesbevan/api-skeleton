@@ -9,7 +9,7 @@ from flask_restplus import Resource
 
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,
-    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED,
+    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_RESET_FAILED,
 )
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
@@ -68,16 +68,41 @@ class UserLogout(Resource):
         return Auth.logout_user(auth_token)
 
 
-@api.route('/confirm/<confirmation_token>')
+@api.route('/confirm/<token>')
 @api.param('token', description='Email confirmation token')
 class EmailConfirm(Resource):
     """Email Confirmation Resource"""
 
-    @api.doc('/auth/confirm/:confirmation_token')
+    @api.doc('/auth/confirm/:token')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
     @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
     @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
-    def post(self, confirmation_token):
+    def post(self, token):
         logger.info(f"Confirming user email address")
-        return Auth.confirm_email(confirmation_token)
+        return Auth.confirm_email(token)
+
+
+@api.route('/reset/request')
+class PasswordResetRequest(Resource):
+    """Request Password Reset Resource"""
+
+    @api.doc('/auth/reset/request')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(UNAUTHORIZED, _(PASSWORD_RESET_FAILED))
+    def post(self):
+        logger.info(f"User attempting to reset password")
+        return Auth.request_password_reset(request.json)
+
+
+@api.route('/reset/<token>')
+class PasswordResetConfirm(Resource):
+    """Password Reset Confirm Resource"""
+
+    @api.doc('/auth/reset/:token')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(UNAUTHORIZED, _(PASSWORD_RESET_FAILED))
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    def post(self, token):
+        logger.info(f"User attempting to reset password")
+        return Auth.reset_password(token, request.json)

@@ -26,9 +26,12 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     if JWT_SECRET_KEY is None:
         raise ValueError('JWT secret key has not been set')
-    EMAIL_SALT = os.environ.get('EMAIL_SALT')
-    if EMAIL_SALT is None:
-        raise ValueError('Email salt has not been set')
+    EMAIL_CONFIRMATION_SALT = os.environ.get('EMAIL_CONFIRMATION_SALT')
+    if EMAIL_CONFIRMATION_SALT is None:
+        raise ValueError('Email confirmation salt has not been set')
+    PASSWORD_RESET_SALT = os.environ.get('PASSWORD_RESET_SALT')
+    if PASSWORD_RESET_SALT is None:
+        raise ValueError('Password reset salt has not been set')
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False

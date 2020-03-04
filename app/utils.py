@@ -9,3 +9,5 @@ SEVENTH = 6
 SEVEN_ITEMS = 7
 
 SPECIAL_CHARACTERS = r"""!@$%^&*()_-+={}[]|\,.></?~`"':;"""
+
+JSON_INDENT = 4
