@@ -60,7 +60,8 @@ def get_all_users():
     try:
         users = User.query.all()
     except SQLAlchemyError as err:
-        raise InternalServerError(f"{GETTING_USERS}: {err}")
+        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+        raise InternalServerError(GETTING_USERS)
     else:
         users = User.deserialise_users(users)
         user_is_admin, user_sub = User.is_admin()
@@ -74,7 +75,8 @@ def get_a_user(public_id):
     try:
         user = User.query.filter_by(public_id=public_id).first()
     except SQLAlchemyError as err:
-        raise InternalServerError(f"{GETTING_USER}: {err}")
+        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+        raise InternalServerError(GETTING_USER)
     else:
         user = User.deserialise_users([user])[FIRST] if user else None
         user_is_admin, user_sub = User.is_admin()

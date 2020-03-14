@@ -2,12 +2,15 @@
 
 import dataclasses
 import datetime
+import logging
 
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError
 
 from app.i18n.base import TOKEN_BLACKLIST
 from app.main import db
+
+logger = logging.getLogger('api-skeleton')
 
 
 @dataclasses.dataclass
@@ -27,6 +30,7 @@ class BlacklistToken(db.Model):
         try:
             blacklisted = BlacklistToken.query.filter_by(token=str(auth_token)).first()
         except SQLAlchemyError as err:
-            raise InternalServerError(f"{TOKEN_BLACKLIST}: {err}")
+            logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+            raise InternalServerError(TOKEN_BLACKLIST)
         else:
             return bool(blacklisted)

@@ -66,7 +66,8 @@ class Auth:
         try:
             token = create_jwt(identity=user)
         except FlaskJWTException as err:
-            raise InternalServerError(f"{ENCODING_JWT}: {err}")
+            logger.critical(f"FlaskJWTException: {err}", exc_info=True)
+            raise InternalServerError(ENCODING_JWT)
         else:
             return token
 
@@ -136,7 +137,8 @@ class Auth:
             serialiser = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
             email = serialiser.loads(token, salt=salt, max_age=MAX_TOKEN_AGE)
         except BadData as err:
-            raise Unauthorized(f"{error_message}: {err}")
+            logger.error(f"BadData: {err}")
+            raise Unauthorized(error_message)
         else:
             return User.query.filter_by(email=email).first()
 

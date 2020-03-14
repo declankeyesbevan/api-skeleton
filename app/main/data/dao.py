@@ -1,8 +1,12 @@
+import logging
+
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError
 
 from app.i18n.base import SAVING_TO_DATABASE
 from app.main import db
+
+logger = logging.getLogger('api-skeleton')
 
 
 def save_changes(data):
@@ -10,4 +14,5 @@ def save_changes(data):
         db.session.add(data)
         db.session.commit()
     except SQLAlchemyError as err:
-        raise InternalServerError(f"{SAVING_TO_DATABASE}: {err}")
+        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+        raise InternalServerError(SAVING_TO_DATABASE)

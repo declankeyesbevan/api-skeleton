@@ -1,3 +1,4 @@
+import logging
 from distutils import util
 
 from flask_jwt_simple import get_jwt
@@ -6,6 +7,8 @@ from werkzeug.exceptions import InternalServerError, Unauthorized
 
 from app.i18n.base import FINDING_USER, JWT_INSUFFICIENT, JWT_REQUIRED
 from app.main import db, flask_bcrypt
+
+logger = logging.getLogger('api-skeleton')
 
 
 class User(db.Model):
@@ -37,7 +40,8 @@ class User(db.Model):
         try:
             user = self.query.filter_by(**filter_by).first()
         except SQLAlchemyError as err:
-            raise InternalServerError(f"{FINDING_USER} {filter_by}: {err}")
+            logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+            raise InternalServerError(f"{FINDING_USER}: {filter_by}")
         return user
 
     @classmethod
