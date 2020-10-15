@@ -6,10 +6,10 @@ USERNAME_EMAIL_MINIMUM_LENGTH = 6
 
 
 @dataclasses.dataclass(frozen=True)
-class RequestDto:
-    api = Namespace('request', description='Request object')
-    request = api.model(
-        'request',
+class BaseDto:
+    api = Namespace('base', description='Base object')
+    base = api.model(
+        'base',
         dict(
             email=fields.String(
                 required=True,
@@ -17,9 +17,20 @@ class RequestDto:
                 min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
                 description='User email address'
             ),
+        )
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class RequestDto:
+    api = Namespace('request', description='Request object')
+    request = BaseDto.base.inherit(
+        'request',
+        dict(
             password=fields.String(required=True, allow_null=False, description='User password')
         )
     )
+    api.add_model('request', request)
 
 
 @dataclasses.dataclass(frozen=True)

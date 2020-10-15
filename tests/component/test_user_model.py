@@ -29,11 +29,11 @@ def test_decode_auth_token(client, database_user, user_data):
     with pytest.raises(Unauthorized):
         assert Auth.decode_auth_token(random_text())
 
-    register_user(json.dumps(user_data), client=client)
+    register_user(user_data, client=client)
     token = get_email_token(user_data)
     confirm_email_token(token, client=client)
     # Don't use fixture as we need a token that's been blacklisted in the database.
-    response = authenticate_user('login', data=json.dumps(user_data), client=client)
+    response = authenticate_user('login', data=user_data, client=client)
     data = response.json.get('data')
     token = data.get('token')
     headers = dict(Authorization=f"Bearer {token}")

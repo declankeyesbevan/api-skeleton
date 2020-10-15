@@ -3,8 +3,8 @@ import pytest
 from app.responses import CONFLICT, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
-    API_BASE_URL, api_post, authenticate_user, confirm_email_token, deny_endpoint, get_email_token,
-    register_user,
+    API_BASE_URL, api_post, authenticate_user, check_endpoint_denied, confirm_email_token,
+    get_email_token, register_user,
 )
 
 
@@ -46,7 +46,7 @@ def test_user_logout(user_data):
         response = authenticate_user('logout', headers=headers, expected=expected[idx])
         assert response.status_code == expected[idx]
 
-    deny_endpoint(endpoint, method='post')
+    check_endpoint_denied(endpoint, method='post')
 
 
 @pytest.mark.local

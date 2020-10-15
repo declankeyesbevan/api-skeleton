@@ -5,10 +5,12 @@ import pytest
 from app.responses import NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_text, user_attributes,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
+    user_attributes,
 )
 from tests.helpers import (
-    API_BASE_URL, api_get, bad_username_and_email, deny_endpoint, register_user,
+    API_BASE_URL, api_get, api_post, bad_username_and_email, check_endpoint_denied,
+    confirm_and_login_user, register_user,
 )
 
 
@@ -34,7 +36,7 @@ def test_user_list_get(headers, admin_headers):
                 assert any(item.get(key) == users[inner_idx].get(key) for item in users)
                 assert not any('password' in item for item in users)
 
-    deny_endpoint(endpoint)
+    check_endpoint_denied(endpoint)
 
 
 @pytest.mark.local
@@ -73,4 +75,30 @@ def test_user_get_by_id(user_data, headers, admin_headers):
     response = api_get(f'{API_BASE_URL}/users/{fake_id}', headers=admin_headers)
     assert response.status_code == NOT_FOUND
 
-    deny_endpoint(endpoint)
+    check_endpoint_denied(endpoint)
+
+
+# @pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_user_change_email(user_data):
+    """Test for changing user's email address."""
+    response = register_user(user_data)
+    data = response.json().get('data')
+    user = data.get('user')
+
+    headers = confirm_and_login_user(user_data)
+
+    endpoint = f'{API_BASE_URL}/users/email/change'
+    data = dict(email=random_email())
+    response = api_post(endpoint, headers=headers, data=data)
+    assert response.status_code == OK
+
+    user_endpoint = f'{API_BASE_URL}/users/{user.get("public_id")}'
+    response = api_get(user_endpoint, headers=headers)
+    data = response.json().get('data')
+    updated_user = data.get('user')
+
+    assert updated_user.get('email') != user_data.get('email')
+
+    data = dict(email=random_email())
+    check_endpoint_denied(endpoint, method='post', data=data)

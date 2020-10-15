@@ -4,11 +4,16 @@ import datetime
 import logging
 import uuid
 
+from flask._compat import text_type as _
+from flask_jwt_simple import get_jwt
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, Unauthorized
 
 from app.email_client import send_confirmation_email
-from app.i18n.base import CANNOT_VIEW_OTHERS, GETTING_USER, GETTING_USERS, USER_EXISTS
+from app.i18n.base import (
+    CANNOT_VIEW_OTHERS, EMAIL_ALREADY_EXISTS, EMAIL_UPDATED, GETTING_USER, GETTING_USERS,
+    USER_EXISTS,
+)
 from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.responses import CREATED, OK, responder
@@ -72,15 +77,44 @@ def get_all_users():
 
 
 def get_a_user(public_id):
+    user = _lookup_user_by_id(public_id, deserialise=True)
+    user_is_admin, user_sub = User.is_admin()
+    if not user_is_admin:
+        if public_id != user_sub:
+            raise Unauthorized(CANNOT_VIEW_OTHERS)
+    return (responder(code=OK, data=dict(user=user))) if user else None
+
+
+def update_email(email):
+    try:
+        user = User.query.filter_by(email=email).first()
+    except SQLAlchemyError as err:
+        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
+        raise InternalServerError(GETTING_USER)
+    else:
+        if user:
+            raise Conflict(EMAIL_ALREADY_EXISTS)
+
+    updated_user = _lookup_user_by_id(get_jwt().get('sub'))
+
+    updated_user.email = email
+    updated_user.email_confirmed = False
+    updated_user.email_confirmed_on = None
+    updated_user.email_confirmation_sent_on = datetime.datetime.utcnow()
+
+    save_changes(updated_user)
+    send_confirmation_email(updated_user.email)
+
+    return responder(code=OK, data=dict(updated=_(EMAIL_UPDATED)))
+
+
+def _lookup_user_by_id(public_id, deserialise=False):
     try:
         user = User.query.filter_by(public_id=public_id).first()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
         raise InternalServerError(GETTING_USER)
     else:
-        user = User.deserialise_users([user])[FIRST] if user else None
-        user_is_admin, user_sub = User.is_admin()
-        if not user_is_admin:
-            if public_id != user_sub:
-                raise Unauthorized(CANNOT_VIEW_OTHERS)
-        return (responder(code=OK, data=dict(user=user))) if user else None
+        if deserialise:
+            return User.deserialise_users([user])[FIRST] if user else None
+        return user

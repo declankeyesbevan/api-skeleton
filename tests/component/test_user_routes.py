@@ -6,9 +6,13 @@ import pytest
 from app.responses import NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import FIRST, SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_text, user_attributes,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
+    user_attributes,
 )
-from tests.helpers import bad_username_and_email, client_get, deny_endpoint, register_user
+from tests.helpers import (
+    bad_username_and_email, check_endpoint_denied, client_get, client_post, confirm_and_login_user,
+    register_user,
+)
 
 
 @pytest.mark.usefixtures('database')
@@ -17,7 +21,7 @@ def test_user_list_get(client, headers, admin_headers):
     with client:
         users = [user_attributes() for _ in range(NUM_GENERIC_USERS)]
         for user_data in users:
-            register_user(json.dumps(user_data), client=client)
+            register_user(user_data, client=client)
 
         # Standard User can only see themselves, Admin users can see full list.
         endpoint = '/users'
@@ -33,7 +37,7 @@ def test_user_list_get(client, headers, admin_headers):
                     assert users[inner_idx].get(attribute) == item.get(attribute)
                     assert 'password' not in item
 
-        deny_endpoint(endpoint, client=client)
+        check_endpoint_denied(endpoint, client=client)
 
 
 @pytest.mark.usefixtures('database')
@@ -42,19 +46,19 @@ def test_user_list_post(client):
     with client:
         user = user_attributes()
         users = [copy.copy(user) for _ in range(SEVEN_ITEMS)]
-        register_user(json.dumps(users[FIRST]), client=client)
+        register_user(users[FIRST], client=client)
 
         users, expected = bad_username_and_email(users)
         for idx, user in enumerate(users):
-            register_user(json.dumps(user), expected=expected[idx], client=client)
+            register_user(user, expected=expected[idx], client=client)
 
 
 @pytest.mark.usefixtures('database')
 def test_user_get_by_id(client, user_data, headers, admin_headers):
     """Test for specific registered user."""
     with client:
-        registered_user = register_user(json.dumps(user_data), client=client)
-        data = json.loads(registered_user.data.decode()).get('data')
+        response = register_user(user_data, client=client)
+        data = json.loads(response.data.decode()).get('data')
         user = data.get('user')
 
         # Standard User can only see themselves, Admin users can see anyone.
@@ -73,4 +77,30 @@ def test_user_get_by_id(client, user_data, headers, admin_headers):
         response = client_get(client, f'/users/{fake_id}', headers=admin_headers)
         assert response.status_code == NOT_FOUND
 
-        deny_endpoint(endpoint, client=client)
+        check_endpoint_denied(endpoint, client=client)
+
+
+@pytest.mark.usefixtures('database')
+def test_user_change_email(client, user_data):
+    """Test for changing user's email address."""
+    with client:
+        response = register_user(user_data, client=client)
+        data = json.loads(response.data.decode()).get('data')
+        user = data.get('user')
+
+        headers = confirm_and_login_user(user_data, client)
+
+        endpoint = '/users/email/change'
+        data = dict(email=random_email())
+        response = client_post(client, endpoint, headers=headers, data=json.dumps(data))
+        assert response.status_code == OK
+
+        user_endpoint = f'/users/{user.get("public_id")}'
+        response = client_get(client, user_endpoint, headers=headers)
+        data = response.json.get('data')
+        updated_user = data.get('user')
+
+        assert updated_user.get('email') != user_data.get('email')
+
+        data = dict(email=random_email())
+        check_endpoint_denied(endpoint, method='post', data=json.dumps(data), client=client)

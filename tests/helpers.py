@@ -11,6 +11,7 @@ from tests.data_factory import random_email, random_text, user_model
 
 CONFIG_OBJECT = CONFIG_BY_NAME['test-external']
 API_BASE_URL = f'{CONFIG_OBJECT.PREFERRED_URL_SCHEME}://{CONFIG_OBJECT.SERVER_NAME}'
+JSON = 'application/json'
 
 
 def set_up_database(db):
@@ -29,11 +30,11 @@ def tear_down_database(db):
 
 
 def client_get(client, url, headers=None):
-    return client.get(url, headers=headers, content_type='application/json')
+    return client.get(url, headers=headers, content_type=JSON)
 
 
 def client_post(client, url, headers=None, data=None):
-    return client.post(url, headers=headers, data=data, content_type='application/json')
+    return client.post(url, headers=headers, data=data, content_type=JSON)
 
 
 def api_get(url, headers=None):
@@ -57,7 +58,8 @@ def create_header(db, user_data, admin=False):
 
 def register_user(user_data, expected=CREATED, client=None):
     url = '/users' if client else f'{API_BASE_URL}/users'
-    response = client_post(client, url, data=user_data) if client else api_post(url, data=user_data)
+    data = json.dumps(user_data) if client else user_data
+    response = client_post(client, url, data=data) if client else api_post(url, data=data)
     if expected == CREATED:
         data = (response.json if client else response.json()).get('data')
         user = data.get('user')
@@ -68,6 +70,7 @@ def register_user(user_data, expected=CREATED, client=None):
 
 def authenticate_user(action, data=None, headers=None, expected=OK, client=None):
     url = f'auth/{action}' if client else f'{API_BASE_URL}/auth/{action}'
+    data = json.dumps(data) if client else data
     response = (
         client_post(client, url, data=data, headers=headers) if client else
         api_post(url, data=data, headers=headers)
@@ -79,7 +82,7 @@ def authenticate_user(action, data=None, headers=None, expected=OK, client=None)
     return response
 
 
-def deny_endpoint(endpoint, method='get', client=None):
+def check_endpoint_denied(endpoint, method='get', data=None, client=None):
     methods = dict(get=client_get, post=client_post) if client else dict(get=api_get, post=api_post)
     method = methods.get(method)
 
@@ -87,10 +90,18 @@ def deny_endpoint(endpoint, method='get', client=None):
     expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
     for idx, header in enumerate([headers, None]):
         response = (
-            method(client, endpoint, headers=header) if client else
-            method(endpoint, headers=header)
+            method(client, endpoint, headers=header, data=data) if client else
+            method(endpoint, headers=header, data=data)
         )
         assert response.status_code == expected[idx]
+
+
+def confirm_and_login_user(user_data, client=None):
+    token = get_email_token(user_data)
+    confirm_email_token(token, client=client)
+    response = authenticate_user('login', data=user_data, client=client)
+    data = response.json.get('data') if client else response.json().get('data')
+    return dict(Authorization=f"Bearer {data.get('token')}")
 
 
 def get_email_token(user_data):

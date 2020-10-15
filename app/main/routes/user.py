@@ -9,12 +9,14 @@ from flask_restplus import Resource
 from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
-    JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED, USERS_LIST_SUCCESS, USER_CREATE_SUCCESS, USER_EXISTS,
+    EMAIL_ALREADY_EXISTS, EMAIL_UPDATED, JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED,
+    USERS_LIST_SUCCESS,
+    USER_CREATE_SUCCESS, USER_EXISTS,
     USER_LIST_SUCCESS, USER_NOT_FOUND,
 )
-from app.main.data.dto import ResponseDto, UserDto
+from app.main.data.dto import BaseDto, ResponseDto, UserDto
 from app.main.service.auth import jwt_valid
-from app.main.service.user import get_a_user, get_all_users, save_new_user
+from app.main.service.user import get_a_user, get_all_users, save_new_user, update_email
 from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
     UNPROCESSABLE_ENTITY,
@@ -24,6 +26,7 @@ from app.security import remove
 logger = logging.getLogger('api-skeleton')
 api = UserDto.api
 user = UserDto.user
+base = BaseDto.base
 response = ResponseDto.response
 
 
@@ -65,8 +68,8 @@ class User(Resource):
     @jwt_valid
     @api.doc('/users/:public_id')
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
-    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.response(NOT_FOUND, _(USER_NOT_FOUND))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.marshal_with(response, description=_(USER_LIST_SUCCESS), skip_none=True)
     def get(self, public_id):
         """Get a user given their identifier."""
@@ -75,3 +78,21 @@ class User(Resource):
         if not user_to_get:
             raise NotFound(USER_NOT_FOUND)
         return user_to_get
+
+
+@api.route('/email/change')
+class EmailChange(Resource):
+    """Email Change Resource"""
+
+    @jwt_required
+    @jwt_valid
+    @api.doc('/users/email/change')
+    @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
+    @api.response(CONFLICT, _(EMAIL_ALREADY_EXISTS))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
+    @api.expect(base, validate=True)
+    @api.marshal_with(response, description=_(EMAIL_UPDATED), skip_none=True)
+    def post(self):
+        """Change a user's email address."""
+        logger.info(f"Updating to new user email address: {request.json.get('email')}")
+        return update_email(request.json.get('email'))

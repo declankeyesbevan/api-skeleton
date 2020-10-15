@@ -5,8 +5,8 @@ import pytest
 from app.responses import CONFLICT, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
-    authenticate_user, client_post, confirm_email_token, deny_endpoint, get_email_token,
-    register_user,
+    authenticate_user, check_endpoint_denied, client_post, confirm_and_login_user,
+    confirm_email_token, get_email_token, register_user,
 )
 
 
@@ -14,16 +14,14 @@ from tests.helpers import (
 def test_user_login(client, user_data):
     """Test for login of registered user."""
     with client:
-        register_user(json.dumps(user_data), client=client)
+        register_user(user_data, client=client)
         token = get_email_token(user_data)
         confirm_email_token(token, client=client)
-        authenticate_user('login', data=json.dumps(user_data), client=client)
+        authenticate_user('login', data=user_data, client=client)
 
         for key in ['email', 'password']:
             user_data[key] = random_email() if key == 'email' else random_password()
-            authenticate_user(
-                'login', data=json.dumps(user_data), expected=UNAUTHORIZED, client=client
-            )
+            authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
 
 
 @pytest.mark.usefixtures('database')
@@ -31,30 +29,26 @@ def test_user_logout(client, user_data):
     """Test for logout."""
     with client:
         # Don't use fixture as we need a token that's been blacklisted in the database.
-        register_user(json.dumps(user_data), client=client)
-        token = get_email_token(user_data)
-        confirm_email_token(token, client=client)
-        response = authenticate_user('login', data=json.dumps(user_data), client=client)
-        data = response.json.get('data')
-        headers = dict(Authorization=f"Bearer {data.get('token')}")
+        register_user(user_data, client=client)
+        headers = confirm_and_login_user(user_data, client)
 
         expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
         for idx, header in enumerate([headers, headers]):
             authenticate_user('logout', headers=header, expected=expected[idx], client=client)
 
-        deny_endpoint('/auth/logout', method='post', client=client)
+        check_endpoint_denied('/auth/logout', method='post', client=client)
 
 
 @pytest.mark.usefixtures('database')
 def test_email_confirm(client, user_data):
     """Test for email confirmation."""
     with client:
-        register_user(json.dumps(user_data), client=client)
+        register_user(user_data, client=client)
         token = get_email_token(user_data)
 
-        authenticate_user('login', data=json.dumps(user_data), expected=UNAUTHORIZED, client=client)
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
         confirm_email_token(token, client=client)
-        authenticate_user('login', data=json.dumps(user_data), client=client)
+        authenticate_user('login', data=user_data, client=client)
         confirm_email_token(token, expected=CONFLICT, client=client)
 
 
@@ -62,7 +56,7 @@ def test_email_confirm(client, user_data):
 def test_password_reset(client, user_data):
     """Test for password reset."""
     with client:
-        register_user(json.dumps(user_data), client=client)
+        register_user(user_data, client=client)
         token = get_email_token(user_data)
         request_url = '/auth/reset/request'
 
@@ -89,6 +83,6 @@ def test_password_reset(client, user_data):
         response = client_post(client, f'/auth/reset/{bad_token}', data=json.dumps(user_data))
         assert response.status_code == UNAUTHORIZED
 
-        authenticate_user('login', data=json.dumps(user_data), client=client)
+        authenticate_user('login', data=user_data, client=client)
         user_data['password'] = old_password
-        authenticate_user('login', data=json.dumps(user_data), expected=UNAUTHORIZED, client=client)
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
