@@ -92,7 +92,7 @@ def test_user_change_email(client, user_data):
 
         endpoint = '/users/email/change'
         data = dict(email=random_email())
-        response = client_post(client, endpoint, headers=headers, data=json.dumps(data))
+        response = client_post(client, endpoint, headers=headers, data=data)
         assert response.status_code == OK
 
         user_endpoint = f'/users/{user.get("public_id")}'
@@ -103,4 +103,4 @@ def test_user_change_email(client, user_data):
         assert updated_user.get('email') != user_data.get('email')
 
         data = dict(email=random_email())
-        check_endpoint_denied(endpoint, method='post', data=json.dumps(data), client=client)
+        check_endpoint_denied(endpoint, method='post', data=data, client=client)

@@ -34,7 +34,7 @@ def client_get(client, url, headers=None):
 
 
 def client_post(client, url, headers=None, data=None):
-    return client.post(url, headers=headers, data=data, content_type=JSON)
+    return client.post(url, headers=headers, data=json.dumps(data), content_type=JSON)
 
 
 def api_get(url, headers=None):
@@ -56,9 +56,8 @@ def create_header(db, user_data, admin=False):
     return dict(Authorization=f"Bearer {auth_token}")
 
 
-def register_user(user_data, expected=CREATED, client=None):
+def register_user(data, expected=CREATED, client=None):
     url = '/users' if client else f'{API_BASE_URL}/users'
-    data = json.dumps(user_data) if client else user_data
     response = client_post(client, url, data=data) if client else api_post(url, data=data)
     if expected == CREATED:
         data = (response.json if client else response.json()).get('data')
@@ -70,7 +69,6 @@ def register_user(user_data, expected=CREATED, client=None):
 
 def authenticate_user(action, data=None, headers=None, expected=OK, client=None):
     url = f'auth/{action}' if client else f'{API_BASE_URL}/auth/{action}'
-    data = json.dumps(data) if client else data
     response = (
         client_post(client, url, data=data, headers=headers) if client else
         api_post(url, data=data, headers=headers)
@@ -89,10 +87,7 @@ def check_endpoint_denied(endpoint, method='get', data=None, client=None):
     headers = dict(Authorization=f"Bearer {random_text()}")
     expected = [UNPROCESSABLE_ENTITY, UNAUTHORIZED]
     for idx, header in enumerate([headers, None]):
-        response = (
-            method(client, endpoint, headers=header, data=data) if client else
-            method(endpoint, headers=header, data=data)
-        )
+        response = _add_body_if_present(method, endpoint, header, data=data, client=client)
         assert response.status_code == expected[idx]
 
 
@@ -127,3 +122,15 @@ def bad_username_and_email(users):
     users[SEVENTH]['username'] = 'fooba'  # Must be at least 6 chars
     expected = [BAD_REQUEST, CONFLICT, CONFLICT, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST]
     return users, expected
+
+
+def _add_body_if_present(method, endpoint, header, data=None, client=None):
+    if client:
+        return (
+            method(client, endpoint, headers=header, data=data) if data
+            else method(client, endpoint, headers=header)
+        )
+    return (
+        method(endpoint, headers=header, data=data) if data
+        else method(endpoint, headers=header)
+    )

@@ -60,27 +60,27 @@ def test_password_reset(client, user_data):
         token = get_email_token(user_data)
         request_url = '/auth/reset/request'
 
-        response = client_post(client, request_url, data=json.dumps(user_data))
+        response = client_post(client, request_url, data=user_data)
         assert response.status_code == UNAUTHORIZED
 
         confirm_email_token(token, client=client)
         old_email = user_data.get('email')
         old_password = user_data.get('password')
 
-        response = client_post(client, request_url, data=json.dumps(user_data))
+        response = client_post(client, request_url, data=user_data)
         assert response.status_code == OK
         user_data['email'] = random_email()
-        response = client_post(client, request_url, data=json.dumps(user_data))
+        response = client_post(client, request_url, data=user_data)
         assert response.status_code == UNAUTHORIZED
         user_data['email'] = old_email
 
         token = get_email_token(user_data)
         user_data['password'] = random_password()
-        response = client_post(client, f'/auth/reset/{token}', data=json.dumps(user_data))
+        response = client_post(client, f'/auth/reset/{token}', data=user_data)
         assert response.status_code == OK
 
         bad_token = random_text()
-        response = client_post(client, f'/auth/reset/{bad_token}', data=json.dumps(user_data))
+        response = client_post(client, f'/auth/reset/{bad_token}', data=user_data)
         assert response.status_code == UNAUTHORIZED
 
         authenticate_user('login', data=user_data, client=client)

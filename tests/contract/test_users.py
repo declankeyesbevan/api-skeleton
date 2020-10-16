@@ -78,7 +78,7 @@ def test_user_get_by_id(user_data, headers, admin_headers):
     check_endpoint_denied(endpoint)
 
 
-# @pytest.mark.local
+@pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_change_email(user_data):
     """Test for changing user's email address."""
