@@ -8,6 +8,7 @@ flask-restplus
 flask-sqlalchemy
 flask_testing
 itsdangerous
+pyjwt==1.7.1
 psycopg2-binary
 speaklater
 sqlalchemy
