@@ -76,7 +76,7 @@ def get_all_users():
         return responder(code=OK, data=dict(users=users))
 
 
-def get_a_user(public_id):
+def get_user_by_id(public_id):
     user = _lookup_user_by_id(public_id, deserialise=True)
     user_is_admin, user_sub = User.is_admin()
     if not user_is_admin:
@@ -85,15 +85,20 @@ def get_a_user(public_id):
     return (responder(code=OK, data=dict(user=user))) if user else None
 
 
-def update_email(email):
+def get_user_by_email(email):
     try:
         user = User.query.filter_by(email=email).first()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
         raise InternalServerError(GETTING_USER)
     else:
-        if user:
-            raise Conflict(EMAIL_ALREADY_EXISTS)
+        return user
+
+
+def update_email(email):
+    user = get_user_by_email(email)
+    if user:
+        raise Conflict(EMAIL_ALREADY_EXISTS)
 
     updated_user = _lookup_user_by_id(get_jwt().get('sub'))
 

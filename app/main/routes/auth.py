@@ -10,11 +10,13 @@ from flask_restplus import Resource
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,
     JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_UPDATE_FAILED,
+    USER_NOT_FOUND,
 )
-from app.main.data.dto import AuthDto, ResponseDto
+from app.main.data.dto import AuthDto, BaseDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
 from app.responses import (
-    BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN, UNPROCESSABLE_ENTITY,
+    BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
+    UNPROCESSABLE_ENTITY,
 )
 from app.security import remove
 from app.utils import SECOND
@@ -22,6 +24,7 @@ from app.utils import SECOND
 logger = logging.getLogger('api-skeleton')
 api = AuthDto.api
 auth = AuthDto.auth
+base = BaseDto.base
 response = ResponseDto.response
 
 
@@ -81,6 +84,21 @@ class EmailConfirm(Resource):
     def post(self, token):
         logger.info(f"Confirming user email address")
         return Auth.confirm_email(token)
+
+
+@api.route('/confirm/resend')
+class ResendEmailConfirm(Resource):
+    """Resend Email Confirmation Resource"""
+
+    @api.doc('/auth/confirm/resend')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
+    @api.response(NOT_FOUND, _(USER_NOT_FOUND))
+    @api.expect(base, validate=True)
+    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
+    def post(self):
+        logger.info(f"Re-sending email confirmation for: {request.json.get('email')}")
+        return Auth.resend_confirmation_email(request.json.get('email'))
 
 
 @api.route('/reset/request')

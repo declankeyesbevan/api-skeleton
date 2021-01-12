@@ -10,19 +10,19 @@ from flask_jwt_simple import create_jwt, decode_jwt, get_jwt
 from flask_jwt_simple.exceptions import FlaskJWTException
 from itsdangerous import BadData, URLSafeTimedSerializer
 from jwt import DecodeError, ExpiredSignatureError
-from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, Unauthorized
+from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
-from app.email_client import send_password_reset_email
+from app.email_client import send_confirmation_email, send_password_reset_email
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CHECK_EMAIL, CONFIRMATION_FAILED, EMAIL_INVALID, EMAIL_NOT_CONFIRMED,
     EMAIL_NOT_CONFIRMED_RESET, EMAIL_PASSWORD, ENCODING_JWT, JWT_BLACKLISTED, JWT_EXPIRED,
-    JWT_INVALID, MALFORMED, PASSWORD_UPDATED, PASSWORD_UPDATE_FAILED, RESET_FAILED,
+    JWT_INVALID, MALFORMED, PASSWORD_UPDATED, PASSWORD_UPDATE_FAILED, RESET_FAILED, USER_NOT_FOUND,
 )
 from app.main.data.dao import save_changes
 from app.main.model.blacklist import BlacklistToken
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
-from app.main.service.user import _lookup_user_by_id
+from app.main.service.user import _lookup_user_by_id, get_user_by_email
 from app.responses import OK, responder
 from app.security import PasswordValidator
 from app.utils import SECOND
@@ -148,7 +148,7 @@ class Auth:
             logger.error(f"BadData: {err}")
             raise Unauthorized(error_message)
         else:
-            return User.query.filter_by(email=email).first()
+            return get_user_by_email(email)
 
     @classmethod
     def validate_token_format(cls, auth_token):
@@ -164,6 +164,17 @@ class Auth:
         is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
         if is_blacklisted_token:
             raise Unauthorized(JWT_BLACKLISTED)
+
+    @classmethod
+    def resend_confirmation_email(cls, email):
+        user_to_resend = get_user_by_email(email)
+        if not user_to_resend:
+            raise NotFound(USER_NOT_FOUND)
+        if user_to_resend.email_confirmed:
+            raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
+        user_to_resend.email_confirmation_sent_on = datetime.utcnow()
+        save_changes(user_to_resend)
+        return send_confirmation_email(email)
 
 
 def jwt_valid(func):

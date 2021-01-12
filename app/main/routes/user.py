@@ -16,7 +16,7 @@ from app.i18n.base import (
 )
 from app.main.data.dto import BaseDto, ResponseDto, UserDto
 from app.main.service.auth import jwt_valid
-from app.main.service.user import get_a_user, get_all_users, save_new_user, update_email
+from app.main.service.user import get_user_by_id, get_all_users, save_new_user, update_email
 from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
     UNPROCESSABLE_ENTITY,
@@ -74,7 +74,7 @@ class User(Resource):
     def get(self, public_id):
         """Get a user given their identifier."""
         logger.info(f"Getting user with public_id: {public_id}")
-        user_to_get = get_a_user(public_id)
+        user_to_get = get_user_by_id(public_id)
         if not user_to_get:
             raise NotFound(USER_NOT_FOUND)
         return user_to_get

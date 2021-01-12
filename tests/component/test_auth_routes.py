@@ -1,6 +1,6 @@
 import pytest
 
-from app.responses import CONFLICT, OK, UNAUTHORIZED
+from app.responses import CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
     authenticate_user, check_endpoint_denied, client_post, confirm_and_login_user,
@@ -48,6 +48,32 @@ def test_email_confirm(client, user_data):
         confirm_email_token(token, client=client)
         authenticate_user('login', data=user_data, client=client)
         confirm_email_token(token, expected=CONFLICT, client=client)
+
+
+@pytest.mark.usefixtures('database')
+def test_resend_email_confirm(client, user_data):
+    """Test for resend email confirmation."""
+    with client:
+        register_user(user_data, client=client)
+        request_url = '/auth/confirm/resend'
+
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
+
+        response = client_post(client, request_url, data=user_data)
+        assert response.status_code == OK
+
+        unconfirmed_email = user_data.get('email')
+        user_data['email'] = random_email()
+        response = client_post(client, request_url, data=user_data)
+        assert response.status_code == NOT_FOUND
+
+        user_data['email'] = unconfirmed_email
+        token = get_email_token(user_data)
+
+        confirm_email_token(token, client=client)
+        confirm_email_token(token, client=client, expected=CONFLICT)
+
+        authenticate_user('login', data=user_data, client=client)
 
 
 @pytest.mark.usefixtures('database')
