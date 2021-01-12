@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, logging-format-interpolation, try-except-raise
+# pylint: disable=invalid-name, logging-fstring-interpolation, try-except-raise
 
 import datetime
 import logging
@@ -52,7 +52,7 @@ def save_new_user(data):
     save_changes(new_user)
     send_confirmation_email(new_user.email)
 
-    logger.info(f"New user successfully created")
+    logger.info("New user successfully created")
     logger.info(f"New user email: {new_user.email}")
     logger.info(f"New user username: {new_user.username}")
     logger.info(f"New user public_id: {new_user.public_id}")
@@ -66,7 +66,7 @@ def get_all_users():
         users = User.query.all()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(GETTING_USERS)
+        raise InternalServerError(GETTING_USERS) from None
     else:
         users = User.deserialise_users(users)
         user_is_admin, user_sub = User.is_admin()
@@ -90,7 +90,7 @@ def get_user_by_email(email):
         user = User.query.filter_by(email=email).first()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(GETTING_USER)
+        raise InternalServerError(GETTING_USER) from None
     else:
         return user
 
@@ -118,7 +118,7 @@ def _lookup_user_by_id(public_id, deserialise=False):
         user = User.query.filter_by(public_id=public_id).first()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(GETTING_USER)
+        raise InternalServerError(GETTING_USER) from None
     else:
         if deserialise:
             return User.deserialise_users([user])[FIRST] if user else None

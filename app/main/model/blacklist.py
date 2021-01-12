@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, logging-fstring-interpolation
 
 import dataclasses
 import datetime
@@ -31,6 +31,6 @@ class BlacklistToken(db.Model):
             blacklisted = BlacklistToken.query.filter_by(token=str(auth_token)).first()
         except SQLAlchemyError as err:
             logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-            raise InternalServerError(TOKEN_BLACKLIST)
+            raise InternalServerError(TOKEN_BLACKLIST) from None
         else:
             return bool(blacklisted)

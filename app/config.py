@@ -72,7 +72,7 @@ class NonIntegratedTestingConfig(TestingConfig):
 class IntegratedTestingConfig(TestingConfig):
     # Non-Flask vars to allow running the integrated tests locally for debugging purposes.
     LOCAL = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
-    SERVER = DEFAULT_LOCAL_SERVER if LOCAL else ''  # TODO: set this once deployed to GCP
+    SERVER = DEFAULT_LOCAL_SERVER if LOCAL else ''  # TODO: set this once deployed to AWS
 
     # Back to Flask vars.
     PREFERRED_URL_SCHEME = 'http' if LOCAL else 'https'

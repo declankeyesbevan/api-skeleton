@@ -1,3 +1,5 @@
+# pylint: disable=logging-fstring-interpolation
+
 import logging
 from distutils import util
 
@@ -41,7 +43,7 @@ class User(db.Model):
             user = self.query.filter_by(**filter_by).first()
         except SQLAlchemyError as err:
             logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-            raise InternalServerError(f"{FINDING_USER}: {filter_by}")
+            raise InternalServerError(f"{FINDING_USER}: {filter_by}") from None
         return user
 
     @classmethod

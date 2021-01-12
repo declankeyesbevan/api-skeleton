@@ -1,3 +1,5 @@
+# pylint: disable=logging-fstring-interpolation
+
 import logging
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -15,4 +17,4 @@ def save_changes(data):
         db.session.commit()
     except SQLAlchemyError as err:
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(SAVING_TO_DATABASE)
+        raise InternalServerError(SAVING_TO_DATABASE) from None

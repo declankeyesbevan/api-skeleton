@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, no-self-use, logging-format-interpolation
+# pylint: disable=invalid-name, no-self-use, logging-fstring-interpolation
 
 import logging
 
@@ -43,7 +43,7 @@ class UserList(Resource):
     @api.marshal_with(response, description=_(USERS_LIST_SUCCESS), skip_none=True)
     def get(self):
         """List all users"""
-        logger.info(f"Getting all users")
+        logger.info("Getting all users")
         return get_all_users()
 
     @jwt_optional

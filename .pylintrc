@@ -1,2 +1,6 @@
 [TYPECHECK]
 ignored-classes=SQLAlchemy,sqlalchemy.orm.scoping.scoped_session
+
+[SIMILARITIES]
+# Ignore imports when computing similarities.
+ignore-imports=yes

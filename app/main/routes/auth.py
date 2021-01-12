@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, logging-format-interpolation, no-self-use
+# pylint: disable=invalid-name, logging-fstring-interpolation, no-self-use
 
 import logging
 
@@ -66,7 +66,7 @@ class UserLogout(Resource):
         # Upon fail the data field has content so it won't be lost.
         # Upon error, 'message' is returned correctly and 'data' is not returned.
         # Status is ever present.
-        logger.info(f"Logging out user")
+        logger.info("Logging out user")
         auth_token = request.headers.get('Authorization').split('Bearer ')[SECOND]
         return Auth.logout_user(auth_token)
 
@@ -82,7 +82,7 @@ class EmailConfirm(Resource):
     @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
     @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
     def post(self, token):
-        logger.info(f"Confirming user email address")
+        logger.info("Confirming user email address")
         return Auth.confirm_email(token)
 
 
@@ -110,7 +110,7 @@ class PasswordResetRequest(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
-        logger.info(f"User requesting to reset password")
+        logger.info("User requesting to reset password")
         return Auth.request_password_reset(request.json)
 
 
@@ -123,7 +123,7 @@ class PasswordResetConfirm(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self, token):
-        logger.info(f"User attempting to reset password")
+        logger.info("User attempting to reset password")
         return Auth.reset_password(token, request.json)
 
 
@@ -138,5 +138,5 @@ class PasswordChange(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
-        logger.info(f"User attempting to change password")
+        logger.info("User attempting to change password")
         return Auth.change_password(request.json)

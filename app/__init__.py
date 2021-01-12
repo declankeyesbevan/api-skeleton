@@ -1,4 +1,4 @@
-# pylint: disable=invalid-name, logging-format-interpolation
+# pylint: disable=invalid-name, logging-fstring-interpolation
 
 import logging
 

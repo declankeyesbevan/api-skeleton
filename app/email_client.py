@@ -1,3 +1,5 @@
+# pylint: disable=logging-fstring-interpolation, no-name-in-module, expression-not-assigned
+
 import json
 import logging
 import os

@@ -1,4 +1,4 @@
-# pylint: disable=try-except-raise
+# pylint: disable=try-except-raise, logging-fstring-interpolation
 
 import logging
 from datetime import datetime
@@ -68,7 +68,7 @@ class Auth:
             token = create_jwt(identity=user)
         except FlaskJWTException as err:
             logger.critical(f"FlaskJWTException: {err}", exc_info=True)
-            raise InternalServerError(ENCODING_JWT)
+            raise InternalServerError(ENCODING_JWT) from None
         else:
             return token
 
@@ -77,9 +77,9 @@ class Auth:
         try:
             payload = decode_jwt(auth_token)
         except ExpiredSignatureError:
-            raise Unauthorized(JWT_EXPIRED)
+            raise Unauthorized(JWT_EXPIRED) from None
         except DecodeError:
-            raise Unauthorized(JWT_INVALID)
+            raise Unauthorized(JWT_INVALID) from None
         else:
             return payload['sub']
 
@@ -146,7 +146,7 @@ class Auth:
             email = serialiser.loads(token, salt=salt, max_age=MAX_TOKEN_AGE)
         except BadData as err:
             logger.error(f"BadData: {err}")
-            raise Unauthorized(error_message)
+            raise Unauthorized(error_message) from None
         else:
             return get_user_by_email(email)
 
@@ -155,7 +155,7 @@ class Auth:
         try:
             auth_token = auth_token.split('Bearer ')[SECOND]
         except (AttributeError, IndexError):
-            raise BadRequest(MALFORMED)
+            raise BadRequest(MALFORMED) from None
         else:
             return auth_token
 
