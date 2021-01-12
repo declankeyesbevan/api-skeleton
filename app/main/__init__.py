@@ -7,6 +7,7 @@ from flask._compat import text_type
 from flask.json import JSONEncoder as BaseEncoder
 from flask_babel import Babel
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from flask_jwt_simple import JWTManager
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
@@ -32,6 +33,7 @@ def create_app(config_name):
     app.json_encoder = JSONEncoder
     init_logging(config_name)
     mail.init_app(app)
+    CORS(app)
     return app
 
 

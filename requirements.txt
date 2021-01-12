@@ -1,6 +1,7 @@
 flask
 flask-babel
 flask-bcrypt
+flask-cors
 flask-jwt-simple
 flask-mail
 flask-migrate
