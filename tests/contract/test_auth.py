@@ -3,7 +3,7 @@ import pytest
 from app.responses import CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
-    API_BASE_URL, api_post, authenticate_user, check_endpoint_denied, confirm_and_login_user,
+    api_post, authenticate_user, check_endpoint_denied, confirm_and_login_user,
     confirm_email_token, get_email_token, register_user,
 )
 
@@ -40,7 +40,7 @@ def test_user_logout(user_data):
     data = response.json().get('data')
     headers = dict(Authorization=f"Bearer {data.get('token')}")
 
-    endpoint = f'{API_BASE_URL}/auth/logout'
+    endpoint = '/auth/logout'
     expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
     for idx, header in enumerate([headers, headers]):
         response = authenticate_user('logout', headers=headers, expected=expected[idx])
@@ -67,7 +67,7 @@ def test_email_confirm(user_data):
 def test_resend_email_confirm(user_data):
     """Test for resend email confirmation."""
     register_user(user_data)
-    request_url = f'{API_BASE_URL}/auth/confirm/resend'
+    request_url = '/auth/confirm/resend'
 
     authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
 
@@ -94,7 +94,7 @@ def test_password_reset(user_data):
     """Test for password reset."""
     register_user(user_data)
     token = get_email_token(user_data)
-    request_url = f'{API_BASE_URL}/auth/reset/request'
+    request_url = '/auth/reset/request'
 
     response = api_post(request_url, data=user_data)
     assert response.status_code == UNAUTHORIZED
@@ -112,11 +112,11 @@ def test_password_reset(user_data):
 
     token = get_email_token(user_data)
     user_data['password'] = random_password()
-    response = api_post(f'{API_BASE_URL}/auth/reset/{token}', data=user_data)
+    response = api_post(f'/auth/reset/{token}', data=user_data)
     assert response.status_code == OK
 
     bad_token = random_text()
-    response = api_post(f'{API_BASE_URL}/auth/reset/{bad_token}', data=user_data)
+    response = api_post(f'/auth/reset/{bad_token}', data=user_data)
     assert response.status_code == UNAUTHORIZED
 
     authenticate_user('login', data=user_data)
@@ -129,7 +129,7 @@ def test_password_reset(user_data):
 def test_password_change(user_data):
     """Test for password change."""
     register_user(user_data)
-    request_url = f'{API_BASE_URL}/auth/change'
+    request_url = '/auth/change'
 
     response = api_post(request_url, data=user_data)
     assert response.status_code == UNAUTHORIZED

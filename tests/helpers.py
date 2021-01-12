@@ -38,11 +38,11 @@ def client_post(client, url, headers=None, data=None):
 
 
 def api_get(url, headers=None):
-    return requests.get(url, headers=headers)
+    return requests.get(f'{API_BASE_URL}{url}', headers=headers)
 
 
 def api_post(url, headers=None, data=None):
-    return requests.post(url, headers=headers, json=data)
+    return requests.post(f'{API_BASE_URL}{url}', headers=headers, json=data)
 
 
 def create_user(db, user_data, admin=False):
@@ -57,7 +57,7 @@ def create_header(db, user_data, admin=False):
 
 
 def register_user(data, expected=CREATED, client=None):
-    url = '/users' if client else f'{API_BASE_URL}/users'
+    url = '/users'
     response = client_post(client, url, data=data) if client else api_post(url, data=data)
     if expected == CREATED:
         data = (response.json if client else response.json()).get('data')
@@ -68,7 +68,7 @@ def register_user(data, expected=CREATED, client=None):
 
 
 def authenticate_user(action, data=None, headers=None, expected=OK, client=None):
-    url = f'auth/{action}' if client else f'{API_BASE_URL}/auth/{action}'
+    url = f'/auth/{action}'
     response = (
         client_post(client, url, data=data, headers=headers) if client else
         api_post(url, data=data, headers=headers)
@@ -107,7 +107,7 @@ def get_email_token(user_data):
 
 
 def confirm_email_token(token, expected=OK, client=None):
-    url = f'auth/confirm/{token}' if client else f'{API_BASE_URL}/auth/confirm/{token}'
+    url = f'/auth/confirm/{token}'
     response = client_post(client, url) if client else api_post(url)
     assert response.status_code == expected
 

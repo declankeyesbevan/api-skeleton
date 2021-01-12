@@ -5,11 +5,11 @@ import pytest
 from app.responses import NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text, TOTAL_USERS,
     user_attributes,
 )
 from tests.helpers import (
-    API_BASE_URL, api_get, api_post, bad_username_and_email, check_endpoint_denied,
+    api_get, api_post, bad_username_and_email, check_endpoint_denied,
     confirm_and_login_user, register_user,
 )
 
@@ -23,7 +23,7 @@ def test_user_list_get(headers, admin_headers):
         register_user(user_data)
 
     # Standard User can only see themselves, Admin users can see full list.
-    endpoint = f'{API_BASE_URL}/users'
+    endpoint = '/users'
     expected = [NUM_STANDARD_CLIENT_USERS, TOTAL_USERS]
     for outer_idx, header in enumerate([headers, admin_headers]):
         response = api_get(endpoint, headers=header)
@@ -60,7 +60,7 @@ def test_user_get_by_id(user_data, headers, admin_headers):
     user = data.get('user')
 
     # Standard User can only see themselves, Admin users can see anyone.
-    endpoint = f'{API_BASE_URL}/users/{user.get("public_id")}'
+    endpoint = f'/users/{user.get("public_id")}'
     expected = [UNAUTHORIZED, OK]
     for idx, header in enumerate([headers, admin_headers]):
         response = api_get(endpoint, headers=header)
@@ -72,7 +72,7 @@ def test_user_get_by_id(user_data, headers, admin_headers):
         assert response.status_code == expected[idx]
 
     fake_id = random_text()
-    response = api_get(f'{API_BASE_URL}/users/{fake_id}', headers=admin_headers)
+    response = api_get(f'/users/{fake_id}', headers=admin_headers)
     assert response.status_code == NOT_FOUND
 
     check_endpoint_denied(endpoint)
@@ -88,12 +88,12 @@ def test_user_change_email(user_data):
 
     headers = confirm_and_login_user(user_data)
 
-    endpoint = f'{API_BASE_URL}/users/email/change'
+    endpoint = '/users/email/change'
     data = dict(email=random_email())
     response = api_post(endpoint, headers=headers, data=data)
     assert response.status_code == OK
 
-    user_endpoint = f'{API_BASE_URL}/users/{user.get("public_id")}'
+    user_endpoint = f'/users/{user.get("public_id")}'
     response = api_get(user_endpoint, headers=headers)
     data = response.json().get('data')
     updated_user = data.get('user')
