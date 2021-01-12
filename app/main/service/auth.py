@@ -6,7 +6,7 @@ from functools import wraps
 
 from flask import current_app, request
 from flask._compat import text_type as _
-from flask_jwt_simple import create_jwt, decode_jwt
+from flask_jwt_simple import create_jwt, decode_jwt, get_jwt
 from flask_jwt_simple.exceptions import FlaskJWTException
 from itsdangerous import BadData, URLSafeTimedSerializer
 from jwt import DecodeError, ExpiredSignatureError
@@ -16,12 +16,13 @@ from app.email_client import send_password_reset_email
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CHECK_EMAIL, CONFIRMATION_FAILED, EMAIL_INVALID, EMAIL_NOT_CONFIRMED,
     EMAIL_NOT_CONFIRMED_RESET, EMAIL_PASSWORD, ENCODING_JWT, JWT_BLACKLISTED, JWT_EXPIRED,
-    JWT_INVALID, MALFORMED, PASSWORD_UPDATED, RESET_FAILED,
+    JWT_INVALID, MALFORMED, PASSWORD_UPDATED, PASSWORD_UPDATE_FAILED, RESET_FAILED,
 )
 from app.main.data.dao import save_changes
 from app.main.model.blacklist import BlacklistToken
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
+from app.main.service.user import _lookup_user_by_id
 from app.responses import OK, responder
 from app.security import PasswordValidator
 from app.utils import SECOND
@@ -114,21 +115,28 @@ class Auth:
         return responder(code=OK, data=dict(check=_(CHECK_EMAIL)))
 
     @classmethod
+    def change_password(cls, data):
+        user = _lookup_user_by_id(get_jwt().get('sub'))
+        return cls._update_password(data, user)
+
+    @classmethod
     def reset_password(cls, token, data):
         user = cls.timed_serialiser(
             token, current_app.config['PASSWORD_RESET_SALT'], _(RESET_FAILED)
         )
-
         if not user:
-            raise Unauthorized(EMAIL_INVALID)
+            raise Unauthorized(PASSWORD_UPDATE_FAILED)
+        return cls._update_password(data, user)
 
+    @classmethod
+    def _update_password(cls, data, user):
         password_invalid = PasswordValidator().validate_password(data.get('password'))
         if password_invalid:
             raise BadRequest(password_invalid)
         user.password = data.get('password')
         save_changes(user)
 
-        logger.info(f"Reset password of user with public_id: {user.public_id}")
+        logger.info(f"Updating password of user with public_id: {user.public_id}")
         return responder(code=OK, data=dict(updated=_(PASSWORD_UPDATED)))
 
     @classmethod

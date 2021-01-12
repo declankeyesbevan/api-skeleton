@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 from app.responses import CONFLICT, OK, UNAUTHORIZED
@@ -82,6 +80,28 @@ def test_password_reset(client, user_data):
         bad_token = random_text()
         response = client_post(client, f'/auth/reset/{bad_token}', data=user_data)
         assert response.status_code == UNAUTHORIZED
+
+        authenticate_user('login', data=user_data, client=client)
+        user_data['password'] = old_password
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
+
+
+@pytest.mark.usefixtures('database')
+def test_password_change(client, user_data):
+    """Test for password change."""
+    with client:
+        register_user(user_data, client=client)
+        request_url = '/auth/change'
+
+        response = client_post(client, request_url, data=user_data)
+        assert response.status_code == UNAUTHORIZED
+
+        headers = confirm_and_login_user(user_data, client)
+        old_password = user_data.get('password')
+
+        user_data['password'] = random_password()
+        response = client_post(client, request_url, headers=headers, data=user_data)
+        assert response.status_code == OK
 
         authenticate_user('login', data=user_data, client=client)
         user_data['password'] = old_password

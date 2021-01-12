@@ -9,7 +9,7 @@ from flask_restplus import Resource
 
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,
-    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_RESET_FAILED,
+    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_UPDATE_FAILED,
 )
 from app.main.data.dto import AuthDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
@@ -89,9 +89,10 @@ class PasswordResetRequest(Resource):
 
     @api.doc('/auth/reset/request')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(UNAUTHORIZED, _(PASSWORD_RESET_FAILED))
+    @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
+    @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
-        logger.info(f"User attempting to reset password")
+        logger.info(f"User requesting to reset password")
         return Auth.request_password_reset(request.json)
 
 
@@ -101,8 +102,23 @@ class PasswordResetConfirm(Resource):
 
     @api.doc('/auth/reset/:token')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(UNAUTHORIZED, _(PASSWORD_RESET_FAILED))
+    @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self, token):
         logger.info(f"User attempting to reset password")
         return Auth.reset_password(token, request.json)
+
+
+@api.route('/change')
+class PasswordChange(Resource):
+    """Password Change Resource"""
+
+    @jwt_required
+    @jwt_valid
+    @api.doc('/auth/change')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    def post(self):
+        logger.info(f"User attempting to change password")
+        return Auth.change_password(request.json)

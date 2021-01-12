@@ -3,8 +3,8 @@ import pytest
 from app.responses import CONFLICT, OK, UNAUTHORIZED
 from tests.data_factory import random_email, random_password, random_text
 from tests.helpers import (
-    API_BASE_URL, api_post, authenticate_user, check_endpoint_denied, confirm_email_token,
-    get_email_token, register_user,
+    API_BASE_URL, api_post, authenticate_user, check_endpoint_denied, confirm_and_login_user,
+    confirm_email_token, get_email_token, register_user,
 )
 
 
@@ -92,6 +92,28 @@ def test_password_reset(user_data):
     bad_token = random_text()
     response = api_post(f'{API_BASE_URL}/auth/reset/{bad_token}', data=user_data)
     assert response.status_code == UNAUTHORIZED
+
+    authenticate_user('login', data=user_data)
+    user_data['password'] = old_password
+    authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
+
+
+@pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_password_change(user_data):
+    """Test for password change."""
+    register_user(user_data)
+    request_url = f'{API_BASE_URL}/auth/change'
+
+    response = api_post(request_url, data=user_data)
+    assert response.status_code == UNAUTHORIZED
+
+    headers = confirm_and_login_user(user_data)
+    old_password = user_data.get('password')
+
+    user_data['password'] = random_password()
+    response = api_post(request_url, headers=headers, data=user_data)
+    assert response.status_code == OK
 
     authenticate_user('login', data=user_data)
     user_data['password'] = old_password
