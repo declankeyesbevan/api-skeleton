@@ -88,7 +88,7 @@ def test_user_change_email(client, user_data):
         data = json.loads(response.data.decode()).get('data')
         user = data.get('user')
 
-        headers = confirm_and_login_user(user_data, client)
+        headers = confirm_and_login_user(user_data, client=client)
 
         endpoint = '/users/email/change'
         data = dict(email=random_email())

@@ -28,7 +28,7 @@ def test_user_logout(client, user_data):
     with client:
         # Don't use fixture as we need a token that's been blacklisted in the database.
         register_user(user_data, client=client)
-        headers = confirm_and_login_user(user_data, client)
+        headers = confirm_and_login_user(user_data, client=client)
 
         expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
         for idx, header in enumerate([headers, headers]):
@@ -122,7 +122,7 @@ def test_password_change(client, user_data):
         response = client_post(client, request_url, data=user_data)
         assert response.status_code == UNAUTHORIZED
 
-        headers = confirm_and_login_user(user_data, client)
+        headers = confirm_and_login_user(user_data, client=client)
         old_password = user_data.get('password')
 
         user_data['password'] = random_password()
