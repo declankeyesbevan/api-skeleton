@@ -2,7 +2,7 @@
 
 """
 Requires:
- - python 3.7+
+ - python 3.8+
 
 Pre-requisites:
  - pip install -r tests/test-requirements.txt
