@@ -50,8 +50,8 @@ def _set_up_environment():
 
     commands = [
         ['-V'],
+        ['-m', 'ensurepip', '--upgrade'],
         ['-m', 'venv', 'venv'],
-        ['-m', 'pip', 'install', '--upgrade', 'pip'],
         ['-m', 'pip', 'install', '-r', app_dependencies],
     ]
     for command in commands:
@@ -93,6 +93,7 @@ def _start_local_dependencies():
     for command, options in database.items():
         _run_commands(command, options=options)
 
+    click.echo("Starting Flask daemon app")
     from api_skeleton import app  # Cannot import at start of execution as env vars haven't loaded.
     # The Flask app must be run as a daemon thread because it runs in the foreground and will not
     # return control to this script if invoked in this process. As a daemon, it will exit when this
