@@ -106,7 +106,9 @@ def _run_commands(command, options=None):
     commands = [sys.executable, 'api_skeleton.py', command]
     if options:
         commands.extend(options)
-    runner(commands)
+    result = runner(commands)
+    if result.returncode:  # Fail the build if we get exceptions or failed tests.
+        exit(result.returncode)
 
 
 def _load_env_vars(env_file):
