@@ -31,6 +31,7 @@ from threading import Thread
 import click
 from dotenv import load_dotenv
 
+python_executable = sys.executable
 runner = subprocess.run
 app_dependencies = 'requirements.txt'
 test_dependencies = 'tests/test-requirements.txt'
@@ -55,9 +56,9 @@ def _set_up_environment():
         ['-m', 'pip', 'install', '-r', app_dependencies],
     ]
     for command in commands:
-        python_executable = [sys.executable]
-        python_executable.extend(command)
-        runner(python_executable)
+        execute = [python_executable]
+        execute.extend(command)
+        runner(execute)
 
     Path(f'{os.environ.get("BUILD_DIR", "build")}').mkdir(parents=True, exist_ok=True)
 
@@ -68,21 +69,21 @@ def _run_per_env(env):
         # tests below, it is not automatically run to allow control over data persistence.
         click.echo('Running Flask development server')
         _load_env_vars(env)
-        _run_commands('run')
+        _run_manager_commands('run')
     elif env == 'test':
         click.echo('Running non-integrated then integrated test suites')
         click.echo('Installing test dependencies')
-        runner([sys.executable, '-m', 'pip', 'install', '-r', test_dependencies])
+        runner([python_executable, '-m', 'pip', 'install', '-r', test_dependencies])
         for env_file, integrated in {'test-internal': False, 'test-external': True}.items():
             message = 'integrated' if integrated else 'non-integrated'
             click.echo(f'Running {message} test suite')
             _load_env_vars(env_file)
             if local and integrated:
                 _start_local_dependencies()
-            _run_commands('test', options=['--integrated', str(integrated).lower()])
+            _run_manager_commands('test', options=['--integrated', str(integrated).lower()])
 
         for static_analyser in ['lint', 'cc', 'lloc']:
-            _run_commands(static_analyser)
+            _run_manager_commands(static_analyser)
 
 
 def _start_local_dependencies():
@@ -91,7 +92,7 @@ def _start_local_dependencies():
         'db-ddl': ['--action', 'upgrade'],
     }
     for command, options in database.items():
-        _run_commands(command, options=options)
+        _run_manager_commands(command, options=options)
 
     click.echo("Starting Flask daemon app")
     from api_skeleton import app  # Cannot import at start of execution as env vars haven't loaded.
@@ -103,11 +104,16 @@ def _start_local_dependencies():
     thread.start()
 
 
-def _run_commands(command, options=None):
-    commands = [sys.executable, 'api_skeleton.py', command]
+def _run_manager_commands(command, options=None):
+    # Runs commands in the manager script e.g.
+    # To run the Flask app:
+    #   python api_skeleton.py run
+    # To start the database container:
+    #   python api_skeleton.py db-container --state up
+    execute = [python_executable, 'api_skeleton.py', command]
     if options:
-        commands.extend(options)
-    result = runner(commands)
+        execute.extend(options)
+    result = runner(execute)
     if result.returncode:  # Fail the build if we get exceptions or failed tests.
         exit(result.returncode)
 
