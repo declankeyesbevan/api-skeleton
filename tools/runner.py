@@ -71,11 +71,11 @@ def _run_per_env(env):
         _load_env_vars(env)
         _run_manager_commands('run')
     elif env == 'test':
-        click.echo('Running non-integrated then integrated test suites')
+        click.echo('Running in-memory then deployed test suites')
         click.echo('Installing test dependencies')
         runner([python_executable, '-m', 'pip', 'install', '-r', test_dependencies])
-        for env_file, integrated in {'test-internal': False, 'test-external': True}.items():
-            message = 'integrated' if integrated else 'non-integrated'
+        for env_file, integrated in {'test-in-memory': False, 'test-deployed': True}.items():
+            message = 'deployed' if integrated else 'in-memory'
             click.echo(f'Running {message} test suite')
             _load_env_vars(env_file)
             if local and integrated:

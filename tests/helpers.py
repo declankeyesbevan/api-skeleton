@@ -9,7 +9,7 @@ from app.responses import BAD_REQUEST, CONFLICT, CREATED, OK, UNAUTHORIZED, UNPR
 from app.utils import FIFTH, FIRST, FOURTH, SECOND, SEVENTH, SIXTH, THIRD
 from tests.data_factory import random_email, random_text, user_model
 
-CONFIG_OBJECT = CONFIG_BY_NAME['test-external']
+CONFIG_OBJECT = CONFIG_BY_NAME['test-deployed']
 API_BASE_URL = f'{CONFIG_OBJECT.PREFERRED_URL_SCHEME}://{CONFIG_OBJECT.SERVER_NAME}'
 JSON = 'application/json'
 

@@ -63,12 +63,12 @@ class TestingConfig(Config):
 
 
 @dataclasses.dataclass(frozen=True)
-class NonIntegratedTestingConfig(TestingConfig):
+class InMemoryTestingConfig(TestingConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', SQLiteMemory().connection_string)
 
 
 @dataclasses.dataclass(frozen=True)
-class IntegratedTestingConfig(TestingConfig):
+class DeployedTestingConfig(TestingConfig):
     # Non-Flask var to allow running the integrated tests locally for debugging purposes.
     LOCAL = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
 
@@ -85,8 +85,8 @@ class ProductionConfig(Config):
 
 CONFIG_BY_NAME = {
     'dev': DevelopmentConfig,
-    'test-internal': NonIntegratedTestingConfig,
-    'test-external': IntegratedTestingConfig,
+    'test-in-memory': InMemoryTestingConfig,
+    'test-deployed': DeployedTestingConfig,
     'prod': ProductionConfig,
 }
 

@@ -5,7 +5,7 @@ services:
     image: postgres:latest
     env_file:
       - ../configuration/common.env
-      - ../configuration/test-external.env
+      - ../configuration/test-deployed.env
     ports:
       - 5432:5432
     volumes:

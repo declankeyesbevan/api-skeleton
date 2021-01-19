@@ -3,7 +3,7 @@ import os
 import pytest
 
 from app.config import (
-    DevelopmentConfig, IntegratedTestingConfig, NonIntegratedTestingConfig, ProductionConfig,
+    DevelopmentConfig, DeployedTestingConfig, InMemoryTestingConfig, ProductionConfig,
 )
 from app.database import BASEDIR
 
@@ -14,8 +14,8 @@ postgres_database_uri = 'postgresql+psycopg2://test:password@localhost:5432/exam
 
 @pytest.mark.parametrize('config, database_uri, debug, testing', [
     (DevelopmentConfig, sqlite_file_uri, True, False),
-    (NonIntegratedTestingConfig, sqlite_memory_uri, False, True),
-    (IntegratedTestingConfig, postgres_database_uri, False, True),
+    (InMemoryTestingConfig, sqlite_memory_uri, False, True),
+    (DeployedTestingConfig, postgres_database_uri, False, True),
     (ProductionConfig, postgres_database_uri, False, False),
 ])
 def test_app_is_correct_env(config, database_uri, debug, testing):
