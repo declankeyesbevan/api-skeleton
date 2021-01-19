@@ -7,7 +7,6 @@ from distutils import util
 
 from app.database import Postgres, SQLiteFile, SQLiteMemory
 
-DEFAULT_LOCAL_SERVER = 'localhost.localdomain:5000'
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -36,7 +35,7 @@ class Config:
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PREFERRED_URL_SCHEME = 'http'
-    SERVER_NAME = os.environ.get('SERVER_NAME', DEFAULT_LOCAL_SERVER)
+    SERVER_NAME = os.environ.get('SERVER_NAME')
     RESTX_MASK_SWAGGER = False
     ERROR_INCLUDE_MESSAGE = False
     BABEL_TRANSLATION_DIRECTORIES = f'{BASEDIR}/i18n/translations'
@@ -70,20 +69,17 @@ class NonIntegratedTestingConfig(TestingConfig):
 
 @dataclasses.dataclass(frozen=True)
 class IntegratedTestingConfig(TestingConfig):
-    # Non-Flask vars to allow running the integrated tests locally for debugging purposes.
+    # Non-Flask var to allow running the integrated tests locally for debugging purposes.
     LOCAL = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
-    SERVER = DEFAULT_LOCAL_SERVER if LOCAL else ''  # TODO: set this once deployed to AWS
 
     # Back to Flask vars.
     PREFERRED_URL_SCHEME = 'http' if LOCAL else 'https'
-    SERVER_NAME = os.environ.get('SERVER_NAME', SERVER)
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
 @dataclasses.dataclass(frozen=True)
 class ProductionConfig(Config):
     PREFERRED_URL_SCHEME = 'https'
-    SERVER_NAME = os.environ.get('SERVER_NAME')
     SQLALCHEMY_DATABASE_URI = os.environ.get('CONNECTION_STRING', Postgres().connection_string)
 
 
