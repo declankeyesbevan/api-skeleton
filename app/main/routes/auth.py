@@ -82,6 +82,7 @@ class EmailConfirm(Resource):
     @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
     @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
     def post(self, token):
+        """Confirm user's email with confirmation token"""
         logger.info("Confirming user email address")
         return Auth.confirm_email(token)
 
@@ -97,6 +98,7 @@ class ResendEmailConfirm(Resource):
     @api.expect(base, validate=True)
     @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
     def post(self):
+        """Resend user's confirmation email"""
         logger.info(f"Re-sending email confirmation for: {request.json.get('email')}")
         return Auth.resend_confirmation_email(request.json.get('email'))
 
@@ -110,6 +112,7 @@ class PasswordResetRequest(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
+        """Request to reset the user's password"""
         logger.info("User requesting to reset password")
         return Auth.request_password_reset(request.json)
 
@@ -123,6 +126,7 @@ class PasswordResetConfirm(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self, token):
+        """Reset the user's password with confirmation token"""
         logger.info("User attempting to reset password")
         return Auth.reset_password(token, request.json)
 
@@ -138,5 +142,6 @@ class PasswordChange(Resource):
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
+        """Change the user's password"""
         logger.info("User attempting to change password")
         return Auth.change_password(request.json)
