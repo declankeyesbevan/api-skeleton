@@ -5,7 +5,7 @@ import logging
 from flask import request
 from flask._compat import text_type as _
 from flask_jwt_simple import jwt_required
-from flask_restplus import Resource
+from flask_restx import Resource
 
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,

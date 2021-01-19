@@ -26,7 +26,7 @@ def create_postman(app):
 def _template_environment_file(env_vars):
     values = [dict(key=f'{k.lower()}', value=v, enabled=True) for k, v in env_vars.items()]
     return dict(
-        name='Flask-RESTPlus API skeleton 0.1.0',  # TODO: set dynamically from Git
+        name='Flask-RESTX API skeleton 0.1.0',  # TODO: set dynamically from Git
         values=values,
         _postman_variable_scope='environment',
     )

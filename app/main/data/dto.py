@@ -1,6 +1,6 @@
 import dataclasses
 
-from flask_restplus import Namespace, fields
+from flask_restx import Namespace, fields
 
 USERNAME_EMAIL_MINIMUM_LENGTH = 6
 

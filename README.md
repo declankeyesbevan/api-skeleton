@@ -1,2 +1,2 @@
-# flask-restplus-skeleton
+# flask-restx-skeleton
 

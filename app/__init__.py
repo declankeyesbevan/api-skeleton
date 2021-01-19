@@ -3,7 +3,7 @@
 import logging
 
 from flask import Blueprint
-from flask_restplus import Api
+from flask_restx import Api
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
 from app.main.data.dto import BaseDto, RequestDto, ResponseDto
@@ -24,9 +24,9 @@ authorizations = {
 
 api = Api(
     blueprint,
-    title='Flask-RESTPlus API skeleton',
+    title='Flask-RESTX API skeleton',
     version='0.1.0',  # TODO: set dynamically from Git
-    description='Boilerplate for Flask-RESTPlus web service',
+    description='Boilerplate for Flask-RESTX web service',
     authorizations=authorizations,
     security='bearer',
 )

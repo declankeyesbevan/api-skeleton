@@ -5,7 +5,7 @@ import logging
 from flask import request
 from flask._compat import text_type as _
 from flask_jwt_simple import jwt_optional, jwt_required
-from flask_restplus import Resource
+from flask_restx import Resource
 from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
