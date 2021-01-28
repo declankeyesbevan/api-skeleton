@@ -18,6 +18,9 @@ Requires:
  - python 3.8+
 
 Pre-requisites:
+ - python3 -m venv runnervenv
+ - source runnervenv/bin/activate
+ - pip install --upgrade pip
  - pip install -r tools/tools-requirements.txt
 """
 
@@ -35,7 +38,6 @@ python_executable = sys.executable
 runner = subprocess.run
 app_dependencies = 'requirements.txt'
 test_dependencies = 'tests/test-requirements.txt'
-local = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
 
 
 @click.command()
@@ -51,8 +53,6 @@ def _set_up_environment():
 
     commands = [
         ['-V'],
-        ['-m', 'ensurepip', '--upgrade'],
-        ['-m', 'venv', 'venv'],
         ['-m', 'pip', 'install', '-r', app_dependencies],
     ]
     for command in commands:
@@ -78,6 +78,7 @@ def _run_per_env(env):
             message = 'deployed' if integrated else 'in-memory'
             click.echo(f'Running {message} test suite')
             _load_env_vars(env_file)
+            local = os.environ.get('LOCAL') and bool(util.strtobool(os.environ.get('LOCAL')))
             if local and integrated:
                 _start_local_dependencies()
             _run_manager_commands('test', options=['--integrated', str(integrated).lower()])

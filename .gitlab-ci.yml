@@ -26,6 +26,7 @@ run_dynamic_and_static_tests:
   variables:
     BUILD_DIR: "build"
   script:
+    - pip install --upgrade pip
     - pip install -r tools/tools-requirements.txt
     - tools/runner.py --env test
   artifacts:
