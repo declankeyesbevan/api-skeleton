@@ -11,6 +11,7 @@ Pre-requisites:
 import asyncore
 import os
 import subprocess
+import time
 from distutils import util
 from types import SimpleNamespace
 
@@ -24,6 +25,8 @@ from tests.helpers import set_up_database, tear_down_database
 from tools.email_server import CustomSMTPServer
 from tools.postman_creator import create_postman
 from tools.static_code_analysis import CyclomaticComplexity, Lint, LogicalLinesOfCode
+
+POSTGRES_CONTAINER_WAIT = 5
 
 app = create_app(os.environ.get('APP_ENV') or 'dev')
 app.register_blueprint(blueprint)
@@ -53,6 +56,7 @@ def db_container(state):
     if state == 'up':
         docker_compose.extend(['up', '-d'])
         result = subprocess.run(docker_compose)
+        time.sleep(POSTGRES_CONTAINER_WAIT)  # Allow time for the container to start.
         exit(result.returncode)
     elif state == 'down':
         docker_compose.extend(['stop'])

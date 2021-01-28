@@ -1,4 +1,4 @@
-"""initial database migration
+"""Initial database migration
 
 Revision ID: 081f6e528e98
 Revises: 

@@ -1,4 +1,4 @@
-"""add blacklist table
+"""Add blacklist table
 
 Revision ID: e81e6a49b002
 Revises: 081f6e528e98
