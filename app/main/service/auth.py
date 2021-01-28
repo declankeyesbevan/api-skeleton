@@ -1,33 +1,29 @@
 # pylint: disable=try-except-raise, logging-fstring-interpolation
 
 import logging
-from datetime import datetime
 from functools import wraps
 
 from flask import current_app, request
 from flask._compat import text_type as _
 from flask_jwt_simple import create_jwt, decode_jwt, get_jwt
 from flask_jwt_simple.exceptions import FlaskJWTException
-from itsdangerous import BadData, URLSafeTimedSerializer
 from jwt import DecodeError, ExpiredSignatureError
-from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
+from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 
-from app.email_client import send_confirmation_email, send_password_reset_email
+from app.email_client import send_password_reset_email
 from app.i18n.base import (
-    ACCOUNT_ALREADY_CONFIRMED, CHECK_EMAIL, CONFIRMATION_FAILED, EMAIL_INVALID, EMAIL_NOT_CONFIRMED,
-    EMAIL_NOT_CONFIRMED_RESET, EMAIL_PASSWORD, ENCODING_JWT, JWT_BLACKLISTED, JWT_EXPIRED,
-    JWT_INVALID, MALFORMED, PASSWORD_UPDATED, PASSWORD_UPDATE_FAILED, RESET_FAILED, USER_NOT_FOUND,
+    CHECK_EMAIL, EMAIL_INVALID, EMAIL_NOT_CONFIRMED, EMAIL_NOT_CONFIRMED_RESET, EMAIL_PASSWORD,
+    ENCODING_JWT, JWT_BLACKLISTED, JWT_EXPIRED, JWT_INVALID, MALFORMED, PASSWORD_UPDATE_FAILED,
+    PASSWORD_UPDATED, RESET_FAILED,
 )
 from app.main.data.dao import save_changes
 from app.main.model.blacklist import BlacklistToken
 from app.main.model.user import User
 from app.main.service.blacklist import blacklist_token
-from app.main.service.user import _lookup_user_by_id, get_user_by_email
+from app.main.service.common import get_user_by_email, lookup_user_by_id, timed_serialiser
 from app.responses import OK, responder
 from app.security import PasswordValidator
 from app.utils import SECOND
-
-MAX_TOKEN_AGE = 600
 
 logger = logging.getLogger('api-skeleton')
 
@@ -84,22 +80,6 @@ class Auth:
             return payload['sub']
 
     @classmethod
-    def confirm_email(cls, token):
-        user = cls.timed_serialiser(
-            token, current_app.config['EMAIL_CONFIRMATION_SALT'], _(CONFIRMATION_FAILED)
-        )
-
-        if user.email_confirmed:
-            raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
-
-        user.email_confirmed = True
-        user.email_confirmed_on = datetime.utcnow()
-        save_changes(user)
-
-        logger.info(f"Confirmed email of user with public_id: {user.public_id}")
-        return responder(code=OK)
-
-    @classmethod
     def request_password_reset(cls, data):
         user = User().find_user(dict(email=data.get('email')))
 
@@ -116,14 +96,15 @@ class Auth:
 
     @classmethod
     def change_password(cls, data):
-        user = _lookup_user_by_id(get_jwt().get('sub'))
+        user = lookup_user_by_id(get_jwt().get('sub'))
         return cls._update_password(data, user)
 
     @classmethod
     def reset_password(cls, token, data):
-        user = cls.timed_serialiser(
+        email = timed_serialiser(
             token, current_app.config['PASSWORD_RESET_SALT'], _(RESET_FAILED)
         )
+        user = get_user_by_email(email)
         if not user:
             raise Unauthorized(PASSWORD_UPDATE_FAILED)
         return cls._update_password(data, user)
@@ -140,17 +121,6 @@ class Auth:
         return responder(code=OK, data=dict(updated=_(PASSWORD_UPDATED)))
 
     @classmethod
-    def timed_serialiser(cls, token, salt, error_message):
-        try:
-            serialiser = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-            email = serialiser.loads(token, salt=salt, max_age=MAX_TOKEN_AGE)
-        except BadData as err:
-            logger.error(f"BadData: {err}")
-            raise Unauthorized(error_message) from None
-        else:
-            return get_user_by_email(email)
-
-    @classmethod
     def validate_token_format(cls, auth_token):
         try:
             auth_token = auth_token.split('Bearer ')[SECOND]
@@ -164,17 +134,6 @@ class Auth:
         is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
         if is_blacklisted_token:
             raise Unauthorized(JWT_BLACKLISTED)
-
-    @classmethod
-    def resend_confirmation_email(cls, email):
-        user_to_resend = get_user_by_email(email)
-        if not user_to_resend:
-            raise NotFound(USER_NOT_FOUND)
-        if user_to_resend.email_confirmed:
-            raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
-        user_to_resend.email_confirmation_sent_on = datetime.utcnow()
-        save_changes(user_to_resend)
-        return send_confirmation_email(email)
 
 
 def jwt_valid(func):

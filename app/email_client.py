@@ -22,7 +22,7 @@ def send_confirmation_email(user_email):
     logger.info(f"Sending confirmation email to: {user_email}")
 
     attributes = dict(
-        base_url='auth_email_confirm',
+        base_url='users_email_confirm',
         user_email=user_email,
         salt=current_app.config['EMAIL_CONFIRMATION_SALT'],
         template='email_confirmation',
@@ -70,8 +70,8 @@ def _intercept_test_mail(msg, recipients):
     values = dict()
     preferred_url_scheme = current_app.config['PREFERRED_URL_SCHEME']
     server_name = current_app.config['SERVER_NAME']
-    auth_confirm_url = f'{preferred_url_scheme}://{server_name}/auth/confirm/'
-    password_reset_url = f'{preferred_url_scheme}://{server_name}/auth/reset/'
+    auth_confirm_url = f'{preferred_url_scheme}://{server_name}/users/email/confirm/'
+    password_reset_url = f'{preferred_url_scheme}://{server_name}/auth/password/reset/'
 
     with mail.record_messages() as outbox:
         mail.send(msg)

@@ -46,16 +46,8 @@ class User(db.Model):
             raise InternalServerError(f"{FINDING_USER}: {filter_by}") from None
         return user
 
-    @classmethod
-    def deserialise_users(cls, users):
-        return [
-            dict(username=user.username, public_id=user.public_id, email=user.email) for user in
-            users
-        ]
-
-    @classmethod
-    def should_create_admin(cls, data):
-        users_exist = User().query.all()
+    def should_create_admin(self, data):
+        users_exist = self.query.all()
         if not users_exist:
             should_create = True  # First user becomes Admin by default
         else:
@@ -67,8 +59,3 @@ class User(db.Model):
                 if jwt_data.get('roles') != 'admin':
                     raise Unauthorized(JWT_INSUFFICIENT)
         return should_create
-
-    @classmethod
-    def is_admin(cls):
-        jwt_data = get_jwt()
-        return jwt_data.get('roles') == 'admin', jwt_data.get('sub')

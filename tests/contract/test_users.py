@@ -2,15 +2,15 @@ import copy
 
 import pytest
 
-from app.responses import NOT_FOUND, OK, UNAUTHORIZED
+from app.responses import CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
     NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text, TOTAL_USERS,
     user_attributes,
 )
 from tests.helpers import (
-    api_get, api_post, bad_username_and_email, check_endpoint_denied,
-    confirm_and_login_user, register_user,
+    api_get, api_post, authenticate_user, bad_username_and_email, check_endpoint_denied,
+    confirm_and_login_user, confirm_email_token, get_email_token, register_user,
 )
 
 
@@ -76,6 +76,45 @@ def test_user_get_by_id(user_data, headers, admin_headers):
     assert response.status_code == NOT_FOUND
 
     check_endpoint_denied(endpoint)
+
+
+@pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_email_confirm(user_data):
+    """Test for email confirmation."""
+    register_user(user_data)
+    token = get_email_token(user_data)
+
+    authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
+    confirm_email_token(token)
+    authenticate_user('login', data=user_data)
+    confirm_email_token(token, expected=CONFLICT)
+
+
+@pytest.mark.local
+@pytest.mark.usefixtures('database')
+def test_resend_email_confirm(user_data):
+    """Test for resend email confirmation."""
+    register_user(user_data)
+    request_url = '/users/email/confirm/resend'
+
+    authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
+
+    response = api_post(request_url, data=user_data)
+    assert response.status_code == OK
+
+    unconfirmed_email = user_data.get('email')
+    user_data['email'] = random_email()
+    response = api_post(request_url, data=user_data)
+    assert response.status_code == NOT_FOUND
+
+    user_data['email'] = unconfirmed_email
+    token = get_email_token(user_data)
+
+    confirm_email_token(token)
+    confirm_email_token(token, expected=CONFLICT)
+
+    authenticate_user('login', data=user_data)
 
 
 @pytest.mark.local

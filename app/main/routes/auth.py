@@ -8,14 +8,13 @@ from flask_jwt_simple import jwt_required
 from flask_restx import Resource
 
 from app.i18n.base import (
-    ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_CONFIRMED, EMAIL_PASSWORD, JWT_ERROR,
+    EMAIL_PASSWORD, JWT_ERROR,
     JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_UPDATE_FAILED,
-    USER_NOT_FOUND,
 )
 from app.main.data.dto import AuthDto, BaseDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
 from app.responses import (
-    BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
+    BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN,
     UNPROCESSABLE_ENTITY,
 )
 from app.security import remove
@@ -71,43 +70,11 @@ class UserLogout(Resource):
         return Auth.logout_user(auth_token)
 
 
-@api.route('/confirm/<token>')
-@api.param('token', description='Email confirmation token')
-class EmailConfirm(Resource):
-    """Email Confirmation Resource"""
-
-    @api.doc('/auth/confirm/:token')
-    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
-    @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
-    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
-    def post(self, token):
-        """Confirm user's email with confirmation token"""
-        logger.info("Confirming user email address")
-        return Auth.confirm_email(token)
-
-
-@api.route('/confirm/resend')
-class ResendEmailConfirm(Resource):
-    """Resend Email Confirmation Resource"""
-
-    @api.doc('/auth/confirm/resend')
-    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
-    @api.response(NOT_FOUND, _(USER_NOT_FOUND))
-    @api.expect(base, validate=True)
-    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
-    def post(self):
-        """Resend user's confirmation email"""
-        logger.info(f"Re-sending email confirmation for: {request.json.get('email')}")
-        return Auth.resend_confirmation_email(request.json.get('email'))
-
-
-@api.route('/reset/request')
+@api.route('/password/reset/request')
 class PasswordResetRequest(Resource):
     """Request Password Reset Resource"""
 
-    @api.doc('/auth/reset/request')
+    @api.doc('/auth/password/reset/request')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
@@ -117,11 +84,11 @@ class PasswordResetRequest(Resource):
         return Auth.request_password_reset(request.json)
 
 
-@api.route('/reset/<token>')
+@api.route('/password/reset/<token>')
 class PasswordResetConfirm(Resource):
     """Password Reset Confirm Resource"""
 
-    @api.doc('/auth/reset/:token')
+    @api.doc('/auth/password/reset/:token')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
@@ -131,13 +98,13 @@ class PasswordResetConfirm(Resource):
         return Auth.reset_password(token, request.json)
 
 
-@api.route('/change')
+@api.route('/password/change')
 class PasswordChange(Resource):
     """Password Change Resource"""
 
     @jwt_required
     @jwt_valid
-    @api.doc('/auth/change')
+    @api.doc('/auth/password/change')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))

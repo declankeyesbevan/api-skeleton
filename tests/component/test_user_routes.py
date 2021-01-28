@@ -3,15 +3,15 @@ import json
 
 import pytest
 
-from app.responses import NOT_FOUND, OK, UNAUTHORIZED
+from app.responses import CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import FIRST, SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, TOTAL_USERS, random_email, random_text,
+    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text, TOTAL_USERS,
     user_attributes,
 )
 from tests.helpers import (
-    bad_username_and_email, check_endpoint_denied, client_get, client_post, confirm_and_login_user,
-    register_user,
+    authenticate_user, bad_username_and_email, check_endpoint_denied, client_get, client_post,
+    confirm_and_login_user, confirm_email_token, get_email_token, register_user,
 )
 
 
@@ -78,6 +78,45 @@ def test_user_get_by_id(client, user_data, headers, admin_headers):
         assert response.status_code == NOT_FOUND
 
         check_endpoint_denied(endpoint, client=client)
+
+
+@pytest.mark.usefixtures('database')
+def test_email_confirm(client, user_data):
+    """Test for email confirmation."""
+    with client:
+        register_user(user_data, client=client)
+        token = get_email_token(user_data)
+
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
+        confirm_email_token(token, client=client)
+        authenticate_user('login', data=user_data, client=client)
+        confirm_email_token(token, expected=CONFLICT, client=client)
+
+
+@pytest.mark.usefixtures('database')
+def test_resend_email_confirm(client, user_data):
+    """Test for resend email confirmation."""
+    with client:
+        register_user(user_data, client=client)
+        request_url = '/users/email/confirm/resend'
+
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
+
+        response = client_post(client, request_url, data=user_data)
+        assert response.status_code == OK
+
+        unconfirmed_email = user_data.get('email')
+        user_data['email'] = random_email()
+        response = client_post(client, request_url, data=user_data)
+        assert response.status_code == NOT_FOUND
+
+        user_data['email'] = unconfirmed_email
+        token = get_email_token(user_data)
+
+        confirm_email_token(token, client=client)
+        confirm_email_token(token, client=client, expected=CONFLICT)
+
+        authenticate_user('login', data=user_data, client=client)
 
 
 @pytest.mark.usefixtures('database')

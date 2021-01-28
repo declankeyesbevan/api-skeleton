@@ -1,8 +1,8 @@
 # pylint: disable=invalid-name, method-hidden
 
-from datetime import datetime
+import datetime
 
-from flask import Flask, current_app, request
+from flask import current_app, Flask, request
 from flask._compat import text_type
 from flask.json import JSONEncoder as BaseEncoder
 from flask_babel import Babel
@@ -43,7 +43,7 @@ def add_claims_to_access_token(identity):
     if identity.admin:
         roles = 'admin'
 
-    now = datetime.utcnow()
+    now = datetime.datetime.utcnow()
     return {
         'exp': now + current_app.config['JWT_EXPIRES'],
         'iat': now,

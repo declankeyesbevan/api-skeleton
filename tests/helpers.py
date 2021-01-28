@@ -107,7 +107,7 @@ def get_email_token(user_data):
 
 
 def confirm_email_token(token, expected=OK, client=None):
-    url = f'/auth/confirm/{token}'
+    url = f'/users/email/confirm/{token}'
     response = client_post(client, url) if client else api_post(url)
     assert response.status_code == expected
 

@@ -4,18 +4,22 @@ import datetime
 import logging
 import uuid
 
+from flask import current_app
 from flask._compat import text_type as _
 from flask_jwt_simple import get_jwt
 from sqlalchemy.exc import SQLAlchemyError
-from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, Unauthorized
+from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
 from app.email_client import send_confirmation_email
 from app.i18n.base import (
-    CANNOT_VIEW_OTHERS, EMAIL_ALREADY_EXISTS, EMAIL_UPDATED, GETTING_USER, GETTING_USERS,
-    USER_EXISTS,
+    ACCOUNT_ALREADY_CONFIRMED, CANNOT_VIEW_OTHERS, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS,
+    EMAIL_UPDATED, GETTING_USERS, USER_EXISTS, USER_NOT_FOUND,
 )
 from app.main.data.dao import save_changes
 from app.main.model.user import User
+from app.main.service.common import (
+    deserialise_users, get_user_by_email, lookup_user_by_id, timed_serialiser,
+)
 from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
 from app.utils import FIRST
@@ -35,7 +39,7 @@ def save_new_user(data):
     if password_invalid:
         raise BadRequest(password_invalid)
 
-    create_admin = User.should_create_admin(data)
+    create_admin = User().should_create_admin(data)
 
     now = datetime.datetime.utcnow()
     new_user = User(
@@ -68,31 +72,26 @@ def get_all_users():
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
         raise InternalServerError(GETTING_USERS) from None
     else:
-        users = User.deserialise_users(users)
-        user_is_admin, user_sub = User.is_admin()
+        users = deserialise_users(users)
+        user_is_admin, user_sub = is_admin()
         if not user_is_admin:
             user = User.query.filter_by(public_id=user_sub).first()
-            users = [User.deserialise_users([user])[FIRST]]
+            users = [deserialise_users([user])[FIRST]]
         return responder(code=OK, data=dict(users=users))
 
 
 def get_user_by_id(public_id):
-    user = _lookup_user_by_id(public_id, deserialise=True)
-    user_is_admin, user_sub = User.is_admin()
+    user = lookup_user_by_id(public_id, deserialise=True)
+    user_is_admin, user_sub = is_admin()
     if not user_is_admin:
         if public_id != user_sub:
             raise Unauthorized(CANNOT_VIEW_OTHERS)
     return (responder(code=OK, data=dict(user=user))) if user else None
 
 
-def get_user_by_email(email):
-    try:
-        user = User.query.filter_by(email=email).first()
-    except SQLAlchemyError as err:
-        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(GETTING_USER) from None
-    else:
-        return user
+def is_admin():
+    jwt_data = get_jwt()
+    return jwt_data.get('roles') == 'admin', jwt_data.get('sub')
 
 
 def update_email(email):
@@ -100,7 +99,7 @@ def update_email(email):
     if user:
         raise Conflict(EMAIL_ALREADY_EXISTS)
 
-    updated_user = _lookup_user_by_id(get_jwt().get('sub'))
+    updated_user = lookup_user_by_id(get_jwt().get('sub'))
 
     updated_user.email = email
     updated_user.email_confirmed = False
@@ -113,13 +112,29 @@ def update_email(email):
     return responder(code=OK, data=dict(updated=_(EMAIL_UPDATED)))
 
 
-def _lookup_user_by_id(public_id, deserialise=False):
-    try:
-        user = User.query.filter_by(public_id=public_id).first()
-    except SQLAlchemyError as err:
-        logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
-        raise InternalServerError(GETTING_USER) from None
-    else:
-        if deserialise:
-            return User.deserialise_users([user])[FIRST] if user else None
-        return user
+def confirm_email(token):
+    email = timed_serialiser(
+        token, current_app.config['EMAIL_CONFIRMATION_SALT'], _(CONFIRMATION_FAILED)
+    )
+    user = get_user_by_email(email)
+
+    if user.email_confirmed:
+        raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
+
+    user.email_confirmed = True
+    user.email_confirmed_on = datetime.datetime.utcnow()
+    save_changes(user)
+
+    logger.info(f"Confirmed email of user with public_id: {user.public_id}")
+    return responder(code=OK)
+
+
+def resend_confirmation_email(email):
+    user_to_resend = get_user_by_email(email)
+    if not user_to_resend:
+        raise NotFound(USER_NOT_FOUND)
+    if user_to_resend.email_confirmed:
+        raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
+    user_to_resend.email_confirmation_sent_on = datetime.datetime.utcnow()
+    save_changes(user_to_resend)
+    return send_confirmation_email(email)

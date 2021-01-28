@@ -9,14 +9,16 @@ from flask_restx import Resource
 from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
-    EMAIL_ALREADY_EXISTS, EMAIL_UPDATED, JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED,
-    USERS_LIST_SUCCESS,
-    USER_CREATE_SUCCESS, USER_EXISTS,
-    USER_LIST_SUCCESS, USER_NOT_FOUND,
+    ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS, EMAIL_CONFIRMED,
+    EMAIL_UPDATED, JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED, USER_CREATE_SUCCESS, USER_EXISTS,
+    USER_LIST_SUCCESS, USER_NOT_FOUND, USERS_LIST_SUCCESS,
 )
 from app.main.data.dto import BaseDto, ResponseDto, UserDto
 from app.main.service.auth import jwt_valid
-from app.main.service.user import get_user_by_id, get_all_users, save_new_user, update_email
+from app.main.service.user import (
+    confirm_email, get_all_users, get_user_by_id, resend_confirmation_email, save_new_user,
+    update_email,
+)
 from app.responses import (
     BAD_REQUEST, CONFLICT, INTERNAL_SERVER_ERROR, NOT_FOUND, UNAUTHORIZED, UNKNOWN,
     UNPROCESSABLE_ENTITY,
@@ -78,6 +80,38 @@ class User(Resource):
         if not user_to_get:
             raise NotFound(USER_NOT_FOUND)
         return user_to_get
+
+
+@api.route('/email/confirm/<token>')
+@api.param('token', description='Email confirmation token')
+class EmailConfirm(Resource):
+    """Email Confirmation Resource"""
+
+    @api.doc('/users/email/confirm/:token')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
+    @api.response(UNAUTHORIZED, _(CONFIRMATION_FAILED))
+    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
+    def post(self, token):
+        """Confirm user's email with confirmation token"""
+        logger.info("Confirming user email address")
+        return confirm_email(token)
+
+
+@api.route('/email/confirm/resend')
+class ResendEmailConfirm(Resource):
+    """Resend Email Confirmation Resource"""
+
+    @api.doc('/users/email/confirm/resend')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
+    @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
+    @api.response(NOT_FOUND, _(USER_NOT_FOUND))
+    @api.expect(base, validate=True)
+    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
+    def post(self):
+        """Resend user's confirmation email"""
+        logger.info(f"Re-sending email confirmation for: {request.json.get('email')}")
+        return resend_confirmation_email(request.json.get('email'))
 
 
 @api.route('/email/change')
