@@ -1,7 +1,6 @@
 # pylint: disable=logging-fstring-interpolation
 
 import logging
-from distutils import util
 
 from flask_jwt_simple import get_jwt
 from sqlalchemy.exc import SQLAlchemyError
@@ -51,7 +50,7 @@ class User(db.Model):
         if not users_exist:
             should_create = True  # First user becomes Admin by default
         else:
-            should_create = bool(util.strtobool(data.get('admin', 'false')))
+            should_create = data.get('admin', False)
             if should_create:
                 jwt_data = get_jwt()
                 if not jwt_data:

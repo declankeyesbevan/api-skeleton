@@ -1,7 +1,7 @@
 import pytest
 
-from app.responses import OK, UNAUTHORIZED
-from tests.data_factory import random_email, random_password, random_text
+from app.responses import BAD_REQUEST, OK, UNAUTHORIZED
+from tests.data_factory import CRAP_PASSWORD, random_email, random_password, random_text
 from tests.helpers import (
     api_post, authenticate_user, check_endpoint_denied, confirm_and_login_user,
     confirm_email_token, get_email_token, register_user,
@@ -16,37 +16,28 @@ def test_user_login(user_data):
     token = get_email_token(user_data)
     confirm_email_token(token)
 
-    response = authenticate_user('login', data=user_data)
-    body = response.json()
-    assert response.status_code == OK
-    assert 'token' in body.get('data')
+    expected = [OK, BAD_REQUEST]
+    for idx, data in enumerate([user_data, dict(foo='bar')]):
+        authenticate_user('login', data=data, expected=expected[idx])
 
     for key in ['email', 'password']:
         user_data[key] = random_email() if key == 'email' else random_password()
-        response = authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
-        assert response.status_code == UNAUTHORIZED
+        authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
 
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
 def test_user_logout(user_data):
     """Test for logout."""
-    register_user(user_data)
-    token = get_email_token(user_data)
-    confirm_email_token(token)
-
     # Don't use fixture as we need a token that's been blacklisted in the database.
-    response = authenticate_user('login', data=user_data)
-    data = response.json().get('data')
-    headers = dict(Authorization=f"Bearer {data.get('token')}")
+    register_user(user_data)
+    headers = confirm_and_login_user(user_data)
 
-    endpoint = '/auth/logout'
     expected = [OK, UNAUTHORIZED]  # Second iteration, token is blacklisted
     for idx, header in enumerate([headers, headers]):
-        response = authenticate_user('logout', headers=headers, expected=expected[idx])
-        assert response.status_code == expected[idx]
+        authenticate_user('logout', headers=header, expected=expected[idx])
 
-    check_endpoint_denied(endpoint, method='post')
+    check_endpoint_denied('/auth/logout', method='post')
 
 
 @pytest.mark.local
@@ -72,9 +63,11 @@ def test_password_reset(user_data):
     user_data['email'] = old_email
 
     token = get_email_token(user_data)
-    user_data['password'] = random_password()
-    response = api_post(f'/auth/password/reset/{token}', data=user_data)
-    assert response.status_code == OK
+    expected = [BAD_REQUEST, OK]
+    for idx, password in enumerate([CRAP_PASSWORD, random_password()]):
+        user_data['password'] = password
+        response = api_post(f'/auth/password/reset/{token}', data=user_data)
+        assert response.status_code == expected[idx]
 
     bad_token = random_text()
     response = api_post(f'/auth/password/reset/{bad_token}', data=user_data)
@@ -98,10 +91,14 @@ def test_password_change(user_data):
     headers = confirm_and_login_user(user_data)
     old_password = user_data.get('password')
 
-    user_data['password'] = random_password()
-    response = api_post(request_url, headers=headers, data=user_data)
-    assert response.status_code == OK
+    expected = [BAD_REQUEST, OK]
+    for idx, password in enumerate([CRAP_PASSWORD, random_password()]):
+        user_data['password'] = password
+        response = api_post(request_url, headers=headers, data=user_data)
+        assert response.status_code == expected[idx]
 
     authenticate_user('login', data=user_data)
     user_data['password'] = old_password
     authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
+
+    check_endpoint_denied(request_url, method='post')

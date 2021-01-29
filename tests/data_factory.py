@@ -12,15 +12,19 @@ NUM_STANDARD_CLIENT_USERS = 1
 NUM_GENERIC_USERS = 3
 NUM_CLIENT_USERS = 2
 TOTAL_USERS = NUM_GENERIC_USERS + NUM_CLIENT_USERS
+CRAP_PASSWORD = 'TooCrap'
 
 
-def user_attributes():
-    return dict(
+def user_attributes(admin=False):
+    attributes = dict(
         email=random_email(),
         password=random_password(),
         username=random_text(length=USERNAME_LENGTH),
         public_id=str(uuid.uuid4()),
     )
+    if admin:
+        attributes['admin'] = True
+    return attributes
 
 
 def user_model(user_data, admin=False):

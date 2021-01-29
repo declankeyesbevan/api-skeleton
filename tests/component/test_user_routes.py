@@ -11,12 +11,12 @@ from tests.data_factory import (
 )
 from tests.helpers import (
     authenticate_user, bad_username_and_email, check_endpoint_denied, client_get, client_post,
-    confirm_and_login_user, confirm_email_token, get_email_token, register_user,
+    confirm_and_login_user, confirm_email_token, get_email_token, register_user, remove_jwt,
 )
 
 
 @pytest.mark.usefixtures('database')
-def test_user_list_get(client, headers, admin_headers):
+def test_list_users(client, headers, admin_headers):
     """Test for list of all registered users."""
     with client:
         users = [user_attributes() for _ in range(NUM_GENERIC_USERS)]
@@ -41,12 +41,24 @@ def test_user_list_get(client, headers, admin_headers):
 
 
 @pytest.mark.usefixtures('database')
-def test_user_list_post(client):
+def test_create_user(client):
     """Test for creating a new user."""
     with client:
+        remove_jwt()
         user = user_attributes()
         users = [copy.copy(user) for _ in range(SEVEN_ITEMS)]
-        register_user(users[FIRST], client=client)
+        register_user(users[FIRST], client=client)  # First user to register becomes Admin.
+
+        # Standard user registration is open to anyone. Ensure subsequent anonymous registrations
+        # can't create an Admin.
+        anonymous_user = user_attributes(admin=True)
+        register_user(anonymous_user, expected=UNAUTHORIZED, client=client)
+        del anonymous_user['admin']
+        register_user(anonymous_user, client=client)
+        headers = confirm_and_login_user(anonymous_user, client=client)
+        # Ensure registered Standard user can't create Admin.
+        admin_user = user_attributes(admin=True)
+        register_user(admin_user, headers=headers, expected=UNAUTHORIZED, client=client)
 
         users, expected = bad_username_and_email(users)
         for idx, user in enumerate(users):
@@ -54,7 +66,7 @@ def test_user_list_post(client):
 
 
 @pytest.mark.usefixtures('database')
-def test_user_get_by_id(client, user_data, headers, admin_headers):
+def test_get_user_by_id(client, user_data, headers, admin_headers):
     """Test for specific registered user."""
     with client:
         response = register_user(user_data, client=client)
@@ -131,8 +143,9 @@ def test_user_change_email(client, user_data):
 
         endpoint = '/users/email/change'
         data = dict(email=random_email())
-        response = client_post(client, endpoint, headers=headers, data=data)
-        assert response.status_code == OK
+        for expected in [OK, CONFLICT]:
+            response = client_post(client, endpoint, headers=headers, data=data)
+            assert response.status_code == expected
 
         user_endpoint = f'/users/{user.get("public_id")}'
         response = client_get(client, user_endpoint, headers=headers)

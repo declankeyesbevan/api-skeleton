@@ -16,7 +16,7 @@ from tests.helpers import (
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_list_get(headers, admin_headers):
+def test_list_users(headers, admin_headers):
     """Test for list of all registered users."""
     users = [user_attributes() for _ in range(NUM_GENERIC_USERS)]
     for user_data in users:
@@ -41,10 +41,21 @@ def test_user_list_get(headers, admin_headers):
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_list_post(user_data):
+def test_create_user(user_data):
     """Test for creating a new user."""
-    register_user(user_data)
     users = [copy.copy(user_data) for _ in range(SEVEN_ITEMS)]
+    register_user(user_data)  # First user to register becomes Admin.
+
+    # Standard user registration is open to anyone. Ensure subsequent anonymous registrations
+    # can't create an Admin.
+    anonymous_user = user_attributes(admin=True)
+    register_user(anonymous_user, expected=UNAUTHORIZED)
+    del anonymous_user['admin']
+    register_user(anonymous_user)
+    headers = confirm_and_login_user(anonymous_user)
+    # Ensure registered Standard user can't create Admin.
+    admin_user = user_attributes(admin=True)
+    register_user(admin_user, headers=headers, expected=UNAUTHORIZED)
 
     users, expected = bad_username_and_email(users)
     for idx, user in enumerate(users):
@@ -53,7 +64,7 @@ def test_user_list_post(user_data):
 
 @pytest.mark.local
 @pytest.mark.usefixtures('database')
-def test_user_get_by_id(user_data, headers, admin_headers):
+def test_get_user_by_id(user_data, headers, admin_headers):
     """Test for specific registered user."""
     response = register_user(user_data)
     data = response.json().get('data')
@@ -129,8 +140,9 @@ def test_user_change_email(user_data):
 
     endpoint = '/users/email/change'
     data = dict(email=random_email())
-    response = api_post(endpoint, headers=headers, data=data)
-    assert response.status_code == OK
+    for expected in [OK, CONFLICT]:
+        response = api_post(endpoint, headers=headers, data=data)
+        assert response.status_code == expected
 
     user_endpoint = f'/users/{user.get("public_id")}'
     response = api_get(user_endpoint, headers=headers)

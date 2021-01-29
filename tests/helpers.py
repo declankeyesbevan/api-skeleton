@@ -2,6 +2,7 @@ import json
 import os
 
 import requests
+from flask import _app_ctx_stack as ctx_stack
 
 from app.config import CONFIG_BY_NAME
 from app.main.service.auth import Auth
@@ -56,9 +57,12 @@ def create_header(db, user_data, admin=False):
     return dict(Authorization=f"Bearer {auth_token}")
 
 
-def register_user(data, expected=CREATED, client=None):
+def register_user(data, headers=None, expected=CREATED, client=None):
     url = '/users'
-    response = client_post(client, url, data=data) if client else api_post(url, data=data)
+    response = (
+        client_post(client, url, data=data, headers=headers) if client else
+        api_post(url, data=data, headers=headers)
+    )
     if expected == CREATED:
         data = (response.json if client else response.json()).get('data')
         user = data.get('user')
@@ -122,6 +126,15 @@ def bad_username_and_email(users):
     users[SEVENTH]['username'] = 'fooba'  # Must be at least 6 chars
     expected = [BAD_REQUEST, CONFLICT, CONFLICT, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST, BAD_REQUEST]
     return users, expected
+
+
+def remove_jwt():
+    # TODO: find a nicer solution
+    # The 'client' fixture is shared between all component tests even though it is set to
+    # scope='function'. Use when a test requires no previous JWT to be present e.g. registering the
+    # first user in this test who then automatically becomes an Admin. This is seen in the endpoint
+    # POST /users with the @jwt_optional decorator.
+    setattr(ctx_stack.top, 'jwt', None)
 
 
 def _add_body_if_present(method, endpoint, header, data=None, client=None):

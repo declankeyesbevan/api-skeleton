@@ -10,6 +10,7 @@ from flask_restx import Resource
 from app.i18n.base import (
     EMAIL_PASSWORD, JWT_ERROR,
     JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_UPDATE_FAILED,
+    RESET_FAILED,
 )
 from app.main.data.dto import AuthDto, BaseDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
@@ -53,7 +54,6 @@ class UserLogout(Resource):
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
-    @api.response(BAD_REQUEST, _(MALFORMED))
     @api.marshal_with(response, description=_(LOGOUT_SUCCESS), mask='status,data')
     def post(self):
         """Log the user out"""
@@ -77,7 +77,6 @@ class PasswordResetRequest(Resource):
     @api.doc('/auth/password/reset/request')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
-    @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
         """Request to reset the user's password"""
         logger.info("User requesting to reset password")
@@ -90,7 +89,7 @@ class PasswordResetConfirm(Resource):
 
     @api.doc('/auth/password/reset/:token')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
+    @api.response(UNAUTHORIZED, _(RESET_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self, token):
         """Reset the user's password with confirmation token"""
@@ -106,7 +105,8 @@ class PasswordChange(Resource):
     @jwt_valid
     @api.doc('/auth/password/change')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
-    @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
+    @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
+    @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.response(BAD_REQUEST, _(MALFORMED))
     def post(self):
         """Change the user's password"""

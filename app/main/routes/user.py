@@ -10,8 +10,8 @@ from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS, EMAIL_CONFIRMED,
-    EMAIL_UPDATED, JWT_ERROR, JWT_UNPROCESSABLE, MALFORMED, USER_CREATE_SUCCESS, USER_EXISTS,
-    USER_LIST_SUCCESS, USER_NOT_FOUND, USERS_LIST_SUCCESS,
+    EMAIL_UPDATED, JWT_ERROR, JWT_INSUFFICIENT, JWT_UNPROCESSABLE, MALFORMED, USER_CREATE_SUCCESS,
+    USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND, USERS_LIST_SUCCESS,
 )
 from app.main.data.dto import BaseDto, ResponseDto, UserDto
 from app.main.service.auth import jwt_valid
@@ -34,7 +34,7 @@ response = ResponseDto.response
 
 @api.route('')
 class UserList(Resource):
-    """User List Resource"""
+    """Users Resource"""
 
     @jwt_required
     @jwt_valid
@@ -52,6 +52,7 @@ class UserList(Resource):
     @api.doc('/users')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(CONFLICT, _(USER_EXISTS))
+    @api.response(UNAUTHORIZED, _(JWT_INSUFFICIENT))
     @api.response(BAD_REQUEST, _(MALFORMED))
     @api.expect(user, validate=True)
     @api.marshal_with(response, description=_(USER_CREATE_SUCCESS), skip_none=True)
@@ -69,6 +70,7 @@ class User(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/users/:public_id')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(NOT_FOUND, _(USER_NOT_FOUND))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
@@ -121,6 +123,7 @@ class EmailChange(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/users/email/change')
+    @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(CONFLICT, _(EMAIL_ALREADY_EXISTS))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))

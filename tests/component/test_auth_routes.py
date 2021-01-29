@@ -1,7 +1,7 @@
 import pytest
 
-from app.responses import OK, UNAUTHORIZED
-from tests.data_factory import random_email, random_password, random_text
+from app.responses import BAD_REQUEST, OK, UNAUTHORIZED
+from tests.data_factory import CRAP_PASSWORD, random_email, random_password, random_text
 from tests.helpers import (
     authenticate_user, check_endpoint_denied, client_post, confirm_and_login_user,
     confirm_email_token, get_email_token, register_user,
@@ -15,7 +15,10 @@ def test_user_login(client, user_data):
         register_user(user_data, client=client)
         token = get_email_token(user_data)
         confirm_email_token(token, client=client)
-        authenticate_user('login', data=user_data, client=client)
+
+        expected = [OK, BAD_REQUEST]
+        for idx, data in enumerate([user_data, dict(foo='bar')]):
+            authenticate_user('login', data=data, expected=expected[idx], client=client)
 
         for key in ['email', 'password']:
             user_data[key] = random_email() if key == 'email' else random_password()
@@ -60,9 +63,11 @@ def test_password_reset(client, user_data):
         user_data['email'] = old_email
 
         token = get_email_token(user_data)
-        user_data['password'] = random_password()
-        response = client_post(client, f'/auth/password/reset/{token}', data=user_data)
-        assert response.status_code == OK
+        expected = [BAD_REQUEST, OK]
+        for idx, password in enumerate([CRAP_PASSWORD, random_password()]):
+            user_data['password'] = password
+            response = client_post(client, f'/auth/password/reset/{token}', data=user_data)
+            assert response.status_code == expected[idx]
 
         bad_token = random_text()
         response = client_post(client, f'/auth/password/reset/{bad_token}', data=user_data)
@@ -86,10 +91,14 @@ def test_password_change(client, user_data):
         headers = confirm_and_login_user(user_data, client=client)
         old_password = user_data.get('password')
 
-        user_data['password'] = random_password()
-        response = client_post(client, request_url, headers=headers, data=user_data)
-        assert response.status_code == OK
+        expected = [BAD_REQUEST, OK]
+        for idx, password in enumerate([CRAP_PASSWORD, random_password()]):
+            user_data['password'] = password
+            response = client_post(client, request_url, headers=headers, data=user_data)
+            assert response.status_code == expected[idx]
 
         authenticate_user('login', data=user_data, client=client)
         user_data['password'] = old_password
         authenticate_user('login', data=user_data, expected=UNAUTHORIZED, client=client)
+
+        check_endpoint_denied(request_url, method='post', client=client)
