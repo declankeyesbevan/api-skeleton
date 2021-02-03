@@ -6,7 +6,7 @@ from flask import Blueprint
 from flask_restx import Api
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
-from app.main.data.dto import BaseDto, RequestDto, ResponseDto
+from app.main.data.dto import EmailDto, PasswordDto, ResponseDto
 from app.main.routes.auth import api as auth_ns
 from app.main.routes.user import api as user_ns
 from app.responses import responder
@@ -31,8 +31,8 @@ api = Api(
     security='bearer',
 )
 
-api.add_namespace(BaseDto.api)
-api.add_namespace(RequestDto.api)
+api.add_namespace(EmailDto.api)
+api.add_namespace(PasswordDto.api)
 api.add_namespace(ResponseDto.api)
 api.add_namespace(auth_ns, path='/auth')
 api.add_namespace(user_ns, path='/users')

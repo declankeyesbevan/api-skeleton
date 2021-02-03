@@ -13,7 +13,7 @@ from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFo
 from app.email_client import send_confirmation_email
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CANNOT_VIEW_OTHERS, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS,
-    EMAIL_UPDATED, GETTING_USERS, USER_EXISTS, USER_NOT_FOUND,
+    EMAIL_RESENT, EMAIL_UPDATED, GETTING_USERS, USER_EXISTS, USER_NOT_FOUND,
 )
 from app.main.data.dao import save_changes
 from app.main.model.user import User
@@ -137,4 +137,5 @@ def resend_confirmation_email(email):
         raise Conflict(ACCOUNT_ALREADY_CONFIRMED)
     user_to_resend.email_confirmation_sent_on = datetime.datetime.utcnow()
     save_changes(user_to_resend)
-    return send_confirmation_email(email)
+    send_confirmation_email(email)
+    return responder(code=OK, data=dict(resent=_(EMAIL_RESENT)))

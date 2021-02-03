@@ -10,10 +10,10 @@ from werkzeug.exceptions import NotFound
 
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS, EMAIL_CONFIRMED,
-    EMAIL_UPDATED, JWT_ERROR, JWT_INSUFFICIENT, JWT_UNPROCESSABLE, MALFORMED, USER_CREATE_SUCCESS,
-    USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND, USERS_LIST_SUCCESS,
+    EMAIL_RESENT, EMAIL_UPDATED, JWT_ERROR, JWT_INSUFFICIENT, JWT_UNPROCESSABLE, MALFORMED,
+    USER_CREATE_SUCCESS, USER_EXISTS, USER_LIST_SUCCESS, USER_NOT_FOUND, USERS_LIST_SUCCESS,
 )
-from app.main.data.dto import BaseDto, ResponseDto, UserDto
+from app.main.data.dto import EmailDto, ResponseDto, UserDto
 from app.main.service.auth import jwt_valid
 from app.main.service.user import (
     confirm_email, get_all_users, get_user_by_id, resend_confirmation_email, save_new_user,
@@ -28,7 +28,7 @@ from app.security import remove
 logger = logging.getLogger('api-skeleton')
 api = UserDto.api
 user = UserDto.user
-base = BaseDto.base
+email = EmailDto.email
 response = ResponseDto.response
 
 
@@ -54,7 +54,7 @@ class UserList(Resource):
     @api.response(CONFLICT, _(USER_EXISTS))
     @api.response(UNAUTHORIZED, _(JWT_INSUFFICIENT))
     @api.response(BAD_REQUEST, _(MALFORMED))
-    @api.expect(user, validate=True)
+    @api.expect(user)
     @api.marshal_with(response, description=_(USER_CREATE_SUCCESS), skip_none=True)
     def post(self):
         """Create a new user"""
@@ -108,8 +108,9 @@ class ResendEmailConfirm(Resource):
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(CONFLICT, _(ACCOUNT_ALREADY_CONFIRMED))
     @api.response(NOT_FOUND, _(USER_NOT_FOUND))
-    @api.expect(base, validate=True)
-    @api.marshal_with(response, description=_(EMAIL_CONFIRMED), skip_none=True)
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.expect(email)
+    @api.marshal_with(response, description=_(EMAIL_RESENT), skip_none=True)
     def post(self):
         """Resend user's confirmation email"""
         logger.info(f"Re-sending email confirmation for: {request.json.get('email')}")
@@ -127,7 +128,8 @@ class EmailChange(Resource):
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(CONFLICT, _(EMAIL_ALREADY_EXISTS))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
-    @api.expect(base, validate=True)
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.expect(email)
     @api.marshal_with(response, description=_(EMAIL_UPDATED), skip_none=True)
     def post(self):
         """Change a user's email address."""

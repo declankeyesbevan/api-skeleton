@@ -101,4 +101,5 @@ def test_password_change(user_data):
     user_data['password'] = old_password
     authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
 
-    check_endpoint_denied(request_url, method='post')
+    data = dict(password=random_password())
+    check_endpoint_denied(request_url, data=data, method='post')

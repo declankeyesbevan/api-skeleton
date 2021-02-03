@@ -9,10 +9,10 @@ from flask_restx import Resource
 
 from app.i18n.base import (
     EMAIL_PASSWORD, JWT_ERROR,
-    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_UPDATE_FAILED,
-    RESET_FAILED,
+    JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_CHANGE_SUCCESS,
+    PASSWORD_RESET_REQUEST_SUCCESS, PASSWORD_RESET_SUCCESS, PASSWORD_UPDATE_FAILED, RESET_FAILED,
 )
-from app.main.data.dto import AuthDto, BaseDto, ResponseDto
+from app.main.data.dto import AuthDto, EmailDto, PasswordDto, ResponseDto
 from app.main.service.auth import Auth, jwt_valid
 from app.responses import (
     BAD_REQUEST, INTERNAL_SERVER_ERROR, UNAUTHORIZED, UNKNOWN,
@@ -24,7 +24,8 @@ from app.utils import SECOND
 logger = logging.getLogger('api-skeleton')
 api = AuthDto.api
 auth = AuthDto.auth
-base = BaseDto.base
+email = EmailDto.email
+password = PasswordDto.password
 response = ResponseDto.response
 
 
@@ -36,7 +37,7 @@ class UserLogin(Resource):
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(EMAIL_PASSWORD))
     @api.response(BAD_REQUEST, _(MALFORMED))
-    @api.expect(auth, validate=True)
+    @api.expect(auth)
     @api.marshal_with(response, description=_(LOGIN_SUCCESS), skip_none=True)
     def post(self):
         """Log the user in and return an auth token"""
@@ -77,10 +78,13 @@ class PasswordResetRequest(Resource):
     @api.doc('/auth/password/reset/request')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(PASSWORD_UPDATE_FAILED))
+    @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.expect(email)
+    @api.marshal_with(response, description=_(PASSWORD_RESET_REQUEST_SUCCESS), skip_none=True)
     def post(self):
         """Request to reset the user's password"""
         logger.info("User requesting to reset password")
-        return Auth.request_password_reset(request.json)
+        return Auth.request_password_reset(request.json.get('email'))
 
 
 @api.route('/password/reset/<token>')
@@ -91,10 +95,12 @@ class PasswordResetConfirm(Resource):
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNAUTHORIZED, _(RESET_FAILED))
     @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.expect(password)
+    @api.marshal_with(response, description=_(PASSWORD_RESET_SUCCESS), skip_none=True)
     def post(self, token):
         """Reset the user's password with confirmation token"""
         logger.info("User attempting to reset password")
-        return Auth.reset_password(token, request.json)
+        return Auth.reset_password(token, request.json.get('password'))
 
 
 @api.route('/password/change')
@@ -108,7 +114,9 @@ class PasswordChange(Resource):
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
     @api.response(BAD_REQUEST, _(MALFORMED))
+    @api.expect(password)
+    @api.marshal_with(response, description=_(PASSWORD_CHANGE_SUCCESS), skip_none=True)
     def post(self):
         """Change the user's password"""
         logger.info("User attempting to change password")
-        return Auth.change_password(request.json)
+        return Auth.change_password(request.json.get('password'))

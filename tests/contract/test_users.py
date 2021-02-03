@@ -2,11 +2,11 @@ import copy
 
 import pytest
 
-from app.responses import CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
+from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
 from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
-    NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text, TOTAL_USERS,
-    user_attributes,
+    CRAP_EMAIL, NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text,
+    TOTAL_USERS, user_attributes,
 )
 from tests.helpers import (
     api_get, api_post, authenticate_user, bad_username_and_email, check_endpoint_denied,
@@ -111,8 +111,10 @@ def test_resend_email_confirm(user_data):
 
     authenticate_user('login', data=user_data, expected=UNAUTHORIZED)
 
-    response = api_post(request_url, data=user_data)
-    assert response.status_code == OK
+    expected = [BAD_REQUEST, OK]
+    for idx, data in enumerate([CRAP_EMAIL, user_data]):
+        response = api_post(request_url, data=data)
+        assert response.status_code == expected[idx]
 
     unconfirmed_email = user_data.get('email')
     user_data['email'] = random_email()
@@ -139,10 +141,11 @@ def test_user_change_email(user_data):
     headers = confirm_and_login_user(user_data)
 
     endpoint = '/users/email/change'
-    data = dict(email=random_email())
-    for expected in [OK, CONFLICT]:
+    good_email = dict(email=random_email())
+    expected = [OK, CONFLICT, BAD_REQUEST]
+    for idx, data in enumerate([good_email, good_email, CRAP_EMAIL]):
         response = api_post(endpoint, headers=headers, data=data)
-        assert response.status_code == expected
+        assert response.status_code == expected[idx]
 
     user_endpoint = f'/users/{user.get("public_id")}'
     response = api_get(user_endpoint, headers=headers)

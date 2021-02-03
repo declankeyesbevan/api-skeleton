@@ -3,60 +3,52 @@ import dataclasses
 from flask_restx import Namespace, fields
 
 USERNAME_EMAIL_MINIMUM_LENGTH = 6
+COMMON = dict(
+    password=fields.String(
+        required=True,
+        allow_null=False,
+        description='Password'
+    ),
+    email=fields.String(
+        required=True,
+        allow_null=False,
+        min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
+        description='User email address'
+    ),
+)
+USERNAME = dict(
+    username=fields.String(
+        required=True,
+        allow_null=False,
+        min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
+        description='User username'
+    ),
+)
 
 
 @dataclasses.dataclass(frozen=True)
-class BaseDto:
-    api = Namespace('base', description='Base object')
-    base = api.model(
-        'base',
-        dict(
-            email=fields.String(
-                required=True,
-                allow_null=False,
-                min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
-                description='User email address'
-            ),
-        )
-    )
+class EmailDto:
+    api = Namespace('email', description='Email object')
+    email = api.model('email', dict(email=COMMON.get('email')))
 
 
 @dataclasses.dataclass(frozen=True)
-class RequestDto:
-    api = Namespace('request', description='Request object')
-    request = BaseDto.base.inherit(
-        'request',
-        dict(
-            password=fields.String(required=True, allow_null=False, description='User password')
-        )
-    )
-    api.add_model('request', request)
+class PasswordDto:
+    api = Namespace('password', description='Password object')
+    password = api.model('password', dict(password=COMMON.get('password')))
 
 
 @dataclasses.dataclass(frozen=True)
 class AuthDto:
     api = Namespace('auth', description='Authentication related operations')
-    auth = RequestDto.request.inherit(
-        'auth',
-        dict()
-    )
+    auth = api.model('auth', COMMON)
     api.add_model('auth', auth)
 
 
 @dataclasses.dataclass(frozen=True)
 class UserDto:
     api = Namespace('users', description='User related operations')
-    user = RequestDto.request.inherit(
-        'user',
-        dict(
-            username=fields.String(
-                required=True,
-                allow_null=False,
-                min_length=USERNAME_EMAIL_MINIMUM_LENGTH,
-                description='User username'
-            ),
-        )
-    )
+    user = AuthDto.auth.inherit('user', USERNAME)
     api.add_model('user', user)
 
 
@@ -74,4 +66,3 @@ class ResponseDto:
             message=fields.String(required=False, description='String returned with error'),
         )
     )
-    api.add_model('response', response)

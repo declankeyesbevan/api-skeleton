@@ -80,8 +80,8 @@ class Auth:
             return payload['sub']
 
     @classmethod
-    def request_password_reset(cls, data):
-        user = User().find_user(dict(email=data.get('email')))
+    def request_password_reset(cls, email):
+        user = User().find_user(dict(email=email))
 
         if not user:
             raise Unauthorized(EMAIL_INVALID)
@@ -95,26 +95,26 @@ class Auth:
         return responder(code=OK, data=dict(check=_(CHECK_EMAIL)))
 
     @classmethod
-    def change_password(cls, data):
+    def change_password(cls, password):
         user = lookup_user_by_id(get_jwt().get('sub'))
-        return cls._update_password(data, user)
+        return cls._update_password(password, user)
 
     @classmethod
-    def reset_password(cls, token, data):
+    def reset_password(cls, token, password):
         email = timed_serialiser(
             token, current_app.config['PASSWORD_RESET_SALT'], _(RESET_FAILED)
         )
         user = get_user_by_email(email)
         if not user:
             raise Unauthorized(PASSWORD_UPDATE_FAILED)
-        return cls._update_password(data, user)
+        return cls._update_password(password, user)
 
     @classmethod
-    def _update_password(cls, data, user):
-        password_invalid = PasswordValidator().validate_password(data.get('password'))
+    def _update_password(cls, password, user):
+        password_invalid = PasswordValidator().validate_password(password)
         if password_invalid:
             raise BadRequest(password_invalid)
-        user.password = data.get('password')
+        user.password = password
         save_changes(user)
 
         logger.info(f"Updating password of user with public_id: {user.public_id}")

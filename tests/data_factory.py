@@ -13,6 +13,7 @@ NUM_GENERIC_USERS = 3
 NUM_CLIENT_USERS = 2
 TOTAL_USERS = NUM_GENERIC_USERS + NUM_CLIENT_USERS
 CRAP_PASSWORD = 'TooCrap'
+CRAP_EMAIL = dict(email='crap')
 
 
 def user_attributes(admin=False):

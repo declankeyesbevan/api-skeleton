@@ -14,9 +14,13 @@ USER_LIST_SUCCESS = _('Successfully listed user')
 USERS_LIST_SUCCESS = _('Successfully listed users')
 USER_CREATE_SUCCESS = _('Successfully created user')
 EMAIL_CONFIRMED = _('Email confirmed')
-EMAIL_UPDATED = _('Email updated. Confirm new email address.')
+EMAIL_RESENT = _('Email confirmation resent')
+EMAIL_UPDATED = _('Email updated: confirm new email address.')
 CHECK_EMAIL = _('Check your email for a password reset link')
 PASSWORD_UPDATED = _('Your password has been updated')
+PASSWORD_RESET_REQUEST_SUCCESS = _('Successfully requested password reset')
+PASSWORD_RESET_SUCCESS = _('Successfully reset password')
+PASSWORD_CHANGE_SUCCESS = _('Successfully changed password')
 
 # Fail
 # 4xx

@@ -37,6 +37,7 @@ class Config:
     PREFERRED_URL_SCHEME = 'http'
     SERVER_NAME = os.environ.get('SERVER_NAME')
     RESTX_MASK_SWAGGER = False
+    RESTX_VALIDATE = True
     ERROR_INCLUDE_MESSAGE = False
     BABEL_TRANSLATION_DIRECTORIES = f'{BASEDIR}/i18n/translations'
     LANGUAGES = ['en', 'en_AU']
