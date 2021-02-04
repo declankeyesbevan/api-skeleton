@@ -52,6 +52,7 @@ class UserLogout(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/auth/logout')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
@@ -110,6 +111,7 @@ class PasswordChange(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/auth/password/change')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))

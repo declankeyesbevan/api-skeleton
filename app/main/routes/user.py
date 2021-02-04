@@ -39,6 +39,7 @@ class UserList(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/users')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(UNAUTHORIZED, _(JWT_ERROR))
@@ -50,6 +51,7 @@ class UserList(Resource):
 
     @jwt_optional
     @api.doc('/users')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(CONFLICT, _(USER_EXISTS))
     @api.response(UNAUTHORIZED, _(JWT_INSUFFICIENT))
@@ -70,6 +72,7 @@ class User(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/users/:public_id')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(NOT_FOUND, _(USER_NOT_FOUND))
@@ -124,6 +127,7 @@ class EmailChange(Resource):
     @jwt_required
     @jwt_valid
     @api.doc('/users/email/change')
+    @api.doc(security='bearer')
     @api.response(INTERNAL_SERVER_ERROR, _(UNKNOWN))
     @api.response(UNPROCESSABLE_ENTITY, _(JWT_UNPROCESSABLE))
     @api.response(CONFLICT, _(EMAIL_ALREADY_EXISTS))
