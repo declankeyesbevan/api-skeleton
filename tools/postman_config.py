@@ -3,22 +3,21 @@ import json
 from app.utils import FIRST, JSON_INDENT
 
 routes = {
-    'headers': [
-        {
-            'name': '/auth/logout',
-            'method': 'POST',
-        },
-    ],
     'path_variables': [
         {
-            'name': '/auth/reset/:token',
+            'name': '/auth/password/reset/:token',
             'method': 'POST',
             'variables': ['reset_token'],
         },
         {
-            'name': '/auth/confirm/:token',
+            'name': '/users/email/confirm/:token',
             'method': 'POST',
             'variables': ['confirmation_token'],
+        },
+        {
+            'name': '/users/:public_id',
+            'method': 'GET',
+            'variables': ['public_id'],
         },
     ],
     'bodies': [
@@ -28,9 +27,34 @@ routes = {
             'attributes': ['email', 'password'],
         },
         {
+            'name': '/auth/password/reset/request',
+            'method': 'POST',
+            'attributes': ['email'],
+        },
+        {
+            'name': '/auth/password/reset/:token',
+            'method': 'POST',
+            'attributes': ['password'],
+        },
+        {
+            'name': '/auth/password/change',
+            'method': 'POST',
+            'attributes': ['password'],
+        },
+        {
             'name': '/users',
             'method': 'POST',
             'attributes': ['email', 'password', 'username'],
+        },
+        {
+            'name': '/users/email/confirm/resend',
+            'method': 'POST',
+            'attributes': ['email'],
+        },
+        {
+            'name': '/users/email/change',
+            'method': 'POST',
+            'attributes': ['email'],
         },
     ],
     'snippets': [
@@ -55,6 +79,7 @@ _javascript_snippets = {
 _path_variable_attributes = {
     'reset_token': '{{reset_token}}',
     'confirmation_token': '{{confirmation_token}}',
+    'public_id': '{{public_id}}',
 }
 
 _body_attributes = {

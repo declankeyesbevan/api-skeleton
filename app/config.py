@@ -34,7 +34,7 @@ class Config:
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    PREFERRED_URL_SCHEME = 'http'
+    PREFERRED_URL_SCHEME = os.environ.get('HTTP_PROTOCOL', 'http')
     SERVER_NAME = os.environ.get('SERVER_NAME')
     RESTX_MASK_SWAGGER = False
     RESTX_VALIDATE = True

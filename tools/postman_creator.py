@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -10,33 +11,48 @@ from tools.postman_config import (
     add_attribute_to_body, add_attribute_to_path_variables, add_auth, add_snippet_to_event, routes,
 )
 
+BUILD_DIR = os.environ.get('BUILD_DIR', 'build')
+
 
 def create_postman(app):
     with app.app_context():
-        env_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman.env')
         postman_api = api.as_postman(swagger=True)
+        postman_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman_environment.env')
         files = dict(
-            postman_collection=_update_api_json(postman_api),
-            postman_environment=_template_environment_file(env_vars),
+            postman_collection_v1=_update_api_json(postman_api),
+            postman_environment=_template_environment_file(postman_vars),
         )
         for filename, data in files.items():
             _write_to_file(filename, data)
+    _convert_to_v2()
 
 
 def _template_environment_file(env_vars):
     values = [dict(key=f'{k.lower()}', value=v, enabled=True) for k, v in env_vars.items()]
     return dict(
-        name='Flask-RESTX API skeleton 0.1.0',  # TODO: set dynamically from Git
+        name='Flask-RESTX API skeleton 0.1.0',  # TODO: set dynamically from app config
         values=values,
         _postman_variable_scope='environment',
     )
 
 
 def _write_to_file(filename, data):
-    build_dir = os.environ.get('BUILD_DIR', 'build')
-    Path(f'{build_dir}').mkdir(parents=True, exist_ok=True)
-    with open(f'{build_dir}/{filename}.json', 'w') as file:
+    Path(f'{BUILD_DIR}').mkdir(parents=True, exist_ok=True)
+    with open(f'{BUILD_DIR}/{filename}.json', 'w') as file:
         file.write(json.dumps(data, indent=JSON_INDENT))
+
+
+def _convert_to_v2():
+    # An upgrade to Postman has meant v1 can't be imported any more.
+    subprocess.run(['rm', f'{BUILD_DIR}/postman_collection.json'])
+    subprocess.run([
+        'postman-collection-transformer', 'convert',
+        '-i', f'{BUILD_DIR}/postman_collection_v1.json',
+        '-o', f'{BUILD_DIR}/postman_collection.json',
+        '-j', '1.0.0',
+        '-p', '2.0.0',
+        '-P'
+    ])
 
 
 def _update_api_json(data):
