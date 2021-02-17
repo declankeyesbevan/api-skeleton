@@ -1,9 +1,15 @@
+import os
+
 import pytest
 
-from api_skeleton import app
-from app.main import db
+from app import blueprint
+from app.main import create_app, db
 from tests.data_factory import user_attributes
 from tests.helpers import create_header, create_user, set_up_database, tear_down_database
+
+app = create_app(os.environ.get('APP_ENV'))
+app.register_blueprint(blueprint)
+app.app_context().push()
 
 
 def pytest_addoption(parser):

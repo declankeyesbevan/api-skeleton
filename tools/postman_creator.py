@@ -17,7 +17,7 @@ BUILD_DIR = os.environ.get('BUILD_DIR', 'build')
 def create_postman(app):
     with app.app_context():
         postman_api = api.as_postman(swagger=True)
-        postman_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman_environment.env')
+        postman_vars = dotenv_values(dotenv_path=Path('configuration') / 'postman-environment.env')
         files = dict(
             postman_collection_v1=_update_api_json(postman_api),
             postman_environment=_template_environment_file(postman_vars),
