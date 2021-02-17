@@ -160,6 +160,7 @@ def lloc():
 @cli.command()
 def postman():
     """Dump the API to a Postman collection"""
+    load_dotenv(dotenv_path=Path('configuration') / 'postman-flask.env', override=True)
     from tools.postman_creator import create_postman
     app = make_app('dev')
     create_postman(app)
