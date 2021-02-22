@@ -1,4 +1,11 @@
-# pylint: disable=invalid-name, too-many-instance-attributes
+# pylint: disable=invalid-name, too-many-instance-attributes, missing-class-docstring
+
+"""
+Classes used to configure the Flask app for various environments. A base class is used to set common
+variables while all further environments inherit from this. There are standard and testing
+configurations. The correct configuration is accessed by passing the environment name to the
+CONFIG_BY_NAME constant dictionary.
+"""
 
 import dataclasses
 import datetime

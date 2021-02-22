@@ -1,5 +1,11 @@
 # pylint: disable=invalid-name, method-hidden
 
+"""
+Initialisation module for Flask. Creates a Flask application and initialises a number of extensions
+such as SQLAlchemy and Bcrypt. Defines a number functions which adjust certain Flask behaviours. For
+example how to handle specific values when converting to JSON.
+"""
+
 import datetime
 
 from flask import current_app, Flask, request
@@ -24,6 +30,12 @@ mail = Mail()
 
 
 def create_app(config_name):
+    """
+    Creates a Flask app based on the environment name passed to it. For example dev or prod.
+    Initialises a number of Flask extensions.
+    :param config_name: string containing the config to load
+    :return: initialised Flask application
+    """
     app = Flask(__name__)
     app.config.from_object(CONFIG_BY_NAME[config_name])
     db.init_app(app)
@@ -39,6 +51,14 @@ def create_app(config_name):
 
 @jwt.jwt_data_loader
 def add_claims_to_access_token(identity):
+    """
+    Uses a decorator in Flask JWT Simple to override existing claims on a JWT token. This is
+    necessary to update a user role from standard to admin. The process is not additive so all
+    values must be set again.
+    https://flask-jwt-simple.readthedocs.io/en/latest/change_jwt_claims.html
+    :param identity: SQLAlchemy model representing a user object
+    :return: dict with updated JWT claims
+    """
     roles = 'user'
     if identity.admin:
         roles = 'admin'
@@ -55,11 +75,32 @@ def add_claims_to_access_token(identity):
 
 @babel.localeselector
 def get_locale():
+    """
+    Attempts to match the user's language based on supported configurations. The header
+    'Accept-Language' is compared with what the app supports. In this case, it only supports and
+    defaults to Australian English. Other languages can be added using Babel per the existing
+    application layout.
+    https://flask-babel.tkte.ch/#configuration
+    :return: String of supported locale or None
+    """
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
 
 
 class JSONEncoder(BaseEncoder):
+    """
+    Overrides the default Flask JSON encoder. When creating strings for Babel to localise, we use
+    the speaklater package to create lazy strings. This allows setting a default string value in
+    app.main.base.py which can then be changed to another language using Babel. The lazy string only
+    appears to be a real string so when attempting to marshall it to JSON it will fail. This casts
+    to a real string first.
+    https://pypi.org/project/speaklater/
+    """
     def default(self, o):
+        """
+        If a speaklater lazy string is passed, casts to a unicode string.
+        :param o: speaklater._LazyString object
+        :return: a serialisable object for o
+        """
         if isinstance(o, _LazyString):
             return text_type(o)
 

@@ -1,5 +1,9 @@
 # pylint: disable=logging-fstring-interpolation
 
+"""
+Data Access Object helper functions to interact with the database.
+"""
+
 import logging
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,6 +16,11 @@ logger = logging.getLogger('api-skeleton')
 
 
 def save_changes(data):
+    """
+    Pass in data to be saved to the database.
+    :param data: SQLAlchemy model representing data
+    :raise: werkzeug.InternalServerError: if a SQLAlchemyError is caught
+    """
     try:
         db.session.add(data)
         db.session.commit()

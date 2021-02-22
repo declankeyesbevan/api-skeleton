@@ -1,3 +1,8 @@
+"""
+Base lazy strings used to generate default strings for localisation where the requested language has
+not been handled. These strings are written in Australian English.
+"""
+
 from flask_babel import lazy_gettext as _
 
 # Status

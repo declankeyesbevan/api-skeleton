@@ -1,4 +1,8 @@
-# pylint: disable=logging-fstring-interpolation
+# pylint: disable=logging-fstring-interpolation, missing-class-docstring, missing-function-docstring
+
+"""
+Class which defines a SQLAlchemy user object.
+"""
 
 import logging
 

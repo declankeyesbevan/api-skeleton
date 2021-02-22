@@ -1,3 +1,15 @@
+# pylint: disable=missing-class-docstring
+
+"""
+Data Transfer Object for marshalling and un-marshalling data. Flask-RESTX uses decorators on routes
+to execute this process. To un-marshall and validate the request use the 'expect' decorator. To
+marshall the response use the 'marshall_with' decorator. The following classes are the models used
+by Flask-RESTX for this.
+See this documentation for further detail:
+https://flask-restx.readthedocs.io/en/latest/swagger.html#the-api-expect-decorator
+https://flask-restx.readthedocs.io/en/latest/swagger.html#the-api-marshal-with-decorator
+"""
+
 import dataclasses
 
 from flask_restx import Namespace, fields

@@ -1,3 +1,9 @@
+# pylint: disable=logging-fstring-interpolation, missing-function-docstring
+
+"""
+Module for functions which are common to other services. Created to prevent circular import errors.
+"""
+
 import logging
 
 from flask import current_app

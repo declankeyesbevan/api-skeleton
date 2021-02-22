@@ -1,4 +1,9 @@
 # pylint: disable=invalid-name, logging-fstring-interpolation, try-except-raise
+# pylint: disable=missing-function-docstring
+
+"""
+Module for performing user related operations.
+"""
 
 import datetime
 import logging

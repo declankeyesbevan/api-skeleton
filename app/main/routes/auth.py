@@ -1,5 +1,12 @@
 # pylint: disable=invalid-name, logging-fstring-interpolation, no-self-use
 
+"""
+Flask API routes for interacting with authentication related operations. For example, resetting a
+user password. As a Flask-RESTX application, a number of decorators are used. For example, to
+document and enforce data marshalling and un-marshalling. Other Flask only decorators are used, such
+as where a JWT token is required.
+"""
+
 import logging
 
 from flask import request

@@ -1,3 +1,10 @@
+# pylint: disable=missing-class-docstring, missing-function-docstring
+
+"""
+Module to define various database connection strings. Handles, SQLite in-memory and file along with
+a real connection to Postgres.
+"""
+
 import dataclasses
 import os
 

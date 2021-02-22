@@ -1,4 +1,11 @@
 # pylint: disable=logging-fstring-interpolation, no-name-in-module, expression-not-assigned
+# pylint: disable=missing-function-docstring
+
+"""
+Module for creating, formatting and sending email. Also intercepts emails in testing mode. These
+are instead written to a local file. In development mode, emails are sent to a local email server
+which can be found in the tools directory: email_server.py.
+"""
 
 import json
 import logging

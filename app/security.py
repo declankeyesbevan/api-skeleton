@@ -1,7 +1,8 @@
+# pylint: disable=invalid-name, missing-class-docstring, missing-function-docstring
+
 """
 Utilities for increasing security in the package.
 """
-# pylint: disable=invalid-name
 
 import logging
 from string import ascii_lowercase, ascii_uppercase, digits

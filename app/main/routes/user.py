@@ -1,5 +1,12 @@
 # pylint: disable=invalid-name, no-self-use, logging-fstring-interpolation
 
+"""
+Flask API routes for interacting with user related operations. For example, listing all users. As a
+Flask-RESTX application, a number of decorators are used. For example, to document and enforce data
+marshalling and un-marshalling. Other Flask only decorators are used, such as where a JWT token is
+required.
+"""
+
 import logging
 
 from flask import request

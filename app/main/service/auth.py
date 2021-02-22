@@ -1,4 +1,9 @@
-# pylint: disable=try-except-raise, logging-fstring-interpolation
+# pylint: disable=try-except-raise, logging-fstring-interpolation, missing-class-docstring,
+# pylint: disable=missing-function-docstring
+
+"""
+Module for performing authentication related operations.
+"""
 
 import logging
 from functools import wraps

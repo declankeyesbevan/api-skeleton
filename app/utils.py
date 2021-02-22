@@ -1,3 +1,7 @@
+"""
+Constants used throughout the application.
+"""
+
 FIRST = 0
 SECOND = 1
 THIRD = 2
