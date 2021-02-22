@@ -11,9 +11,9 @@ from itsdangerous import BadData, URLSafeTimedSerializer
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import InternalServerError, Unauthorized
 
+from app.constants import FIRST
 from app.i18n.base import GETTING_USER
 from app.main.model.user import User
-from app.utils import FIRST
 
 MAX_TOKEN_AGE = 600
 

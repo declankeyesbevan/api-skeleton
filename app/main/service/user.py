@@ -15,6 +15,7 @@ from flask_jwt_simple import get_jwt
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, Unauthorized
 
+from app.constants import FIRST
 from app.email_client import send_confirmation_email
 from app.i18n.base import (
     ACCOUNT_ALREADY_CONFIRMED, CANNOT_VIEW_OTHERS, CONFIRMATION_FAILED, EMAIL_ALREADY_EXISTS,
@@ -27,7 +28,6 @@ from app.main.service.common import (
 )
 from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
-from app.utils import FIRST
 
 logger = logging.getLogger('api-skeleton')
 

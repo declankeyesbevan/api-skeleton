@@ -2,8 +2,8 @@ import copy
 
 import pytest
 
+from app.constants import SEVEN_ITEMS
 from app.responses import BAD_REQUEST, CONFLICT, NOT_FOUND, OK, UNAUTHORIZED
-from app.utils import SEVEN_ITEMS
 from tests.data_factory import (
     CRAP_EMAIL, NUM_GENERIC_USERS, NUM_STANDARD_CLIENT_USERS, random_email, random_text,
     TOTAL_USERS, user_attributes,

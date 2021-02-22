@@ -14,6 +14,7 @@ from flask._compat import text_type as _
 from flask_jwt_simple import jwt_required
 from flask_restx import Resource
 
+from app.constants import SECOND
 from app.i18n.base import (
     EMAIL_PASSWORD, JWT_ERROR,
     JWT_UNPROCESSABLE, LOGIN_SUCCESS, LOGOUT_SUCCESS, MALFORMED, PASSWORD_CHANGE_SUCCESS,
@@ -26,7 +27,6 @@ from app.responses import (
     UNPROCESSABLE_ENTITY,
 )
 from app.security import remove
-from app.utils import SECOND
 
 logger = logging.getLogger('api-skeleton')
 api = AuthDto.api

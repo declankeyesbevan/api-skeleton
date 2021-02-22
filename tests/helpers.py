@@ -5,9 +5,9 @@ import requests
 from flask import _app_ctx_stack as ctx_stack
 
 from app.config import CONFIG_BY_NAME
+from app.constants import FIFTH, FIRST, FOURTH, SECOND, SEVENTH, SIXTH, THIRD
 from app.main.service.auth import Auth
 from app.responses import BAD_REQUEST, CONFLICT, CREATED, OK, UNAUTHORIZED, UNPROCESSABLE_ENTITY
-from app.utils import FIFTH, FIRST, FOURTH, SECOND, SEVENTH, SIXTH, THIRD
 from tests.data_factory import random_email, random_text, user_model
 
 CONFIG_OBJECT = CONFIG_BY_NAME['test-deployed']

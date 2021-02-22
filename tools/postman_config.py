@@ -1,6 +1,6 @@
 import json
 
-from app.utils import FIRST, JSON_INDENT
+from app.constants import FIRST, JSON_INDENT
 
 routes = {
     'path_variables': [

@@ -7,7 +7,7 @@ from pylint.lint import Run
 from radon.cli import CCHarvester, Config, RawHarvester
 from radon.complexity import SCORE
 
-from app.utils import FIRST
+from app.constants import FIRST
 
 
 class StaticCodeAnalysis:

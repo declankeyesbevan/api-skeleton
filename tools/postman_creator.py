@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 from app import api
-from app.utils import FIRST, JSON_INDENT
+from app.constants import FIRST, JSON_INDENT
 from tools.postman_config import (
     add_attribute_to_body, add_attribute_to_path_variables, add_auth, add_snippet_to_event, routes,
 )

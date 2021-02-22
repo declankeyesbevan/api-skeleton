@@ -3,8 +3,8 @@ import random
 import uuid
 from string import ascii_lowercase, ascii_uppercase, digits
 
+from app.constants import SPECIAL_CHARACTERS
 from app.main.model.user import User
-from app.utils import SPECIAL_CHARACTERS
 
 USERNAME_LENGTH = 16
 PASSWORD_LENGTH = 12

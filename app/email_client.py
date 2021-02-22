@@ -15,11 +15,11 @@ from flask import current_app, render_template, url_for
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 
+from app.constants import FIRST, JSON_INDENT
 from app.i18n.base import (
     EMAIL_CONFIRM, PASSWORD_RESET, PLAINTEXT_EMAIL_CONFIRMATION_BODY, PLAINTEXT_PASSWORD_RESET_BODY,
 )
 from app.main import mail
-from app.utils import FIRST, JSON_INDENT
 from tools.email_server import SECOND
 
 logger = logging.getLogger('api-skeleton')

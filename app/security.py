@@ -7,7 +7,7 @@ Utilities for increasing security in the package.
 import logging
 from string import ascii_lowercase, ascii_uppercase, digits
 
-from app.utils import SPECIAL_CHARACTERS
+from app.constants import SPECIAL_CHARACTERS
 
 logger = logging.getLogger('api-skeleton')
 

@@ -15,6 +15,7 @@ from flask_jwt_simple.exceptions import FlaskJWTException
 from jwt import DecodeError, ExpiredSignatureError
 from werkzeug.exceptions import BadRequest, InternalServerError, Unauthorized
 
+from app.constants import SECOND
 from app.email_client import send_password_reset_email
 from app.i18n.base import (
     CHECK_EMAIL, EMAIL_INVALID, EMAIL_NOT_CONFIRMED, EMAIL_NOT_CONFIRMED_RESET, EMAIL_PASSWORD,
@@ -28,7 +29,6 @@ from app.main.service.blacklist import blacklist_token
 from app.main.service.common import get_user_by_email, lookup_user_by_id, timed_serialiser
 from app.responses import OK, responder
 from app.security import PasswordValidator
-from app.utils import SECOND
 
 logger = logging.getLogger('api-skeleton')
 
