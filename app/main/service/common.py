@@ -51,11 +51,11 @@ def lookup_user_by_id(public_id, deserialise=False):
         raise InternalServerError(GETTING_USER) from None
     else:
         if deserialise:
-            return deserialise_users([user])[FIRST] if user else None
+            return serialise_users([user])[FIRST] if user else None
         return user
 
 
-def deserialise_users(users):
+def serialise_users(users):
     return [
         dict(username=user.username, public_id=user.public_id, email=user.email) for user in users
     ]

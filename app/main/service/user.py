@@ -23,7 +23,7 @@ from app.i18n.base import (
 from app.main.data.dao import save_changes
 from app.main.model.user import User
 from app.main.service.common import (
-    deserialise_users, get_user_by_email, lookup_user_by_id, timed_serialiser,
+    get_user_by_email, lookup_user_by_id, serialise_users, timed_serialiser,
 )
 from app.responses import CREATED, OK, responder
 from app.security import PasswordValidator
@@ -77,11 +77,11 @@ def get_all_users():
         logger.critical(f"SQLAlchemyError: {err}", exc_info=True)
         raise InternalServerError(GETTING_USERS) from None
     else:
-        users = deserialise_users(users)
+        users = serialise_users(users)
         user_is_admin, user_sub = is_admin()
         if not user_is_admin:
             user = User.query.filter_by(public_id=user_sub).first()
-            users = [deserialise_users([user])[FIRST]]
+            users = [serialise_users([user])[FIRST]]
         return responder(code=OK, data=dict(users=users))
 
 
