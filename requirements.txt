@@ -7,7 +7,7 @@ flask-mail
 flask-migrate
 flask-restx
 flask-sqlalchemy
-flask_testing
+flask-testing
 itsdangerous
 pyjwt==1.7.1
 psycopg2-binary
